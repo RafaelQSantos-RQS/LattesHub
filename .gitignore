@@ -1,0 +1,5 @@
+# Segurança: Variáveis de ambiente
+.env
+
+# Docker: Dados locais (caso você use volumes em pastas)
+pg_data/

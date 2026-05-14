@@ -26,21 +26,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Get data from XML</from>
-      <to>Database lookup</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Database lookup</from>
-      <to>String operations</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>String operations</from>
-      <to>Replace in string</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Replace in string</from>
       <to>Sort rows</to>
       <enabled>Y</enabled>
@@ -52,10 +37,66 @@
     </hop>
     <hop>
       <from>Unique rows</from>
-      <to>Insert / update</to>
+      <to>Insert / update - pesquisadores</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Get data from XML</from>
+      <to>String operations</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>String operations</from>
+      <to>Database lookup - instituicoes</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Database lookup - instituicoes</from>
+      <to>Replace in string</to>
       <enabled>Y</enabled>
     </hop>
   </order>
+  <transform>
+    <name>Database lookup - instituicoes</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <connection>DB_LATTES_HUB</connection>
+    <lookup>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <fail_on_multiple>N</fail_on_multiple>
+      <key>
+        <condition>=</condition>
+        <field>nome</field>
+        <name>nome_instituicao_extraida</name>
+        <name2/>
+      </key>
+      <orderby/>
+      <schema>"public"</schema>
+      <table>instituicoes</table>
+      <value>
+        <default/>
+        <name>id</name>
+        <rename>instituicao_id</rename>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <GUI>
+      <xloc>528</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>Get data from XML</name>
     <type>getXMLData</type>
@@ -215,9 +256,9 @@
     <file>
       <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask>.*\.xml$</filemask>
+      <filemask/>
       <include_subfolders>N</include_subfolders>
-      <name>${PROJECT_HOME}\data\lattes\</name>
+      <name/>
     </file>
     <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
@@ -283,7 +324,7 @@
     </GUI>
   </transform>
   <transform>
-    <name>Insert / update</name>
+    <name>Insert / update - pesquisadores</name>
     <type>InsertUpdate</type>
     <description/>
     <distribute>Y</distribute>
@@ -358,8 +399,8 @@
     </GUI>
   </transform>
   <transform>
-    <name>Database lookup</name>
-    <type>DBLookup</type>
+    <name>Replace in string</name>
+    <type>ReplaceString</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -368,34 +409,104 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <cache>N</cache>
-    <cache_load_all>N</cache_load_all>
-    <cache_size>0</cache_size>
-    <connection>DB_LATTES_HUB</connection>
-    <lookup>
-      <eat_row_on_failure>N</eat_row_on_failure>
-      <fail_on_multiple>N</fail_on_multiple>
-      <key>
-        <condition>=</condition>
-        <field>nome</field>
-        <name>nome_instituicao_extraida</name>
-        <name2/>
-      </key>
-      <orderby/>
-      <schema>"public"</schema>
-      <table>instituicoes</table>
-      <value>
-        <default/>
-        <name>id</name>
-        <rename>instituicao_id</rename>
-        <trim_type>none</trim_type>
-        <type>Integer</type>
-      </value>
-    </lookup>
+    <fields>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>resumo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\r</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>resumo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\t</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>resumo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\n</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>resumo_ingles</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\r</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>resumo_ingles</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\t</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>resumo_ingles</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\n</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+    </fields>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
-      <yloc>416</yloc>
+      <xloc>528</xloc>
+      <yloc>288</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Sort rows</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compress>N</compress>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>lattes_id</name>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <sort_prefix>out</sort_prefix>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
+    <attributes/>
+    <GUI>
+      <xloc>528</xloc>
+      <yloc>176</yloc>
     </GUI>
   </transform>
   <transform>
@@ -530,133 +641,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>528</xloc>
-      <yloc>416</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Replace in string</name>
-    <type>ReplaceString</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>resumo</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\r</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>resumo</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\t</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>resumo</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\n</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>resumo_ingles</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\r</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>resumo_ingles</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\t</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>resumo_ingles</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\n</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>528</xloc>
-      <yloc>288</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Sort rows</name>
-    <type>SortRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compress>N</compress>
-    <compress_variables/>
-    <directory>${java.io.tmpdir}</directory>
-    <fields>
-      <field>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <name>lattes_id</name>
-        <presorted>N</presorted>
-      </field>
-    </fields>
-    <free_memory/>
-    <sort_prefix>out</sort_prefix>
-    <sort_size>1000000</sort_size>
-    <unique_rows>N</unique_rows>
-    <attributes/>
-    <GUI>
-      <xloc>528</xloc>
-      <yloc>176</yloc>
+      <xloc>368</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform>
@@ -670,9 +656,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <count_field/>
     <count_rows>N</count_rows>
-    <error_description/>
     <fields>
       <field>
         <case_insensitive>N</case_insensitive>
@@ -688,7 +672,7 @@
   </transform>
   <transform_error_handling>
     <error>
-      <source_transform>Insert / update</source_transform>
+      <source_transform>Insert / update - pesquisadores</source_transform>
       <target_transform/>
       <is_enabled>N</is_enabled>
       <nr_valuename/>

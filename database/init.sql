@@ -107,8 +107,6 @@ CREATE TABLE producoes (
 
     titulo TEXT NOT NULL,
 
-    titulo_ingles TEXT,
-
     ano INTEGER,
 
     idioma VARCHAR(50),
@@ -122,10 +120,6 @@ CREATE TABLE producoes (
     evento VARCHAR(255),
 
     issn VARCHAR(20),
-
-    resumo TEXT,
-
-    palavras_chave TEXT,
 
     -- Full Text Search
     titulo_tsv tsvector,

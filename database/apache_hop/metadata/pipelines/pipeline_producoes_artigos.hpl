@@ -27,7 +27,62 @@
     </hop>
     <hop>
       <from>Get data from XML</from>
+      <to>Filter rows - titulo</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows - titulo</from>
+      <to>Add constants - tipo_producao</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows - titulo</from>
+      <to>Dummy (do nothing)</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Add constants - tipo_producao</from>
       <to>Select values</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values</from>
+      <to>String operations</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>String operations</from>
+      <to>Replace in string</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Replace in string</from>
+      <to>Database lookup</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Database lookup</from>
+      <to>Filter rows - pesquisador_id</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows - pesquisador_id</from>
+      <to>Dummy (do nothing) 2</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows - pesquisador_id</from>
+      <to>Sort rows - pesquisador_id</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Sort rows - pesquisador_id</from>
+      <to>Unique rows</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Unique rows</from>
+      <to>Insert / update - producoes</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -48,7 +103,7 @@
     <XmlField>filename</XmlField>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <encoding>x-iso-8859-11</encoding>
+    <encoding>ISO-8859-1</encoding>
     <extensionFieldName/>
     <fields>
       <field>
@@ -58,7 +113,7 @@
         <format/>
         <group/>
         <length>-1</length>
-        <name>IDLATTES</name>
+        <name>lattes_id</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
@@ -73,22 +128,7 @@
         <format/>
         <group/>
         <length>-1</length>
-        <name>ISSN</name>
-        <precision>-1</precision>
-        <repeat>N</repeat>
-        <result_type>valueof</result_type>
-        <trim_type>both</trim_type>
-        <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@ISSN</xPath>
-      </field>
-      <field>
-        <currency/>
-        <decimal/>
-        <element_type>Node</element_type>
-        <format/>
-        <group/>
-        <length>-1</length>
-        <name>TITULO-DO-ARTIGO</name>
+        <name>titulo</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
@@ -103,21 +143,96 @@
         <format/>
         <group/>
         <length>-1</length>
-        <name>ANO-DO-ARTIGO</name>
+        <name>ano_str</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DADOS-BASICOS-DO-ARTIGO/@ANO-DO-ARTIGO</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>idioma</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
-        <type>None</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@ANO-DO-ARTIGO</xPath>
+        <type>String</type>
+        <xPath>DADOS-BASICOS-DO-ARTIGO/@IDIOMA</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>natureza</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DADOS-BASICOS-DO-ARTIGO/@NATUREZA</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>doi</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DADOS-BASICOS-DO-ARTIGO/@DOI</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>revista</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DETALHAMENTO-DO-ARTIGO/@TITULO-DO-PERIODICO-OU-REVISTA</xPath>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <element_type>Node</element_type>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>issn</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>none</trim_type>
+        <type>String</type>
+        <xPath>DETALHAMENTO-DO-ARTIGO/@ISSN</xPath>
       </field>
     </fields>
     <file>
       <exclude_filemask/>
       <file_required>N</file_required>
-      <filemask>.*\.xml$</filemask>
+      <filemask/>
       <include_subfolders>N</include_subfolders>
-      <name>${PROJECT_HOME}\data\lattes\</name>
+      <name/>
     </file>
     <hiddenFieldName/>
     <ignorecomments>N</ignorecomments>
@@ -140,8 +255,8 @@
     <validating>N</validating>
     <attributes/>
     <GUI>
-      <xloc>448</xloc>
-      <yloc>208</yloc>
+      <xloc>608</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform>
@@ -157,16 +272,13 @@
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <exclude_wildcard_Field/>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
       <filemask>.*\.xml$</filemask>
       <include_subfolders>N</include_subfolders>
       <name>C:\Users\Jeoston Araujo\source\repos\Pessoal\Uneb\LattesHub\database\data\lattes</name>
     </file>
     <filefield>N</filefield>
-    <filename_Field/>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
@@ -174,16 +286,14 @@
     <limit>0</limit>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
     <rownum>N</rownum>
-    <rownum_field/>
-    <wildcard_Field/>
     <attributes/>
     <GUI>
-      <xloc>272</xloc>
-      <yloc>208</yloc>
+      <xloc>432</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform>
-    <name>Insert / update</name>
+    <name>Insert / update - producoes</name>
     <type>InsertUpdate</type>
     <description/>
     <distribute>Y</distribute>
@@ -193,37 +303,74 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <commit>100</commit>
+    <commit>1000</commit>
     <connection>DB_LATTES_HUB</connection>
     <lookup>
       <key>
         <condition>=</condition>
-        <field>lattes_id</field>
-        <name>idcnpq</name>
+        <field>pesquisador_id</field>
+        <name>pesquisador_id</name>
+        <name2/>
       </key>
       <key>
         <condition>=</condition>
-        <field>nome</field>
-        <name>nome</name>
+        <field>titulo</field>
+        <name>titulo</name>
+        <name2/>
       </key>
       <schema>"public"</schema>
-      <table>pesquisadores</table>
+      <table>producoes</table>
       <value>
-        <name>nome</name>
-        <rename>nome</rename>
+        <name>pesquisador_id</name>
+        <rename>pesquisador_id</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>titulo</name>
+        <rename>titulo</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>tipo_producao</name>
+        <rename>tipo_producao</rename>
         <update>Y</update>
       </value>
       <value>
-        <name>lattes_id</name>
-        <rename>idcnpq</rename>
+        <name>ano</name>
+        <rename>ano</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>idioma</name>
+        <rename>idioma</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>natureza</name>
+        <rename>natureza</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>doi</name>
+        <rename>doi</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>revista</name>
+        <rename>revista</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>issn</name>
+        <rename>issn</rename>
         <update>Y</update>
       </value>
     </lookup>
     <update_bypassed>N</update_bypassed>
     <attributes/>
     <GUI>
-      <xloc>784</xloc>
-      <yloc>208</yloc>
+      <xloc>288</xloc>
+      <yloc>784</yloc>
     </GUI>
   </transform>
   <transform>
@@ -238,30 +385,6 @@
       <schema_name/>
     </partitioning>
     <fields>
-      <field>
-        <length>-2</length>
-        <name>TITULO-DO-ARTIGO</name>
-        <precision>-2</precision>
-        <rename>tituloartigo</rename>
-      </field>
-      <field>
-        <length>-2</length>
-        <name>IDLATTES</name>
-        <precision>-2</precision>
-        <rename>idcnpq</rename>
-      </field>
-      <field>
-        <length>-2</length>
-        <name>ISSN</name>
-        <precision>-2</precision>
-        <rename>issn</rename>
-      </field>
-      <field>
-        <length>-2</length>
-        <name>ANO-DO-ARTIGO</name>
-        <precision>-2</precision>
-        <rename>anoartigo</rename>
-      </field>
       <meta>
         <conversion_mask/>
         <currency_symbol/>
@@ -273,9 +396,9 @@
         <grouping_symbol/>
         <length>-2</length>
         <lenient_string_to_number>N</lenient_string_to_number>
-        <name>anoartigo</name>
+        <name>ano_str</name>
         <precision>-2</precision>
-        <rename>anoartigo</rename>
+        <rename>ano</rename>
         <roundingType>half_even</roundingType>
         <storage_type/>
         <type>Integer</type>
@@ -284,8 +407,371 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>608</xloc>
-      <yloc>208</yloc>
+      <xloc>768</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows - titulo</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IS NOT NULL</function>
+        <leftvalue>titulo</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <send_false_to>Dummy (do nothing)</send_false_to>
+    <send_true_to>Add constants - tipo_producao</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>720</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Add constants - tipo_producao</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>tipo_producao</name>
+        <nullif>ARTIGO PUBLICADO</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>960</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing)</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>816</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>String operations</name>
+    <type>StringOperations</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>titulo</in_stream_name>
+        <out_stream_name/>
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>no</init_cap>
+        <mask_xml>none</mask_xml>
+        <digits>none</digits>
+        <remove_special_characters>none</remove_special_characters>
+      </field>
+      <field>
+        <in_stream_name>doi</in_stream_name>
+        <out_stream_name/>
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>no</init_cap>
+        <mask_xml>none</mask_xml>
+        <digits>none</digits>
+        <remove_special_characters>none</remove_special_characters>
+      </field>
+      <field>
+        <in_stream_name>revista</in_stream_name>
+        <out_stream_name/>
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>no</init_cap>
+        <mask_xml>none</mask_xml>
+        <digits>none</digits>
+        <remove_special_characters>none</remove_special_characters>
+      </field>
+      <field>
+        <in_stream_name>issn</in_stream_name>
+        <out_stream_name/>
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char/>
+        <pad_len/>
+        <init_cap>no</init_cap>
+        <mask_xml>none</mask_xml>
+        <digits>none</digits>
+        <remove_special_characters>none</remove_special_characters>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1184</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Replace in string</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>titulo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <out_stream_name/>
+        <replace_by_string> </replace_by_string>
+        <replace_field_by_string/>
+        <replace_string>\r</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>titulo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <out_stream_name/>
+        <replace_by_string> </replace_by_string>
+        <replace_field_by_string/>
+        <replace_string>\n</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>titulo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <out_stream_name/>
+        <replace_by_string> </replace_by_string>
+        <replace_field_by_string/>
+        <replace_string>\t</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1008</xloc>
+      <yloc>512</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Database lookup</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <connection>DB_LATTES_HUB</connection>
+    <lookup>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <fail_on_multiple>N</fail_on_multiple>
+      <key>
+        <condition>=</condition>
+        <field>lattes_id</field>
+        <name>lattes_id</name>
+        <name2/>
+      </key>
+      <orderby/>
+      <schema>"public"</schema>
+      <table>pesquisadores</table>
+      <value>
+        <default/>
+        <name>id</name>
+        <rename>pesquisador_id</rename>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <GUI>
+      <xloc>832</xloc>
+      <yloc>608</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows - pesquisador_id</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IS NOT NULL</function>
+        <leftvalue>pesquisador_id</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <send_false_to>Dummy (do nothing) 2</send_false_to>
+    <send_true_to>Sort rows - pesquisador_id</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>656</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Sort rows - pesquisador_id</name>
+    <type>SortRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compress>N</compress>
+    <compress_variables/>
+    <directory>${java.io.tmpdir}</directory>
+    <fields>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>pesquisador_id</name>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>titulo</name>
+        <presorted>N</presorted>
+      </field>
+    </fields>
+    <free_memory/>
+    <sort_prefix>out</sort_prefix>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>656</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing) 2</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>544</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Unique rows</name>
+    <type>Unique</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <count_field/>
+    <count_rows>N</count_rows>
+    <error_description/>
+    <fields>
+      <field>
+        <case_insensitive>N</case_insensitive>
+        <name>pesquisador_id</name>
+      </field>
+      <field>
+        <case_insensitive>N</case_insensitive>
+        <name>titulo</name>
+      </field>
+    </fields>
+    <reject_duplicate_row>N</reject_duplicate_row>
+    <attributes/>
+    <GUI>
+      <xloc>272</xloc>
+      <yloc>656</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

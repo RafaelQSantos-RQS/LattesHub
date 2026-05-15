@@ -183,31 +183,6 @@ USING ivfflat (embedding vector_cosine_ops)
 WITH (lists = 100);
 
 -- =====================================================
--- TRIGGER: FULL TEXT SEARCH
--- =====================================================
-
-CREATE OR REPLACE FUNCTION producoes_tsv_trigger()
-RETURNS trigger AS $$
-BEGIN
-    NEW.titulo_tsv :=
-        to_tsvector(
-            'portuguese',
-            COALESCE(NEW.titulo, '') || ' ' ||
-            COALESCE(NEW.resumo, '') || ' ' ||
-            COALESCE(NEW.palavras_chave, '')
-        );
-
-    RETURN NEW;
-END
-$$ LANGUAGE plpgsql;
-
-CREATE TRIGGER trg_producoes_tsv
-BEFORE INSERT OR UPDATE
-ON producoes
-FOR EACH ROW
-EXECUTE FUNCTION producoes_tsv_trigger();
-
--- =====================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =====================================================
 
@@ -251,3 +226,17 @@ CREATE POLICY "public_read_vetores"
 ON vetores
 FOR SELECT
 USING (true);
+
+
+CREATE OR REPLACE FUNCTION atualiza_titulo_tsv() RETURNS trigger AS $$
+BEGIN
+  NEW.titulo_tsv := to_tsvector('portuguese', coalesce(NEW.titulo, ''));
+  RETURN NEW;
+END
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_atualiza_titulo_tsv
+BEFORE INSERT OR UPDATE ON producoes
+FOR EACH ROW EXECUTE FUNCTION atualiza_titulo_tsv();
+
+CREATE INDEX IF NOT EXISTS idx_producoes_titulo_tsv ON producoes USING GIN (titulo_tsv);

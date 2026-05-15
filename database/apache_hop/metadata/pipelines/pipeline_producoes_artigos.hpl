@@ -3,9 +3,9 @@
   <info>
     <name>pipeline_producoes_artigos</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
-    <description/>
-    <extended_description/>
-    <pipeline_version/>
+    <description />
+    <extended_description />
+    <pipeline_version />
     <pipeline_type>Normal</pipeline_type>
     <parameters>
     </parameters>
@@ -94,20 +94,20 @@
   <transform>
     <name>Add constants - tipo_producao</name>
     <type>Constant</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
+        <currency />
+        <decimal />
+        <format />
+        <group />
         <length>-1</length>
         <name>tipo_producao</name>
         <nullif>ARTIGO PUBLICADO</nullif>
@@ -116,10 +116,10 @@
         <type>String</type>
       </field>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
+        <currency />
+        <decimal />
+        <format />
+        <group />
         <length>-1</length>
         <name>evento</name>
         <nullif>NÃO SE APLICA</nullif>
@@ -128,7 +128,7 @@
         <type>String</type>
       </field>
     </fields>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>960</xloc>
       <yloc>240</yloc>
@@ -137,13 +137,13 @@
   <transform>
     <name>Database lookup</name>
     <type>DBLookup</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <cache>N</cache>
     <cache_load_all>N</cache_load_all>
@@ -166,7 +166,7 @@
         <type>Integer</type>
       </value>
     </lookup>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>832</xloc>
       <yloc>608</yloc>
@@ -175,15 +175,15 @@
   <transform>
     <name>Dummy (do nothing)</name>
     <type>Dummy</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>816</xloc>
       <yloc>128</yloc>
@@ -192,15 +192,15 @@
   <transform>
     <name>Dummy (do nothing) 2</name>
     <type>Dummy</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>496</xloc>
       <yloc>544</yloc>
@@ -209,13 +209,13 @@
   <transform>
     <name>Filter rows - pesquisador_id</name>
     <type>FilterRows</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <compare>
       <condition>
@@ -229,7 +229,7 @@
     </compare>
     <send_false_to>Dummy (do nothing) 2</send_false_to>
     <send_true_to>Sort rows - pesquisador_id</send_true_to>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>640</xloc>
       <yloc>656</yloc>
@@ -238,13 +238,13 @@
   <transform>
     <name>Filter rows - titulo</name>
     <type>FilterRows</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <compare>
       <condition>
@@ -258,7 +258,7 @@
     </compare>
     <send_false_to>Dummy (do nothing)</send_false_to>
     <send_true_to>Add constants - tipo_producao</send_true_to>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>720</xloc>
       <yloc>224</yloc>
@@ -267,13 +267,13 @@
   <transform>
     <name>Get data from XML</name>
     <type>getXMLData</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <IsAFile>Y</IsAFile>
     <IsIgnoreEmptyFile>N</IsIgnoreEmptyFile>
@@ -282,14 +282,14 @@
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName/>
+    <extensionFieldName />
     <fields>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>lattes_id</name>
         <precision>-1</precision>
@@ -300,11 +300,11 @@
         <xPath>/CURRICULO-VITAE/@NUMERO-IDENTIFICADOR</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>titulo</name>
         <precision>-1</precision>
@@ -315,11 +315,11 @@
         <xPath>DADOS-BASICOS-DO-ARTIGO/@TITULO-DO-ARTIGO</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>ano_str</name>
         <precision>-1</precision>
@@ -330,11 +330,11 @@
         <xPath>DADOS-BASICOS-DO-ARTIGO/@ANO-DO-ARTIGO</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>idioma</name>
         <precision>-1</precision>
@@ -345,11 +345,11 @@
         <xPath>DADOS-BASICOS-DO-ARTIGO/@IDIOMA</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>natureza</name>
         <precision>-1</precision>
@@ -360,11 +360,11 @@
         <xPath>DADOS-BASICOS-DO-ARTIGO/@NATUREZA</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>doi</name>
         <precision>-1</precision>
@@ -375,11 +375,11 @@
         <xPath>DADOS-BASICOS-DO-ARTIGO/@DOI</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>revista</name>
         <precision>-1</precision>
@@ -390,11 +390,11 @@
         <xPath>DETALHAMENTO-DO-ARTIGO/@TITULO-DO-PERIODICO-OU-REVISTA</xPath>
       </field>
       <field>
-        <currency/>
-        <decimal/>
+        <currency />
+        <decimal />
         <element_type>Node</element_type>
-        <format/>
-        <group/>
+        <format />
+        <group />
         <length>-1</length>
         <name>issn</name>
         <precision>-1</precision>
@@ -406,32 +406,32 @@
       </field>
     </fields>
     <file>
-      <exclude_filemask/>
+      <exclude_filemask />
       <file_required>N</file_required>
-      <filemask/>
+      <filemask />
       <include_subfolders>N</include_subfolders>
-      <name/>
+      <name />
     </file>
-    <hiddenFieldName/>
+    <hiddenFieldName />
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field/>
-    <lastModificationTimeFieldName/>
+    <include_field />
+    <lastModificationTimeFieldName />
     <limit>0</limit>
     <loopxpath>/CURRICULO-VITAE/PRODUCAO-BIBLIOGRAFICA/ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName/>
-    <prunePath/>
+    <pathFieldName />
+    <prunePath />
     <readurl>N</readurl>
-    <rootUriNameFieldName/>
+    <rootUriNameFieldName />
     <rownum>N</rownum>
-    <rownum_field/>
-    <shortFileFieldName/>
-    <sizeFieldName/>
-    <uriNameFieldName/>
+    <rownum_field />
+    <shortFileFieldName />
+    <sizeFieldName />
+    <uriNameFieldName />
     <usetoken>N</usetoken>
     <validating>N</validating>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>608</xloc>
       <yloc>400</yloc>
@@ -440,13 +440,13 @@
   <transform>
     <name>Get file names</name>
     <type>GetFileNames</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
@@ -454,7 +454,7 @@
       <file_required>N</file_required>
       <filemask>.*\.xml$</filemask>
       <include_subfolders>N</include_subfolders>
-      <name>C:\Users\Jeoston Araujo\source\repos\Pessoal\Uneb\LattesHub\database\data\lattes</name>
+      <name>${PROJECT_HOME}/data/lattes</name>
     </file>
     <filefield>N</filefield>
     <filter>
@@ -464,7 +464,7 @@
     <limit>0</limit>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
     <rownum>N</rownum>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>432</xloc>
       <yloc>400</yloc>
@@ -473,13 +473,13 @@
   <transform>
     <name>Insert / update - producoes</name>
     <type>InsertUpdate</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <commit>1000</commit>
     <connection>DB_LATTES_HUB</connection>
@@ -488,13 +488,13 @@
         <condition>=</condition>
         <field>pesquisador_id</field>
         <name>pesquisador_id</name>
-        <name2/>
+        <name2 />
       </key>
       <key>
         <condition>=</condition>
         <field>titulo</field>
         <name>titulo</name>
-        <name2/>
+        <name2 />
       </key>
       <schema>"public"</schema>
       <table>producoes</table>
@@ -550,7 +550,7 @@
       </value>
     </lookup>
     <update_bypassed>N</update_bypassed>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>288</xloc>
       <yloc>784</yloc>
@@ -559,13 +559,13 @@
   <transform>
     <name>Replace in string</name>
     <type>ReplaceString</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <fields>
       <field>
@@ -599,7 +599,7 @@
         <whole_word>N</whole_word>
       </field>
     </fields>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>1008</xloc>
       <yloc>512</yloc>
@@ -608,13 +608,13 @@
   <transform>
     <name>Select values</name>
     <type>SelectValues</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <fields>
       <meta>
@@ -625,12 +625,12 @@
         <precision>-2</precision>
         <rename>ano</rename>
         <roundingType>half_even</roundingType>
-        <storage_type/>
+        <storage_type />
         <type>Integer</type>
       </meta>
       <select_unspecified>N</select_unspecified>
     </fields>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>768</xloc>
       <yloc>400</yloc>
@@ -639,13 +639,13 @@
   <transform>
     <name>Sort rows - pesquisador_id</name>
     <type>SortRows</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <compress>N</compress>
     <directory>${java.io.tmpdir}</directory>
@@ -670,7 +670,7 @@
     <sort_prefix>out</sort_prefix>
     <sort_size>1000000</sort_size>
     <unique_rows>N</unique_rows>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>400</xloc>
       <yloc>656</yloc>
@@ -679,23 +679,23 @@
   <transform>
     <name>String operations</name>
     <type>StringOperations</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <fields>
       <field>
         <in_stream_name>titulo</in_stream_name>
-        <out_stream_name/>
+        <out_stream_name />
         <trim_type>both</trim_type>
         <lower_upper>none</lower_upper>
         <padding_type>none</padding_type>
-        <pad_char/>
-        <pad_len/>
+        <pad_char />
+        <pad_len />
         <init_cap>no</init_cap>
         <mask_xml>none</mask_xml>
         <digits>none</digits>
@@ -703,12 +703,12 @@
       </field>
       <field>
         <in_stream_name>doi</in_stream_name>
-        <out_stream_name/>
+        <out_stream_name />
         <trim_type>both</trim_type>
         <lower_upper>none</lower_upper>
         <padding_type>none</padding_type>
-        <pad_char/>
-        <pad_len/>
+        <pad_char />
+        <pad_len />
         <init_cap>no</init_cap>
         <mask_xml>none</mask_xml>
         <digits>none</digits>
@@ -716,12 +716,12 @@
       </field>
       <field>
         <in_stream_name>revista</in_stream_name>
-        <out_stream_name/>
+        <out_stream_name />
         <trim_type>both</trim_type>
         <lower_upper>none</lower_upper>
         <padding_type>none</padding_type>
-        <pad_char/>
-        <pad_len/>
+        <pad_char />
+        <pad_len />
         <init_cap>no</init_cap>
         <mask_xml>none</mask_xml>
         <digits>none</digits>
@@ -729,19 +729,19 @@
       </field>
       <field>
         <in_stream_name>issn</in_stream_name>
-        <out_stream_name/>
+        <out_stream_name />
         <trim_type>both</trim_type>
         <lower_upper>none</lower_upper>
         <padding_type>none</padding_type>
-        <pad_char/>
-        <pad_len/>
+        <pad_char />
+        <pad_len />
         <init_cap>no</init_cap>
         <mask_xml>none</mask_xml>
         <digits>none</digits>
         <remove_special_characters>none</remove_special_characters>
       </field>
     </fields>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>1184</xloc>
       <yloc>336</yloc>
@@ -750,13 +750,13 @@
   <transform>
     <name>Unique rows</name>
     <type>Unique</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <count_rows>N</count_rows>
     <fields>
@@ -770,7 +770,7 @@
       </field>
     </fields>
     <reject_duplicate_row>N</reject_duplicate_row>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>272</xloc>
       <yloc>656</yloc>
@@ -779,42 +779,42 @@
   <transform>
     <name>If Null</name>
     <type>IfNull</type>
-    <description/>
+    <description />
     <distribute>Y</distribute>
-    <custom_distribution/>
+    <custom_distribution />
     <copies>1</copies>
     <partitioning>
       <method>none</method>
-      <schema_name/>
+      <schema_name />
     </partitioning>
     <fields>
       <field>
-        <mask/>
+        <mask />
         <name>doi</name>
         <set_empty_string>N</set_empty_string>
         <value>NÃO INFORMADO</value>
       </field>
       <field>
-        <mask/>
+        <mask />
         <name>revista</name>
         <set_empty_string>N</set_empty_string>
         <value>NÃO INFORMADO</value>
       </field>
       <field>
-        <mask/>
+        <mask />
         <name>issn</name>
         <set_empty_string>N</set_empty_string>
         <value>NÃO INFORMADO</value>
       </field>
     </fields>
-    <replaceAllByValue/>
-    <replaceAllMask/>
+    <replaceAllByValue />
+    <replaceAllMask />
     <selectFields>Y</selectFields>
     <selectValuesType>N</selectValuesType>
     <setEmptyStringAll>N</setEmptyStringAll>
     <valuetypes>
 </valuetypes>
-    <attributes/>
+    <attributes />
     <GUI>
       <xloc>1120</xloc>
       <yloc>464</yloc>
@@ -822,5 +822,5 @@
   </transform>
   <transform_error_handling>
   </transform_error_handling>
-  <attributes/>
+  <attributes />
 </pipeline>

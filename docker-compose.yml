@@ -1,19 +1,14 @@
 services:
   db:
     build: ./database
-
     container_name: latteshub_db
-
     restart: always
-
     environment:
       - POSTGRES_USER=${DB_USER}
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_NAME}
-
     ports:
       - "${DB_PORT_EXTERNAL}:5432"
-
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -22,12 +17,15 @@ services:
     container_name: lattes_hub_etl
     depends_on:
       - db
+    profiles:
+      - etl
     volumes:
       - ./database/apache_hop:/project
+      - ./database/data:/project/data
     environment:
-      - HOP_PROJECT_DIRECTORY=/project
+      - HOP_PROJECT_FOLDER=/project
       - HOP_PROJECT_NAME=LattesHub
-      - HOP_RUN_WORKFLOW=/project/metadata/workflows/workflow_master.hwf
+      - HOP_FILE_PATH=/project/metadata/workflows/workflow_master.hwf
       - HOP_RUN_CONFIG=local
       - HOP_LOG_LEVEL=Basic
 

@@ -59,7 +59,7 @@
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_instituicoes.hpl</filename>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_instituicoes.hpl</filename>
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -85,7 +85,7 @@
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_pesquisadores.hpl</filename>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_pesquisadores.hpl</filename>
       <logext />
       <logfile />
       <loglevel>Basic</loglevel>
@@ -113,7 +113,7 @@
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_areas_dimensao.hpl</filename>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_areas_dimensao.hpl</filename>
       <logext />
       <logfile />
       <loglevel>Basic</loglevel>
@@ -141,7 +141,7 @@
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_producoes_artigos.hpl</filename>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_producoes_artigos.hpl</filename>
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -237,7 +237,7 @@
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_areas_relacionamento.hpl</filename>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_areas_relacionamento.hpl</filename>
       <logext />
       <logfile />
       <loglevel>Basic</loglevel>

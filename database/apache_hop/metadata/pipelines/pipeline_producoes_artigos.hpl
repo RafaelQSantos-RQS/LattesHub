@@ -51,11 +51,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>String operations</from>
-      <to>Replace in string</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Replace in string</from>
       <to>Database lookup</to>
       <enabled>Y</enabled>
@@ -85,7 +80,190 @@
       <to>Insert / update - producoes</to>
       <enabled>Y</enabled>
     </hop>
+    <hop>
+      <from>String operations</from>
+      <to>If Null</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>If Null</from>
+      <to>Replace in string</to>
+      <enabled>Y</enabled>
+    </hop>
   </order>
+  <transform>
+    <name>Add constants - tipo_producao</name>
+    <type>Constant</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>tipo_producao</name>
+        <nullif>ARTIGO PUBLICADO</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+      <field>
+        <currency/>
+        <decimal/>
+        <format/>
+        <group/>
+        <length>-1</length>
+        <name>evento</name>
+        <nullif>NÃO SE APLICA</nullif>
+        <precision>-1</precision>
+        <set_empty_string>N</set_empty_string>
+        <type>String</type>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>960</xloc>
+      <yloc>240</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Database lookup</name>
+    <type>DBLookup</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <cache>N</cache>
+    <cache_load_all>N</cache_load_all>
+    <cache_size>0</cache_size>
+    <connection>DB_LATTES_HUB</connection>
+    <lookup>
+      <eat_row_on_failure>N</eat_row_on_failure>
+      <fail_on_multiple>N</fail_on_multiple>
+      <key>
+        <condition>=</condition>
+        <field>lattes_id</field>
+        <name>lattes_id</name>
+      </key>
+      <schema>"public"</schema>
+      <table>pesquisadores</table>
+      <value>
+        <name>id</name>
+        <rename>pesquisador_id</rename>
+        <trim_type>none</trim_type>
+        <type>Integer</type>
+      </value>
+    </lookup>
+    <attributes/>
+    <GUI>
+      <xloc>832</xloc>
+      <yloc>608</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing)</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>816</xloc>
+      <yloc>128</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing) 2</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>496</xloc>
+      <yloc>544</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows - pesquisador_id</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IS NOT NULL</function>
+        <leftvalue>pesquisador_id</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <send_false_to>Dummy (do nothing) 2</send_false_to>
+    <send_true_to>Sort rows - pesquisador_id</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>640</xloc>
+      <yloc>656</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Filter rows - titulo</name>
+    <type>FilterRows</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <compare>
+      <condition>
+        <conditions>
+</conditions>
+        <function>IS NOT NULL</function>
+        <leftvalue>titulo</leftvalue>
+        <negated>N</negated>
+        <operator>-</operator>
+      </condition>
+    </compare>
+    <send_false_to>Dummy (do nothing)</send_false_to>
+    <send_true_to>Add constants - tipo_producao</send_true_to>
+    <attributes/>
+    <GUI>
+      <xloc>720</xloc>
+      <yloc>224</yloc>
+    </GUI>
+  </transform>
   <transform>
     <name>Get data from XML</name>
     <type>getXMLData</type>
@@ -103,7 +281,7 @@
     <XmlField>filename</XmlField>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <encoding>ISO-8859-1</encoding>
+    <encoding>UTF-8</encoding>
     <extensionFieldName/>
     <fields>
       <field>
@@ -365,12 +543,66 @@
         <rename>issn</rename>
         <update>Y</update>
       </value>
+      <value>
+        <name>evento</name>
+        <rename>evento</rename>
+        <update>Y</update>
+      </value>
     </lookup>
     <update_bypassed>N</update_bypassed>
     <attributes/>
     <GUI>
       <xloc>288</xloc>
       <yloc>784</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Replace in string</name>
+    <type>ReplaceString</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>titulo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\r</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>titulo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\n</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>titulo</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <replace_by_string> </replace_by_string>
+        <replace_string>\t</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+    </fields>
+    <attributes/>
+    <GUI>
+      <xloc>1008</xloc>
+      <yloc>512</yloc>
     </GUI>
   </transform>
   <transform>
@@ -386,14 +618,7 @@
     </partitioning>
     <fields>
       <meta>
-        <conversion_mask/>
-        <currency_symbol/>
         <date_format_lenient>N</date_format_lenient>
-        <date_format_locale/>
-        <date_format_timezone/>
-        <decimal_symbol/>
-        <encoding/>
-        <grouping_symbol/>
         <length>-2</length>
         <lenient_string_to_number>N</lenient_string_to_number>
         <name>ano_str</name>
@@ -412,8 +637,8 @@
     </GUI>
   </transform>
   <transform>
-    <name>Filter rows - titulo</name>
-    <type>FilterRows</type>
+    <name>Sort rows - pesquisador_id</name>
+    <type>SortRows</type>
     <description/>
     <distribute>Y</distribute>
     <custom_distribution/>
@@ -422,70 +647,33 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <compare>
-      <condition>
-        <conditions>
-</conditions>
-        <function>IS NOT NULL</function>
-        <leftvalue>titulo</leftvalue>
-        <negated>N</negated>
-        <operator>-</operator>
-      </condition>
-    </compare>
-    <send_false_to>Dummy (do nothing)</send_false_to>
-    <send_true_to>Add constants - tipo_producao</send_true_to>
-    <attributes/>
-    <GUI>
-      <xloc>720</xloc>
-      <yloc>224</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Add constants - tipo_producao</name>
-    <type>Constant</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
+    <compress>N</compress>
+    <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
-        <currency/>
-        <decimal/>
-        <format/>
-        <group/>
-        <length>-1</length>
-        <name>tipo_producao</name>
-        <nullif>ARTIGO PUBLICADO</nullif>
-        <precision>-1</precision>
-        <set_empty_string>N</set_empty_string>
-        <type>String</type>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>pesquisador_id</name>
+        <presorted>N</presorted>
+      </field>
+      <field>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <name>titulo</name>
+        <presorted>N</presorted>
       </field>
     </fields>
+    <sort_prefix>out</sort_prefix>
+    <sort_size>1000000</sort_size>
+    <unique_rows>N</unique_rows>
     <attributes/>
     <GUI>
-      <xloc>960</xloc>
-      <yloc>240</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Dummy (do nothing)</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>816</xloc>
-      <yloc>128</yloc>
+      <xloc>400</xloc>
+      <yloc>656</yloc>
     </GUI>
   </transform>
   <transform>
@@ -560,190 +748,6 @@
     </GUI>
   </transform>
   <transform>
-    <name>Replace in string</name>
-    <type>ReplaceString</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <fields>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>titulo</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\r</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>titulo</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\n</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-      <field>
-        <case_sensitive>N</case_sensitive>
-        <in_stream_name>titulo</in_stream_name>
-        <is_unicode>N</is_unicode>
-        <out_stream_name/>
-        <replace_by_string> </replace_by_string>
-        <replace_field_by_string/>
-        <replace_string>\t</replace_string>
-        <set_empty_string>N</set_empty_string>
-        <use_regex>Y</use_regex>
-        <whole_word>N</whole_word>
-      </field>
-    </fields>
-    <attributes/>
-    <GUI>
-      <xloc>1008</xloc>
-      <yloc>512</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Database lookup</name>
-    <type>DBLookup</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <cache>N</cache>
-    <cache_load_all>N</cache_load_all>
-    <cache_size>0</cache_size>
-    <connection>DB_LATTES_HUB</connection>
-    <lookup>
-      <eat_row_on_failure>N</eat_row_on_failure>
-      <fail_on_multiple>N</fail_on_multiple>
-      <key>
-        <condition>=</condition>
-        <field>lattes_id</field>
-        <name>lattes_id</name>
-        <name2/>
-      </key>
-      <orderby/>
-      <schema>"public"</schema>
-      <table>pesquisadores</table>
-      <value>
-        <default/>
-        <name>id</name>
-        <rename>pesquisador_id</rename>
-        <trim_type>none</trim_type>
-        <type>Integer</type>
-      </value>
-    </lookup>
-    <attributes/>
-    <GUI>
-      <xloc>832</xloc>
-      <yloc>608</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Filter rows - pesquisador_id</name>
-    <type>FilterRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compare>
-      <condition>
-        <conditions>
-</conditions>
-        <function>IS NOT NULL</function>
-        <leftvalue>pesquisador_id</leftvalue>
-        <negated>N</negated>
-        <operator>-</operator>
-      </condition>
-    </compare>
-    <send_false_to>Dummy (do nothing) 2</send_false_to>
-    <send_true_to>Sort rows - pesquisador_id</send_true_to>
-    <attributes/>
-    <GUI>
-      <xloc>640</xloc>
-      <yloc>656</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Sort rows - pesquisador_id</name>
-    <type>SortRows</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <compress>N</compress>
-    <compress_variables/>
-    <directory>${java.io.tmpdir}</directory>
-    <fields>
-      <field>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <name>pesquisador_id</name>
-        <presorted>N</presorted>
-      </field>
-      <field>
-        <ascending>Y</ascending>
-        <case_sensitive>N</case_sensitive>
-        <collator_enabled>N</collator_enabled>
-        <collator_strength>0</collator_strength>
-        <name>titulo</name>
-        <presorted>N</presorted>
-      </field>
-    </fields>
-    <free_memory/>
-    <sort_prefix>out</sort_prefix>
-    <sort_size>1000000</sort_size>
-    <unique_rows>N</unique_rows>
-    <attributes/>
-    <GUI>
-      <xloc>400</xloc>
-      <yloc>656</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>Dummy (do nothing) 2</name>
-    <type>Dummy</type>
-    <description/>
-    <distribute>Y</distribute>
-    <custom_distribution/>
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name/>
-    </partitioning>
-    <attributes/>
-    <GUI>
-      <xloc>496</xloc>
-      <yloc>544</yloc>
-    </GUI>
-  </transform>
-  <transform>
     <name>Unique rows</name>
     <type>Unique</type>
     <description/>
@@ -754,9 +758,7 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
-    <count_field/>
     <count_rows>N</count_rows>
-    <error_description/>
     <fields>
       <field>
         <case_insensitive>N</case_insensitive>
@@ -772,6 +774,50 @@
     <GUI>
       <xloc>272</xloc>
       <yloc>656</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>If Null</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <mask/>
+        <name>doi</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+      <field>
+        <mask/>
+        <name>revista</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+      <field>
+        <mask/>
+        <name>issn</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+    </fields>
+    <replaceAllByValue/>
+    <replaceAllMask/>
+    <selectFields>Y</selectFields>
+    <selectValuesType>N</selectValuesType>
+    <setEmptyStringAll>N</setEmptyStringAll>
+    <valuetypes>
+</valuetypes>
+    <attributes/>
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>464</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

@@ -2,21 +2,21 @@
 <workflow>
   <name>workflow_master</name>
   <name_sync_with_filename>Y</name_sync_with_filename>
-  <description/>
-  <extended_description/>
-  <workflow_version/>
+  <description />
+  <extended_description />
+  <workflow_version />
   <created_user>-</created_user>
   <created_date>2026/05/13 21:32:23.376</created_date>
   <modified_user>-</modified_user>
   <modified_date>2026/05/13 21:32:23.376</modified_date>
   <parameters>
-    </parameters>
+  </parameters>
   <actions>
     <action>
       <name>Start</name>
-      <description/>
+      <description />
       <type>SPECIAL</type>
-      <attributes/>
+      <attributes />
       <DayOfMonth>1</DayOfMonth>
       <doNotWaitOnFirstExecution>N</doNotWaitOnFirstExecution>
       <hour>12</hour>
@@ -29,30 +29,30 @@
       <parallel>N</parallel>
       <xloc>48</xloc>
       <yloc>64</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
     <action>
       <name>Check - DB_LATTES_HUB</name>
-      <description/>
+      <description />
       <type>CHECK_DB_CONNECTIONS</type>
-      <attributes/>
+      <attributes />
       <connections>
         <connection>
           <name>DB_LATTES_HUB</name>
-          <waitfor/>
+          <waitfor>200</waitfor>
           <waittime>millisecond</waittime>
         </connection>
       </connections>
       <parallel>N</parallel>
       <xloc>224</xloc>
       <yloc>64</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
     <action>
       <name>Executar Instituicoes</name>
-      <description/>
+      <description />
       <type>PIPELINE</type>
-      <attributes/>
+      <attributes />
       <add_date>N</add_date>
       <add_time>N</add_time>
       <clear_files>N</clear_files>
@@ -60,8 +60,6 @@
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
       <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_instituicoes.hpl</filename>
-      <logext/>
-      <logfile/>
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -74,13 +72,13 @@
       <parallel>N</parallel>
       <xloc>448</xloc>
       <yloc>64</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
     <action>
       <name>Executar Pesquisadores</name>
-      <description/>
+      <description />
       <type>PIPELINE</type>
-      <attributes/>
+      <attributes />
       <add_date>N</add_date>
       <add_time>N</add_time>
       <clear_files>N</clear_files>
@@ -88,8 +86,8 @@
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
       <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_pesquisadores.hpl</filename>
-      <logext/>
-      <logfile/>
+      <logext />
+      <logfile />
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -102,22 +100,22 @@
       <parallel>N</parallel>
       <xloc>624</xloc>
       <yloc>64</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
     <action>
-      <name>Executar Areas</name>
-      <description/>
+      <name>Executar Areas Dimensão</name>
+      <description />
       <type>PIPELINE</type>
-      <attributes/>
+      <attributes />
       <add_date>N</add_date>
       <add_time>N</add_time>
       <clear_files>N</clear_files>
       <clear_rows>N</clear_rows>
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
-      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_areas.hpl</filename>
-      <logext/>
-      <logfile/>
+      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_areas_dimensao.hpl</filename>
+      <logext />
+      <logfile />
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -130,13 +128,13 @@
       <parallel>N</parallel>
       <xloc>624</xloc>
       <yloc>224</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
     <action>
       <name>Executar Artigos</name>
-      <description/>
+      <description />
       <type>PIPELINE</type>
-      <attributes/>
+      <attributes />
       <add_date>N</add_date>
       <add_time>N</add_time>
       <clear_files>N</clear_files>
@@ -144,8 +142,104 @@
       <create_parent_folder>N</create_parent_folder>
       <exec_per_row>N</exec_per_row>
       <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_producoes_artigos.hpl</filename>
-      <logext/>
-      <logfile/>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>624</xloc>
+      <yloc>480</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Success</name>
+      <description />
+      <type>SUCCESS</type>
+      <attributes />
+      <parallel>N</parallel>
+      <xloc>736</xloc>
+      <yloc>480</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - DB</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Database Error</message>
+      <parallel>N</parallel>
+      <xloc>240</xloc>
+      <yloc>224</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - Instituicoes</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>Y</always_log_rows>
+      <message>Instituicoes erro</message>
+      <parallel>N</parallel>
+      <xloc>416</xloc>
+      <yloc>224</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - pesquisadores</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Pesquisadores erro</message>
+      <parallel>N</parallel>
+      <xloc>816</xloc>
+      <yloc>64</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - areas</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Areas erro</message>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>224</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - artigos</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Artigos erro</message>
+      <parallel>N</parallel>
+      <xloc>624</xloc>
+      <yloc>608</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Executar areas relacionamento</name>
+      <description />
+      <type>PIPELINE</type>
+      <attributes />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/metadata/Pipelines/pipeline_areas_relacionamento.hpl</filename>
+      <logext />
+      <logfile />
       <loglevel>Basic</loglevel>
       <parameters>
         <pass_all_parameters>Y</pass_all_parameters>
@@ -158,77 +252,19 @@
       <parallel>N</parallel>
       <xloc>624</xloc>
       <yloc>352</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
     <action>
-      <name>Success</name>
-      <description/>
-      <type>SUCCESS</type>
-      <attributes/>
+      <name>Abort - areas relacionamento</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>areas relacionamento erro</message>
       <parallel>N</parallel>
-      <xloc>768</xloc>
+      <xloc>832</xloc>
       <yloc>352</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort - DB</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <always_log_rows>N</always_log_rows>
-      <message>Database Error</message>
-      <parallel>N</parallel>
-      <xloc>240</xloc>
-      <yloc>224</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort - Instituicoes</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <always_log_rows>Y</always_log_rows>
-      <message>Instituicoes erro</message>
-      <parallel>N</parallel>
-      <xloc>416</xloc>
-      <yloc>224</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort - pesquisadores</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <always_log_rows>N</always_log_rows>
-      <message>Pesquisadores erro</message>
-      <parallel>N</parallel>
-      <xloc>816</xloc>
-      <yloc>64</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort - areas</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <always_log_rows>N</always_log_rows>
-      <message>Areas erro</message>
-      <parallel>N</parallel>
-      <xloc>800</xloc>
-      <yloc>224</yloc>
-      <attributes_hac/>
-    </action>
-    <action>
-      <name>Abort - artigos</name>
-      <description/>
-      <type>ABORT</type>
-      <attributes/>
-      <always_log_rows>N</always_log_rows>
-      <message>Artigos erro</message>
-      <parallel>N</parallel>
-      <xloc>608</xloc>
-      <yloc>480</yloc>
-      <attributes_hac/>
+      <attributes_hac />
     </action>
   </actions>
   <hops>
@@ -255,14 +291,7 @@
     </hop>
     <hop>
       <from>Executar Pesquisadores</from>
-      <to>Executar Areas</to>
-      <enabled>Y</enabled>
-      <evaluation>Y</evaluation>
-      <unconditional>N</unconditional>
-    </hop>
-    <hop>
-      <from>Executar Areas</from>
-      <to>Executar Artigos</to>
+      <to>Executar Areas Dimensão</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
       <unconditional>N</unconditional>
@@ -296,7 +325,7 @@
       <unconditional>N</unconditional>
     </hop>
     <hop>
-      <from>Executar Areas</from>
+      <from>Executar Areas Dimensão</from>
       <to>Abort - areas</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
@@ -309,8 +338,29 @@
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>
     </hop>
+    <hop>
+      <from>Executar Areas Dimensão</from>
+      <to>Executar areas relacionamento</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar areas relacionamento</from>
+      <to>Executar Artigos</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar areas relacionamento</from>
+      <to>Abort - areas relacionamento</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
   </hops>
   <notepads>
   </notepads>
-  <attributes/>
+  <attributes />
 </workflow>

@@ -26,33 +26,43 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Sort rows</from>
-      <to>Unique rows</to>
+      <from>Sort rows - nome</from>
+      <to>Unique rows - nome</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Unique rows</from>
+      <from>Unique rows - nome</from>
       <to>Insert / update</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>Get data from XML</from>
-      <to>Filter rows</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Filter rows</from>
-      <to>String operations</to>
+      <to>Filter rows - nome</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>String operations</from>
-      <to>Sort rows</to>
+      <to>Sort rows - nome</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows - nome</from>
+      <to>If Null</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>If Null</from>
+      <to>String operations</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Filter rows - nome</from>
+      <to>Dummy (do nothing)</to>
       <enabled>Y</enabled>
     </hop>
   </order>
   <transform>
-    <name>Filter rows</name>
+    <name>Filter rows - nome</name>
     <type>FilterRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -72,7 +82,8 @@
         <operator>-</operator>
       </condition>
     </compare>
-    <send_true_to>String operations</send_true_to>
+    <send_false_to>Dummy (do nothing)</send_false_to>
+    <send_true_to>If Null</send_true_to>
     <attributes/>
     <GUI>
       <xloc>256</xloc>
@@ -96,7 +107,7 @@
     <XmlField>filename</XmlField>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <encoding>ISO-8859-1</encoding>
+    <encoding>UTF-8</encoding>
     <extensionFieldName/>
     <fields>
       <field>
@@ -275,7 +286,7 @@
     </GUI>
   </transform>
   <transform>
-    <name>Sort rows</name>
+    <name>Sort rows - nome</name>
     <type>SortRows</type>
     <description/>
     <distribute>Y</distribute>
@@ -286,6 +297,7 @@
       <schema_name/>
     </partitioning>
     <compress>N</compress>
+    <compress_variables/>
     <directory>${java.io.tmpdir}</directory>
     <fields>
       <field>
@@ -297,6 +309,7 @@
         <presorted>N</presorted>
       </field>
     </fields>
+    <free_memory/>
     <sort_prefix>out</sort_prefix>
     <sort_size>1000000</sort_size>
     <unique_rows>N</unique_rows>
@@ -378,7 +391,7 @@
     </GUI>
   </transform>
   <transform>
-    <name>Unique rows</name>
+    <name>Unique rows - nome</name>
     <type>Unique</type>
     <description/>
     <distribute>Y</distribute>
@@ -388,7 +401,9 @@
       <method>none</method>
       <schema_name/>
     </partitioning>
+    <count_field/>
     <count_rows>N</count_rows>
+    <error_description/>
     <fields>
       <field>
         <case_insensitive>N</case_insensitive>
@@ -400,6 +415,67 @@
     <GUI>
       <xloc>576</xloc>
       <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>If Null</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <mask/>
+        <name>cidade</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADA</value>
+      </field>
+      <field>
+        <mask/>
+        <name>estado</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+      <field>
+        <mask/>
+        <name>pais</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+    </fields>
+    <replaceAllByValue/>
+    <replaceAllMask/>
+    <selectFields>Y</selectFields>
+    <selectValuesType>N</selectValuesType>
+    <setEmptyStringAll>N</setEmptyStringAll>
+    <valuetypes>
+</valuetypes>
+    <attributes/>
+    <GUI>
+      <xloc>400</xloc>
+      <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Dummy (do nothing)</name>
+    <type>Dummy</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <attributes/>
+    <GUI>
+      <xloc>176</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

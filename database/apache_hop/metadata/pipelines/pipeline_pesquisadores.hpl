@@ -41,18 +41,23 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
+      <from>Database lookup - instituicoes</from>
+      <to>Replace in string</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
       <from>Get data from XML</from>
+      <to>If Null - resumo</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>If Null - resumo</from>
       <to>String operations</to>
       <enabled>Y</enabled>
     </hop>
     <hop>
       <from>String operations</from>
       <to>Database lookup - instituicoes</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
-      <from>Database lookup - instituicoes</from>
-      <to>Replace in string</to>
       <enabled>Y</enabled>
     </hop>
   </order>
@@ -78,13 +83,10 @@
         <condition>=</condition>
         <field>nome</field>
         <name>nome_instituicao_extraida</name>
-        <name2/>
       </key>
-      <orderby/>
       <schema>"public"</schema>
       <table>instituicoes</table>
       <value>
-        <default/>
         <name>id</name>
         <rename>instituicao_id</rename>
         <trim_type>none</trim_type>
@@ -93,7 +95,7 @@
     </lookup>
     <attributes/>
     <GUI>
-      <xloc>528</xloc>
+      <xloc>624</xloc>
       <yloc>400</yloc>
     </GUI>
   </transform>
@@ -114,7 +116,7 @@
     <XmlField>filename</XmlField>
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
-    <encoding>ISO-8859-1</encoding>
+    <encoding>UTF-8</encoding>
     <extensionFieldName/>
     <fields>
       <field>
@@ -281,8 +283,8 @@
     <validating>N</validating>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
-      <yloc>304</yloc>
+      <xloc>320</xloc>
+      <yloc>288</yloc>
     </GUI>
   </transform>
   <transform>
@@ -298,16 +300,13 @@
     </partitioning>
     <doNotFailIfNoFile>N</doNotFailIfNoFile>
     <dynamic_include_subfolders>N</dynamic_include_subfolders>
-    <exclude_wildcard_Field/>
     <file>
-      <exclude_filemask/>
       <file_required>N</file_required>
       <filemask>.*\.xml$</filemask>
       <include_subfolders>N</include_subfolders>
       <name>C:\Users\Jeoston Araujo\source\repos\Pessoal\Uneb\LattesHub\database\data\lattes</name>
     </file>
     <filefield>N</filefield>
-    <filename_Field/>
     <filter>
       <filterfiletype>all_files</filterfiletype>
     </filter>
@@ -315,12 +314,10 @@
     <limit>0</limit>
     <raiseAnExceptionIfNoFile>N</raiseAnExceptionIfNoFile>
     <rownum>N</rownum>
-    <rownum_field/>
-    <wildcard_Field/>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
-      <yloc>176</yloc>
+      <xloc>320</xloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform>
@@ -394,8 +391,8 @@
     <update_bypassed>N</update_bypassed>
     <attributes/>
     <GUI>
-      <xloc>704</xloc>
-      <yloc>288</yloc>
+      <xloc>816</xloc>
+      <yloc>272</yloc>
     </GUI>
   </transform>
   <transform>
@@ -473,8 +470,8 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>528</xloc>
-      <yloc>288</yloc>
+      <xloc>624</xloc>
+      <yloc>272</yloc>
     </GUI>
   </transform>
   <transform>
@@ -505,8 +502,8 @@
     <unique_rows>N</unique_rows>
     <attributes/>
     <GUI>
-      <xloc>528</xloc>
-      <yloc>176</yloc>
+      <xloc>624</xloc>
+      <yloc>160</yloc>
     </GUI>
   </transform>
   <transform>
@@ -641,7 +638,7 @@
     </fields>
     <attributes/>
     <GUI>
-      <xloc>368</xloc>
+      <xloc>448</xloc>
       <yloc>400</yloc>
     </GUI>
   </transform>
@@ -666,8 +663,46 @@
     <reject_duplicate_row>N</reject_duplicate_row>
     <attributes/>
     <GUI>
-      <xloc>704</xloc>
-      <yloc>176</yloc>
+      <xloc>816</xloc>
+      <yloc>160</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>If Null - resumo</name>
+    <type>IfNull</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <fields>
+      <field>
+        <mask/>
+        <name>resumo</name>
+        <set_empty_string>N</set_empty_string>
+        <value>Resumo não informado pelo pesquisador.</value>
+      </field>
+      <field>
+        <mask/>
+        <name>resumo_ingles</name>
+        <set_empty_string>N</set_empty_string>
+        <value>Summary not provided by the researcher.</value>
+      </field>
+    </fields>
+    <replaceAllByValue/>
+    <replaceAllMask/>
+    <selectFields>Y</selectFields>
+    <selectValuesType>N</selectValuesType>
+    <setEmptyStringAll>N</setEmptyStringAll>
+    <valuetypes>
+</valuetypes>
+    <attributes/>
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>400</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

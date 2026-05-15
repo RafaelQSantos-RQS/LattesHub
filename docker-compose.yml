@@ -17,5 +17,19 @@ services:
     volumes:
       - pg_data:/var/lib/postgresql/data
 
+  hop:
+    image: apache/hop:latest
+    container_name: lattes_hub_etl
+    depends_on:
+      - db
+    volumes:
+      - ./database/apache_hop:/project
+    environment:
+      - HOP_PROJECT_DIRECTORY=/project
+      - HOP_PROJECT_NAME=LattesHub
+      - HOP_RUN_WORKFLOW=/project/metadata/workflows/workflow_master.hwf
+      - HOP_RUN_CONFIG=local
+      - HOP_LOG_LEVEL=Basic
+
 volumes:
   pg_data:

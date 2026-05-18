@@ -49,6 +49,44 @@
       <attributes_hac />
     </action>
     <action>
+      <name>Executar Qualis</name>
+      <description />
+      <type>PIPELINE</type>
+      <attributes />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_qualis.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>336</xloc>
+      <yloc>64</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - Qualis</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Qualis erro</message>
+      <parallel>N</parallel>
+      <xloc>336</xloc>
+      <yloc>224</yloc>
+      <attributes_hac />
+    </action>
+    <action>
       <name>Executar Instituicoes</name>
       <description />
       <type>PIPELINE</type>
@@ -186,7 +224,7 @@
       <always_log_rows>Y</always_log_rows>
       <message>Instituicoes erro</message>
       <parallel>N</parallel>
-      <xloc>416</xloc>
+      <xloc>448</xloc>
       <yloc>224</yloc>
       <attributes_hac />
     </action>
@@ -277,6 +315,13 @@
     </hop>
     <hop>
       <from>Check - DB_LATTES_HUB</from>
+      <to>Executar Qualis</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Qualis</from>
       <to>Executar Instituicoes</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -306,6 +351,13 @@
     <hop>
       <from>Check - DB_LATTES_HUB</from>
       <to>Abort - DB</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Qualis</from>
+      <to>Abort - Qualis</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>

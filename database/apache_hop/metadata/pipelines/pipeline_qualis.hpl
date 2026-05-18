@@ -1,0 +1,221 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<pipeline>
+  <info>
+    <name>pipeline_qualis</name>
+    <name_sync_with_filename>Y</name_sync_with_filename>
+    <description />
+    <extended_description />
+    <pipeline_version />
+    <pipeline_type>Normal</pipeline_type>
+    <parameters />
+  </info>
+  <notepads />
+  <order>
+    <hop>
+      <from>Ler CSV Qualis</from>
+      <to>Limpar ISSN</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Limpar ISSN</from>
+      <to>Replace in string</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Replace in string</from>
+      <to>Gravar Qualis no BD</to>
+      <enabled>Y</enabled>
+    </hop>
+  </order>
+  <transform>
+    <name>Gravar Qualis no BD</name>
+    <type>InsertUpdate</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <commit>1000</commit>
+    <connection>DB_LATTES_HUB</connection>
+    <lookup>
+      <key>
+        <condition>=</condition>
+        <field>issn</field>
+        <name>ISSN</name>
+        <name2 />
+      </key>
+      <schema>"public"</schema>
+      <table>qualis_periodicos</table>
+      <value>
+        <name>issn</name>
+        <rename>ISSN</rename>
+        <update>N</update>
+      </value>
+      <value>
+        <name>titulo</name>
+        <rename>Título</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>area_avaliacao</name>
+        <rename>Área de Avaliação</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>estrato</name>
+        <rename>Estrato</rename>
+        <update>Y</update>
+      </value>
+    </lookup>
+    <update_bypassed>N</update_bypassed>
+    <attributes />
+    <GUI>
+      <xloc>576</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Ler CSV Qualis</name>
+    <type>CSVInput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <filename>${PROJECT_HOME}/data/qualis/qualis_2020_2024.csv</filename>
+    <filename_field />
+    <rownum_field />
+    <include_filename>N</include_filename>
+    <separator>,</separator>
+    <enclosure>"</enclosure>
+    <header>Y</header>
+    <buffer_size>50000</buffer_size>
+    <schemaDefinition />
+    <ignoreFields>N</ignoreFields>
+    <lazy_conversion>N</lazy_conversion>
+    <add_filename_result>N</add_filename_result>
+    <parallel>N</parallel>
+    <newline_possible>N</newline_possible>
+    <encoding>UTF-8</encoding>
+    <fields>
+      <field>
+        <name>ISSN</name>
+        <type>String</type>
+        <format />
+        <currency />
+        <decimal />
+        <group />
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+      </field>
+      <field>
+        <name>Título</name>
+        <type>String</type>
+        <format />
+        <currency />
+        <decimal />
+        <group />
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+      </field>
+      <field>
+        <name>Área de Avaliação</name>
+        <type>String</type>
+        <format />
+        <currency />
+        <decimal />
+        <group />
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+      </field>
+      <field>
+        <name>Estrato</name>
+        <type>String</type>
+        <format />
+        <currency />
+        <decimal />
+        <group />
+        <length>-1</length>
+        <precision>-1</precision>
+        <trim_type>both</trim_type>
+      </field>
+    </fields>
+    <attributes />
+    <GUI>
+      <xloc>288</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Limpar ISSN</name>
+    <type>StringOperations</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <in_stream_name>ISSN</in_stream_name>
+        <out_stream_name />
+        <trim_type>both</trim_type>
+        <lower_upper>none</lower_upper>
+        <padding_type>none</padding_type>
+        <pad_char />
+        <pad_len />
+        <init_cap>no</init_cap>
+        <mask_xml>none</mask_xml>
+        <digits>none</digits>
+        <remove_special_characters>none</remove_special_characters>
+      </field>
+    </fields>
+    <attributes />
+    <GUI>
+      <xloc>320</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>Replace in string</name>
+    <type>ReplaceString</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <case_sensitive>no</case_sensitive>
+        <in_stream_name>ISSN</in_stream_name>
+        <is_unicode>no</is_unicode>
+        <out_stream_name />
+        <replace_by_string />
+        <replace_field_by_string />
+        <replace_string>-</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>no</use_regex>
+        <whole_word>no</whole_word>
+      </field>
+    </fields>
+    <attributes />
+    <GUI>
+      <xloc>448</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+</pipeline>

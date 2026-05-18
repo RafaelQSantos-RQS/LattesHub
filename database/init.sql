@@ -148,6 +148,22 @@ CREATE TABLE vetores (
 );
 
 -- =====================================================
+-- TABELA: QUALIS_PERIODICOS
+-- =====================================================
+
+CREATE TABLE qualis_periodicos (
+    issn VARCHAR(20) PRIMARY KEY,
+    titulo TEXT,
+    area_avaliacao VARCHAR(255),
+    estrato VARCHAR(5),
+    
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+
+
+
+-- =====================================================
 -- ÍNDICES
 -- =====================================================
 
@@ -182,6 +198,12 @@ ON vetores
 USING ivfflat (embedding vector_cosine_ops)
 WITH (lists = 100);
 
+-- Otimiza a busca pelo estrato (ex: filtrar apenas artigos A1)
+CREATE INDEX idx_qualis_estrato ON qualis_periodicos(estrato);
+
+-- Cria o índice na tabela de produções para o JOIN voar!
+CREATE INDEX idx_producoes_issn ON producoes(issn);
+
 -- =====================================================
 -- ROW LEVEL SECURITY (RLS)
 -- =====================================================
@@ -192,10 +214,16 @@ ALTER TABLE pesquisadores ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pesquisador_areas ENABLE ROW LEVEL SECURITY;
 ALTER TABLE producoes ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vetores ENABLE ROW LEVEL SECURITY;
+ALTER TABLE qualis_periodicos ENABLE ROW LEVEL SECURITY;
 
 -- =====================================================
 -- POLÍTICAS
 -- =====================================================
+
+CREATE POLICY "public_read_qualis"
+ON qualis_periodicos
+FOR SELECT
+USING (true);
 
 CREATE POLICY "public_read_instituicoes"
 ON instituicoes

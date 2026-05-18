@@ -104,10 +104,6 @@
     </partitioning>
     <fields>
       <field>
-        <currency />
-        <decimal />
-        <format />
-        <group />
         <length>-1</length>
         <name>tipo_producao</name>
         <nullif>ARTIGO PUBLICADO</nullif>
@@ -116,10 +112,6 @@
         <type>String</type>
       </field>
       <field>
-        <currency />
-        <decimal />
-        <format />
-        <group />
         <length>-1</length>
         <name>evento</name>
         <nullif>NÃO SE APLICA</nullif>
@@ -282,7 +274,6 @@
     <addresultfile>N</addresultfile>
     <doNotFailIfNoFile>Y</doNotFailIfNoFile>
     <encoding>UTF-8</encoding>
-    <extensionFieldName />
     <fields>
       <field>
         <currency />
@@ -406,29 +397,16 @@
       </field>
     </fields>
     <file>
-      <exclude_filemask />
       <file_required>N</file_required>
-      <filemask />
       <include_subfolders>N</include_subfolders>
-      <name />
     </file>
-    <hiddenFieldName />
     <ignorecomments>N</ignorecomments>
     <include>N</include>
-    <include_field />
-    <lastModificationTimeFieldName />
     <limit>0</limit>
     <loopxpath>/CURRICULO-VITAE/PRODUCAO-BIBLIOGRAFICA/ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO</loopxpath>
     <namespaceaware>N</namespaceaware>
-    <pathFieldName />
-    <prunePath />
     <readurl>N</readurl>
-    <rootUriNameFieldName />
     <rownum>N</rownum>
-    <rownum_field />
-    <shortFileFieldName />
-    <sizeFieldName />
-    <uriNameFieldName />
     <usetoken>N</usetoken>
     <validating>N</validating>
     <attributes />
@@ -454,7 +432,7 @@
       <file_required>N</file_required>
       <filemask>.*\.xml$</filemask>
       <include_subfolders>N</include_subfolders>
-      <name>${PROJECT_HOME}/data/lattes</name>
+      <name>${PROJECT_HOME}/data/lattes/</name>
     </file>
     <filefield>N</filefield>
     <filter>
@@ -468,6 +446,45 @@
     <GUI>
       <xloc>432</xloc>
       <yloc>400</yloc>
+    </GUI>
+  </transform>
+  <transform>
+    <name>If Null</name>
+    <type>IfNull</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <fields>
+      <field>
+        <name>doi</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+      <field>
+        <name>revista</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+      <field>
+        <name>issn</name>
+        <set_empty_string>N</set_empty_string>
+        <value>NÃO INFORMADO</value>
+      </field>
+    </fields>
+    <selectFields>Y</selectFields>
+    <selectValuesType>N</selectValuesType>
+    <setEmptyStringAll>N</setEmptyStringAll>
+    <valuetypes>
+</valuetypes>
+    <attributes />
+    <GUI>
+      <xloc>1120</xloc>
+      <yloc>464</yloc>
     </GUI>
   </transform>
   <transform>
@@ -488,13 +505,11 @@
         <condition>=</condition>
         <field>pesquisador_id</field>
         <name>pesquisador_id</name>
-        <name2 />
       </key>
       <key>
         <condition>=</condition>
         <field>titulo</field>
         <name>titulo</name>
-        <name2 />
       </key>
       <schema>"public"</schema>
       <table>producoes</table>
@@ -572,7 +587,9 @@
         <case_sensitive>N</case_sensitive>
         <in_stream_name>titulo</in_stream_name>
         <is_unicode>N</is_unicode>
+        <out_stream_name />
         <replace_by_string> </replace_by_string>
+        <replace_field_by_string />
         <replace_string>\r</replace_string>
         <set_empty_string>N</set_empty_string>
         <use_regex>Y</use_regex>
@@ -582,7 +599,9 @@
         <case_sensitive>N</case_sensitive>
         <in_stream_name>titulo</in_stream_name>
         <is_unicode>N</is_unicode>
+        <out_stream_name />
         <replace_by_string> </replace_by_string>
+        <replace_field_by_string />
         <replace_string>\n</replace_string>
         <set_empty_string>N</set_empty_string>
         <use_regex>Y</use_regex>
@@ -592,10 +611,24 @@
         <case_sensitive>N</case_sensitive>
         <in_stream_name>titulo</in_stream_name>
         <is_unicode>N</is_unicode>
+        <out_stream_name />
         <replace_by_string> </replace_by_string>
+        <replace_field_by_string />
         <replace_string>\t</replace_string>
         <set_empty_string>N</set_empty_string>
         <use_regex>Y</use_regex>
+        <whole_word>N</whole_word>
+      </field>
+      <field>
+        <case_sensitive>N</case_sensitive>
+        <in_stream_name>issn</in_stream_name>
+        <is_unicode>N</is_unicode>
+        <out_stream_name />
+        <replace_by_string />
+        <replace_field_by_string />
+        <replace_string>-</replace_string>
+        <set_empty_string>N</set_empty_string>
+        <use_regex>N</use_regex>
         <whole_word>N</whole_word>
       </field>
     </fields>
@@ -774,50 +807,6 @@
     <GUI>
       <xloc>272</xloc>
       <yloc>656</yloc>
-    </GUI>
-  </transform>
-  <transform>
-    <name>If Null</name>
-    <type>IfNull</type>
-    <description />
-    <distribute>Y</distribute>
-    <custom_distribution />
-    <copies>1</copies>
-    <partitioning>
-      <method>none</method>
-      <schema_name />
-    </partitioning>
-    <fields>
-      <field>
-        <mask />
-        <name>doi</name>
-        <set_empty_string>N</set_empty_string>
-        <value>NÃO INFORMADO</value>
-      </field>
-      <field>
-        <mask />
-        <name>revista</name>
-        <set_empty_string>N</set_empty_string>
-        <value>NÃO INFORMADO</value>
-      </field>
-      <field>
-        <mask />
-        <name>issn</name>
-        <set_empty_string>N</set_empty_string>
-        <value>NÃO INFORMADO</value>
-      </field>
-    </fields>
-    <replaceAllByValue />
-    <replaceAllMask />
-    <selectFields>Y</selectFields>
-    <selectValuesType>N</selectValuesType>
-    <setEmptyStringAll>N</setEmptyStringAll>
-    <valuetypes>
-</valuetypes>
-    <attributes />
-    <GUI>
-      <xloc>1120</xloc>
-      <yloc>464</yloc>
     </GUI>
   </transform>
   <transform_error_handling>

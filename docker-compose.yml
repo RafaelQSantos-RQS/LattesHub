@@ -29,5 +29,16 @@ services:
       - HOP_RUN_CONFIG=local
       - HOP_LOG_LEVEL=Basic
 
+  backend:
+    build: ./backend
+    container_name: latteshub_backend
+    restart: always
+    depends_on:
+      - db
+    env_file:
+      - .env
+    ports:
+      - "8000:8000"
+
 volumes:
   pg_data:

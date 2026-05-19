@@ -28,6 +28,11 @@ services:
       - HOP_FILE_PATH=/project/metadata/workflows/workflow_master.hwf
       - HOP_RUN_CONFIG=local
       - HOP_LOG_LEVEL=Basic
+      - DB_HOST=db
+      - DB_PORT=5432
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
 
   backend:
     build: ./backend

@@ -2,13 +2,13 @@
   "virtualPath": "",
   "rdbms": {
     "POSTGRESQL": {
-      "databaseName": "lattes_hub",
+      "databaseName": "${DB_NAME}",
       "pluginId": "POSTGRESQL",
       "accessType": 0,
-      "hostname": "db",
-      "password": "22020120",
+      "hostname": "${DB_HOST}",
+      "password": "${DB_PASSWORD}",
       "pluginName": "PostgreSQL",
-      "port": "5432",
+      "port": "${DB_PORT}",
       "attributes": {
         "SUPPORTS_TIMESTAMP_DATA_TYPE": "Y",
         "QUOTE_ALL_FIELDS": "N",
@@ -21,7 +21,7 @@
         "PREFERRED_SCHEMA_NAME": ""
       },
       "manualUrl": "",
-      "username": "postgres"
+      "username": "${DB_USER}"
     }
   },
   "name": "DB_LATTES_HUB"

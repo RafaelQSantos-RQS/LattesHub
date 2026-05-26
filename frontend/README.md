@@ -1,59 +1,63 @@
-# LattesHubFrontend
+# LattesHub - Frontend
 
-This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 21.2.12.
+Este é o frontend do **LattesHub**, o Portal de Dados Abertos. O projeto foi desenvolvido utilizando as tecnologias mais modernas do ecossistema web para garantir performance, acessibilidade e uma ótima experiência de usuário.
 
-## Development server
+## 🚀 Tecnologias Utilizadas
 
-To start a local development server, run:
+* **[Angular 21](https://angular.dev/)**: Framework principal, utilizando Standalone Components e Signals para reatividade.
+* **[Tailwind CSS v4](https://tailwindcss.com/)**: Estilização utilitária e design system customizado.
+* **[TypeScript](https://www.typescriptlang.org/)**: Tipagem estática para maior segurança no código.
+* **[Docker](https://www.docker.com/) & [Nginx](https://nginx.org/)**: Containerização otimizada para produção (multi-stage build com usuário *unprivileged*).
 
-```bash
-ng serve
-```
+## 📋 Pré-requisitos
 
-Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+Para rodar o projeto localmente, você precisará de:
+* **Node.js** (versão recomendada: `v24.15.0` ou superior)
+* **npm** (gerenciador de pacotes)
+* **Docker** (opcional, para rodar via container)
 
-## Code scaffolding
+## 💻 Desenvolvimento Local
 
-Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+1. Clone o repositório e acesse a pasta do frontend:
+   ```bash
+   cd frontend
+   ```
 
-```bash
-ng generate component component-name
-```
+2. Instale as dependências do projeto:
+   ```bash
+   npm install
+   ```
 
-For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+3. Inicie o servidor de desenvolvimento:
+   ```bash
+   npm start
+   ```
+   O aplicativo estará disponível em `http://localhost:4200/`. A página será recarregada automaticamente caso você faça alterações no código.
 
-```bash
-ng generate --help
-```
+## 🐳 Executando com Docker (Produção)
 
-## Building
+O projeto possui um `Dockerfile` otimizado para produção, utilizando um build em múltiplos estágios e servindo os arquivos estáticos através de um servidor Nginx seguro (rodando sem privilégios de root).
 
-To build the project run:
+1. Construa a imagem Docker:
+   ```bash
+   docker build -t lattes-hub-frontend .
+   ```
 
-```bash
-ng build
-```
+2. Execute o container:
+   ```bash
+   docker run -p 8080:8080 lattes-hub-frontend
+   ```
+   O aplicativo estará disponível em `http://localhost:8080/`.
 
-This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+## 🏗️ Estrutura do Projeto
 
-## Running unit tests
+* `src/app/`: Contém os componentes da aplicação (Home, Results, Indicators, About, Layouts).
+* `src/styles.scss`: Arquivo de estilos globais e configuração do Tailwind CSS v4.
+* `Dockerfile`: Configuração de containerização para produção.
+* `nginx.conf`: Configuração do servidor web Nginx para roteamento SPA e cache.
 
-To execute unit tests with the [Vitest](https://vitest.dev/) test runner, use the following command:
+## 🛠️ Comandos Úteis
 
-```bash
-ng test
-```
-
-## Running end-to-end tests
-
-For end-to-end (e2e) testing, run:
-
-```bash
-ng e2e
-```
-
-Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
-
-## Additional Resources
-
-For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
+* `npm start`: Inicia o servidor de desenvolvimento.
+* `npm run build`: Compila o projeto para produção na pasta `dist/`.
+* `npm test`: Executa os testes unitários via Vitest/Karma (dependendo da configuração).

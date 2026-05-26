@@ -1,0 +1,18 @@
+<header class="bg-white border-b border-outline-variant h-20 z-50 sticky top-0">
+  <div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-20">
+    <div class="flex flex-col justify-center">
+      <a routerLink="/" class="font-display-lg text-[32px] text-primary tracking-tight hover:opacity-80 transition-opacity leading-none">LattesHub</a>
+      <span class="font-label-bold text-label-bold text-on-surface-variant opacity-70 hidden md:inline mt-1">Portal de Dados Abertos</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-8">
+      <a routerLink="/explorar" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: false}" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Explorar</a>
+      <a routerLink="/indicadores" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Indicadores</a>
+      <a routerLink="/sobre" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Sobre o Projeto</a>
+    </nav>
+    <div class="flex items-center gap-4">
+      <div class="bg-surface-container-high px-4 py-2 rounded-lg border border-outline-variant hidden lg:block">
+        <span class="font-label-bold text-label-bold text-on-surface-variant">Dados Atualizados em: 20 de Maio de 2024</span>
+      </div>
+    </div>
+  </div>
+</header>

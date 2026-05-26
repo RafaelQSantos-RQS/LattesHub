@@ -1,0 +1,44 @@
+<div class="flex items-start max-w-container-max mx-auto px-margin-desktop min-h-screen w-full">
+  <app-sidebar></app-sidebar>
+  
+  <!-- Main Results Area -->
+  <div class="w-full pl-gutter py-8">
+    <!-- Results Header -->
+    <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
+      <div>
+        <h1 class="font-headline-md text-headline-md text-slate-800">Showing 1.2M articles found</h1>
+        <div class="flex gap-6 mt-4 border-b border-slate-200">
+          <button class="text-primary font-bold border-b-2 border-primary pb-2 font-label-bold text-label-bold">Tudo</button>
+          <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Pesquisadores</button>
+          <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Artigos</button>
+          <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Eventos</button>
+        </div>
+      </div>
+      <div class="flex flex-col items-end gap-1">
+        <button class="bg-white border border-slate-200 text-slate-800 px-6 py-2 rounded-sm flex items-center gap-2 hover:bg-slate-50 hover:shadow-sm transition-all group">
+          <span class="material-symbols-outlined text-on-secondary-container">download</span>
+          <span class="font-label-bold text-label-bold">Exportar Dados Analíticos (CSV)</span>
+        </button>
+        <p class="font-data-label text-[10px] text-outline text-right">Formato tabular flat otimizado para Power BI / Python</p>
+      </div>
+    </div>
+    
+    <!-- Result Cards List -->
+    <div class="flex flex-col gap-2">
+      @for (result of results(); track result.id) {
+        <app-result-card [result]="result"></app-result-card>
+      }
+    </div>
+    
+    <!-- Pagination Placeholder -->
+    <div class="mt-12 flex justify-center items-center gap-2">
+      <button class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 text-slate-400 cursor-not-allowed"><span class="material-symbols-outlined">chevron_left</span></button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-900 bg-slate-900 text-white font-label-bold">1</button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 hover:bg-slate-50 transition-colors font-label-bold">2</button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 hover:bg-slate-50 transition-colors font-label-bold">3</button>
+      <span class="px-2 text-slate-400">...</span>
+      <button class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 hover:bg-slate-50 transition-colors font-label-bold">25</button>
+      <button class="w-10 h-10 flex items-center justify-center rounded-sm border border-slate-200 hover:bg-slate-50 transition-colors"><span class="material-symbols-outlined">chevron_right</span></button>
+    </div>
+  </div>
+</div>

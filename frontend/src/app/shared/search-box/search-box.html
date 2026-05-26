@@ -1,0 +1,16 @@
+<div class="w-full bg-white shadow-sm border border-slate-200 p-2 rounded-xl focus-within:ring-2 focus-within:ring-primary-fixed-dim transition-all duration-300"
+     [class.scale-[1.01]]="isFocused()">
+  <div class="flex items-center gap-4 px-4">
+    <span class="material-symbols-outlined text-slate-800 text-[28px]">search</span>
+    <input class="w-full py-4 bg-transparent border-none focus:ring-0 text-body-lg font-body-lg text-on-surface placeholder:text-outline-variant outline-none" 
+           placeholder="Ex: Quais pesquisadores investigam inteligência artificial aplicada à saúde na Bahia?" 
+           type="text"
+           (focus)="isFocused.set(true)"
+           (blur)="isFocused.set(false)"
+           (keyup.enter)="onSearch()"/>
+    <button class="bg-slate-900 text-white px-8 py-3 rounded-lg font-label-bold text-label-bold hover:bg-primary transition-colors active:scale-95 duration-100"
+            (click)="onSearch()">
+      Buscar
+    </button>
+  </div>
+</div>

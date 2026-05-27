@@ -29,7 +29,7 @@ app.add_middleware(
 app.include_router(api_router, prefix="/api/v1")
 
 
-@app.get("/")
-def root():
+@app.get("/health-check")
+def health_check():
     """Endpoint de Health Check para validação do status da API."""
     return {"message": "LattesHub API e AI Worker operacionais!"}

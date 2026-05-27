@@ -1,49 +1,73 @@
 services:
+  # Banco de Dados (PostgreSQL + pgvector)
   db:
-    build: ./database
-    container_name: latteshub_db
+    build:
+      context: ./database
+      network: host
+    container_name: latteshub-db
     restart: always
     environment:
-      - POSTGRES_USER=${DB_USER}
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_NAME}
     ports:
       - "${DB_PORT_EXTERNAL}:5432"
     volumes:
-      - pg_data:/var/lib/postgresql/data
+      - latteshub_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    networks:
+      - latteshub_network
 
+  # ETL - Apache Hop
   hop:
-    image: apache/hop:latest
-    container_name: lattes_hub_etl
+    image: apache/hop:2.17.0
+    container_name: latteshub-etl
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     profiles:
       - etl
+    restart: unless-stopped
     volumes:
       - ./database/apache_hop:/project
       - ./database/data:/project/data
+    env_file:
+      - .env
     environment:
-      - HOP_PROJECT_FOLDER=/project
-      - HOP_PROJECT_NAME=LattesHub
-      - HOP_FILE_PATH=/project/metadata/workflows/workflow_master.hwf
-      - HOP_RUN_CONFIG=local
-      - HOP_LOG_LEVEL=Basic
-      - DB_HOST=db
-      - DB_PORT=5432
-      - DB_NAME=${DB_NAME}
-      - DB_USER=${DB_USER}
-      - DB_PASSWORD=${DB_PASSWORD}
+      HOP_PROJECT_FOLDER: /project
+      HOP_PROJECT_NAME: LattesHub
+      HOP_FILE_PATH: /project/metadata/workflows/workflow_master.hwf
+      HOP_RUN_CONFIG: local
+      HOP_LOG_LEVEL: Basic
+    networks:
+      - latteshub_network
 
+  # Backend - FastAPI
   backend:
-    build: ./backend
-    container_name: latteshub_backend
+    build:
+      context: ./backend
+      network: host
+    container_name: latteshub-backend
     restart: always
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     env_file:
       - .env
     ports:
-      - "8000:8000"
+      - "${BACKEND_PORT:-8000}:8000"
+    networks:
+      - latteshub_network
 
 volumes:
-  pg_data:
+  latteshub_pg_data:
+    name: latteshub_pg_data
+
+networks:
+  latteshub_network:
+    name: latteshub_network

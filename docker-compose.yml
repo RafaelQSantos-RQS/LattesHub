@@ -71,6 +71,25 @@ services:
     networks:
       - latteshub_network
 
+  embeddings:
+    build:
+      context: ./backend
+      network: host
+    container_name: latteshub-embeddings
+    profiles:
+      - etl
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+      hop:
+        condition: service_completed_successfully
+    env_file:
+      - .env
+    command: ["python", "app/scripts/gerar_embeddings.py"]
+    networks:
+      - latteshub_network
+
 volumes:
   latteshub_pg_data:
     name: latteshub_pg_data

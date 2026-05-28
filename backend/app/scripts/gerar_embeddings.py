@@ -29,7 +29,7 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 # Inicializa Cliente OpenAI
 client = OpenAI(api_key=OPENAI_API_KEY)
 EMBEDDING_MODEL = "text-embedding-3-small"
-BATCH_SIZE = 100 # Tamanho do lote para enviar à API e gravar no banco
+BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "100"))
 
 @retry(
     wait=wait_exponential(multiplier=1, min=2, max=20),

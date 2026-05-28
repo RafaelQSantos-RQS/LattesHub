@@ -9,8 +9,7 @@ router = APIRouter()
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
-# Ajuste o response_model conforme a sua classe no schemas/busca.py
-@router.post("/semantica")
+@router.post("/semantica", response_model=BuscaSemanticaResponse)
 def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection)):
     try:
         # 1. Converte a pergunta do usuário num vetor matemático via OpenAI
@@ -20,10 +19,37 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
         )
         vetor_query = response.data[0].embedding
 
-        # 2. Executa a busca vetorial via HNSW com filtro DISTINCT cirúrgico
+        # 2. Executa a busca vetorial com filtros opcionais de negócio
         cursor = db.cursor(cursor_factory=RealDictCursor)
 
-        sql = """
+        filtros = []
+        valores_filtros = []
+
+        if payload.tipo_producao:
+            filtros.append("p.tipo_producao = %s")
+            valores_filtros.append(payload.tipo_producao)
+
+        if payload.ano:
+            filtros.append("p.ano = %s")
+            valores_filtros.append(payload.ano)
+
+        if payload.instituicao_id:
+            filtros.append("pes.instituicao_id = %s")
+            valores_filtros.append(payload.instituicao_id)
+
+        if payload.areas:
+            filtros.append("""
+                EXISTS (
+                    SELECT 1 FROM pesquisador_areas pa
+                    WHERE pa.pesquisador_id = p.pesquisador_id
+                    AND pa.area_id = ANY(%s)
+                )
+            """)
+            valores_filtros.append(payload.areas)
+
+        where_clause = "WHERE " + " AND ".join(filtros) if filtros else ""
+
+        sql = f"""
         WITH ranked_producoes AS (
             SELECT 
                 p.id, 
@@ -36,6 +62,7 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
             FROM producoes p
             JOIN vetores v ON p.id = v.producao_id
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+            {where_clause}
             ORDER BY (v.embedding <=> %s::vector) ASC
             LIMIT 50
         )
@@ -47,7 +74,8 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
         """
 
         # O psycopg2 faz o bind automático do vetor porque usamos o register_vector no database.py
-        cursor.execute(sql, (vetor_query, vetor_query, vetor_query))
+        parametros = [vetor_query, vetor_query] + valores_filtros + [vetor_query]
+        cursor.execute(sql, tuple(parametros))
         resultados = cursor.fetchall()
         cursor.close()
 

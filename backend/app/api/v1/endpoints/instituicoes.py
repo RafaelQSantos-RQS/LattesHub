@@ -118,6 +118,73 @@ def obter_instituicao_por_id(instituicao_id: int, db=Depends(get_db_connection))
             status_code=500, detail=f"Erro ao buscar detalhes da instituição: {str(e)}"
         )
 
+
+@router.get(
+    "/{instituicao_id}/pesquisadores",
+    response_model=InstituicaoPesquisadoresResponse,
+)
+def listar_pesquisadores_por_instituicao(
+    instituicao_id: int,
+    pagina: int = Query(1, ge=1, description="Número da página"),
+    tamanho_pagina: int = Query(
+        20, ge=1, le=100, description="Quantidade de registros por página"
+    ),
+    db=Depends(get_db_connection),
+):
+    offset = (pagina - 1) * tamanho_pagina
+
+    try:
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+
+        cursor.execute(
+            "SELECT id, nome, cidade, estado, pais FROM instituicoes WHERE id = %s;",
+            (instituicao_id,),
+        )
+        dados_instituicao = cursor.fetchone()
+
+        if not dados_instituicao:
+            raise HTTPException(status_code=404, detail="Instituição não encontrada.")
+
+        cursor.execute(
+            "SELECT COUNT(id) AS total FROM pesquisadores WHERE instituicao_id = %s;",
+            (instituicao_id,),
+        )
+        total_registros = cursor.fetchone()["total"]
+
+        sql_pesquisadores = """
+            SELECT
+                id,
+                lattes_id,
+                nome,
+                resumo
+            FROM pesquisadores
+            WHERE instituicao_id = %s
+            ORDER BY nome ASC
+            LIMIT %s OFFSET %s;
+        """
+        cursor.execute(sql_pesquisadores, (instituicao_id, tamanho_pagina, offset))
+        lista_pesquisadores = cursor.fetchall()
+
+        cursor.close()
+
+        return {
+            "instituicao": dados_instituicao,
+            "total": total_registros,
+            "pagina": pagina,
+            "tamanho_pagina": tamanho_pagina,
+            "resultados": lista_pesquisadores,
+        }
+
+    except HTTPException:
+        raise
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500,
+            detail=f"Erro ao listar pesquisadores da instituição: {str(e)}",
+        )
+
+
 @router.get("/{instituicao_id}/producoes", response_model=InstituicaoProducoesResponse)
 def listar_producoes_por_instituicao(
     instituicao_id: int,

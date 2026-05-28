@@ -16,6 +16,9 @@ def listar_todas_producoes(
     tipo_producao: Optional[str] = Query(
         None, description="Filtrar por tipo de produção (ex: ARTIGO PUBLICADO)"
     ),
+    termo: Optional[str] = Query(
+        None, min_length=2, description="Busca textual por título da produção"
+    ),
     ano: Optional[int] = Query(None, description="Filtrar por ano específico"),
     areas: Optional[list[int]] = Query(
         None, description="Filtra produções por áreas de conhecimento do autor"
@@ -33,11 +36,20 @@ def listar_todas_producoes(
 
         filtros = []
         valores = []
+        order_by = "p.ano DESC NULLS LAST, p.titulo ASC"
 
         # Construção dinâmica dos filtros acumulativos
         if tipo_producao:
             filtros.append("p.tipo_producao = %s")
             valores.append(tipo_producao)
+
+        if termo:
+            filtros.append("p.titulo_tsv @@ plainto_tsquery('portuguese', %s)")
+            valores.append(termo)
+            order_by = (
+                "ts_rank(p.titulo_tsv, plainto_tsquery('portuguese', %s)) DESC, "
+                "p.ano DESC NULLS LAST, p.titulo ASC"
+            )
 
         if ano:
             filtros.append("p.ano = %s")
@@ -86,11 +98,14 @@ def listar_todas_producoes(
             FROM producoes p
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
             {where_clause}
-            ORDER BY p.ano DESC NULLS LAST, p.titulo ASC
+            ORDER BY {order_by}
             LIMIT %s OFFSET %s;
         """
 
-        valores_query = valores + [tamanho_pagina, offset]
+        valores_query = list(valores)
+        if termo:
+            valores_query.append(termo)
+        valores_query.extend([tamanho_pagina, offset])
         cursor.execute(sql_producoes, tuple(valores_query))
         resultados = cursor.fetchall()
 

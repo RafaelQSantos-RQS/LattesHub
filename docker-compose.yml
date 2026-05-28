@@ -32,7 +32,7 @@ services:
         condition: service_healthy
     profiles:
       - etl
-    restart: unless-stopped
+    restart: "no"
     volumes:
       - ./database/apache_hop:/project
       - ./database/data:/project/data
@@ -44,6 +44,13 @@ services:
       HOP_FILE_PATH: /project/metadata/workflows/workflow_master.hwf
       HOP_RUN_CONFIG: local
       HOP_LOG_LEVEL: Basic
+      HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH: /project/docker/create-hop-env.sh
+      HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS: /tmp/latteshub-hop-env.json
+      DB_HOST: ${DB_HOST}
+      DB_PORT: ${DB_PORT}
+      DB_NAME: ${DB_NAME}
+      DB_USER: ${DB_USER}
+      DB_PASSWORD: ${DB_PASSWORD}
     networks:
       - latteshub_network
 

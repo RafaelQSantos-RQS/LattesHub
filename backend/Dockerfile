@@ -19,6 +19,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copia o código do backend
 COPY ./app ./app
+COPY ./pytest.ini ./pytest.ini
+COPY ./tests ./tests
 
 # Expõe a porta do FastAPI
 EXPOSE 8000

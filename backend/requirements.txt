@@ -11,3 +11,6 @@ openai==1.14.2
 httpx==0.27.2
 python-dotenv==1.0.1
 tenacity==8.2.3
+
+# Tests
+pytest==8.2.2

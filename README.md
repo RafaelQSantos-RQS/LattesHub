@@ -117,6 +117,32 @@ docker compose up
 
 ```
 
+### Testes automatizados do backend
+
+Os testes do backend usam `pytest`, `TestClient` do FastAPI e um PostgreSQL real. A suite cria dados minimos com prefixo `PYTEST_ISSUE30_` e remove esses dados ao final, sem depender do conteudo carregado pelo ETL. A chamada para OpenAI e mockada nos testes de busca semantica.
+
+Para rodar localmente com Docker:
+
+```bash
+docker compose up -d db
+docker compose run --rm backend pytest
+
+```
+
+Para rodar contra Supabase ou outro banco de teste externo, defina `DATABASE_URL` com uma credencial de ambiente de teste antes de executar o pytest. Nao use banco de producao, porque a suite insere e remove fixtures.
+
+```bash
+DATABASE_URL="<url-do-postgres-de-teste>" pytest
+
+```
+
+Smoke tests opcionais para banco externo podem ser executados com:
+
+```bash
+RUN_SUPABASE_SMOKE=1 DATABASE_URL="<url-do-postgres-de-teste>" pytest -m supabase
+
+```
+
 ---
 
 Projeto desenvolvido para fins acadêmicos e experimentação em IA aplicada à recuperação de informação científica.

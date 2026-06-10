@@ -5,10 +5,15 @@
     <input class="w-full py-4 bg-transparent border-none focus:ring-0 text-body-lg font-body-lg text-on-surface placeholder:text-outline-variant outline-none" 
            placeholder="Ex: Quais pesquisadores investigam inteligência artificial aplicada à saúde na Bahia?" 
            type="text"
+           aria-label="Busca semântica"
+           [value]="query()"
+           (input)="onQueryInput($event)"
            (focus)="isFocused.set(true)"
            (blur)="isFocused.set(false)"
            (keyup.enter)="onSearch()"/>
     <button class="bg-slate-900 text-white px-8 py-3 rounded-lg font-label-bold text-label-bold hover:bg-primary transition-colors active:scale-95 duration-100"
+            [class.opacity-50]="query().trim().length < 5"
+            [disabled]="query().trim().length < 5"
             (click)="onSearch()">
       Buscar
     </button>

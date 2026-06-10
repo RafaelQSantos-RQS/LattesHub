@@ -11,6 +11,8 @@ app = FastAPI(
 # Configuração de CORS (Cross-Origin Resource Sharing)
 # Define quais origens (front-end) possuem permissão para consumir este backend
 origins = [
+    "http://localhost:4200",  # Angular dev server
+    "http://127.0.0.1:4200",  # Angular dev server via loopback IP
     "http://localhost:3000",  # React / Next.js padrão
     "http://localhost:5173",  # Vite / React padrão
     "*",  # Permitir todas em ambiente de desenvolvimento (remover em produção estrita)

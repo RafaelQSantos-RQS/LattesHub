@@ -12,6 +12,10 @@ describe('StatsCard', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(StatsCard);
+    fixture.componentRef.setInput('icon', 'dataset');
+    fixture.componentRef.setInput('title', 'Total');
+    fixture.componentRef.setInput('value', '10');
+    fixture.componentRef.setInput('description', 'Descricao do indicador');
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

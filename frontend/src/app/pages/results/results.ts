@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, ParamMap } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResultCard } from '../../shared/result-card/result-card';
@@ -36,6 +36,25 @@ export class Results {
   constructor() {
     this.route.queryParamMap
       .pipe(takeUntilDestroyed())
-      .subscribe(params => this.searchService.search(params.get('q') ?? ''));
+      .subscribe(params => this.searchService.search(this.buildFilters(params)));
+  }
+
+  private buildFilters(params: ParamMap) {
+    return {
+      pergunta: params.get('q') ?? '',
+      tipoProducao: params.get('tipo_producao') ?? undefined,
+      ano: this.toNumber(params.get('ano')),
+      instituicaoId: this.toNumber(params.get('instituicao_id')),
+      areas: params.getAll('areas').map(Number).filter(Number.isFinite),
+    };
+  }
+
+  private toNumber(value: string | null) {
+    if (!value) {
+      return undefined;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
   }
 }

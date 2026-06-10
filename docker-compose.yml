@@ -71,6 +71,20 @@ services:
     networks:
       - latteshub_network
 
+  # Frontend - Angular static build served by Nginx
+  frontend:
+    build:
+      context: ./frontend
+      network: host
+    container_name: latteshub-frontend
+    restart: always
+    depends_on:
+      - backend
+    ports:
+      - "${FRONTEND_PORT:-4200}:8080"
+    networks:
+      - latteshub_network
+
   embeddings:
     build:
       context: ./backend
@@ -86,6 +100,12 @@ services:
         condition: service_completed_successfully
     env_file:
       - .env
+    environment:
+      EMBEDDING_SEED_PATH: /seed/vetores_seed.csv
+      EMBEDDING_USE_SEED: "true"
+      EMBEDDING_WRITE_SEED: "true"
+    volumes:
+      - ./database/seed:/seed
     command: ["python", "app/scripts/gerar_embeddings.py"]
     networks:
       - latteshub_network

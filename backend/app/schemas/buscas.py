@@ -32,6 +32,7 @@ class ArtigoRelevante(BaseModel):
     titulo: str
     tipo_producao: str
     ano: int | None
+    pesquisador_id: int
     pesquisador_nome: str
     score: float = Field(..., description="Score de similaridade de 0 a 100")
     qualis_estrato: str | None = None

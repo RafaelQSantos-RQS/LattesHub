@@ -38,6 +38,12 @@ Para rodar o projeto localmente, você precisará de:
 
 O projeto possui um `Dockerfile` otimizado para produção, utilizando um build em múltiplos estágios e servindo os arquivos estáticos através de um servidor Nginx seguro (rodando sem privilégios de root).
 
+Na raiz do repositorio, o `docker-compose.yml` publica este frontend em `http://localhost:4200/`:
+
+```bash
+docker compose up -d frontend
+```
+
 1. Construa a imagem Docker:
    ```bash
    docker build -t lattes-hub-frontend .

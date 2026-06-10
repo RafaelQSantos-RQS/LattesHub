@@ -61,6 +61,7 @@ describe('SearchService', () => {
       id: '10',
       title: 'Redes neurais aplicadas a saude',
       author: 'Ana Souza',
+      researcherId: 7,
       year: 2024,
       language: 'pt',
       doi: '10.0000/teste',
@@ -126,6 +127,7 @@ describe('SearchService', () => {
           titulo: 'IA clinica',
           tipo_producao: 'ARTIGO PUBLICADO',
           ano: 2023,
+          pesquisador_id: 9,
           pesquisador_nome: 'Bruno Lima',
           score: 87.5,
           qualis_estrato: 'A1',
@@ -140,6 +142,7 @@ describe('SearchService', () => {
       id: '20',
       title: 'IA clinica',
       author: 'Bruno Lima',
+      researcherId: 9,
       year: 2023,
       productionType: 'ARTIGO PUBLICADO',
       score: 87.5,
@@ -200,5 +203,91 @@ describe('SearchService', () => {
     expect(service.error()).toBeNull();
     expect(service.total()).toBe(1);
     expect(service.results()[0].title).toContain('dengue');
+    expect(service.results()[0].researcherId).toBe(2);
+  });
+
+  it('falls back to textual production search when semantic search returns no results', () => {
+    service.search('dengue');
+
+    const semanticRequest = http.expectOne('http://api.test/api/v1/busca/semantica');
+    expect(semanticRequest.request.method).toBe('POST');
+    semanticRequest.flush({ resultados: [] });
+
+    const fallbackRequest = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '1'
+      && req.params.get('tamanho_pagina') === '20'
+      && req.params.get('termo') === 'dengue'
+    );
+    expect(fallbackRequest.request.method).toBe('GET');
+
+    fallbackRequest.flush({
+      total: 1,
+      pagina: 1,
+      tamanho_pagina: 20,
+      resultados: [
+        {
+          id: 232,
+          tipo_producao: 'ARTIGO PUBLICADO',
+          titulo: 'Dengue prediction using local data',
+          ano: 2024,
+          idioma: 'Ingles',
+          natureza: 'COMPLETO',
+          doi: null,
+          revista: 'Journal of Public Health',
+          evento: null,
+          pesquisador_id: 3,
+          pesquisador_nome: 'Maria Silva',
+        },
+      ],
+    });
+
+    expect(service.error()).toBeNull();
+    expect(service.total()).toBe(1);
+    expect(service.results()[0].title).toContain('Dengue');
+  });
+
+  it('loads a researcher profile with productions', () => {
+    let profileName = '';
+
+    service.getResearcherProfile(7).subscribe(profile => {
+      profileName = profile.pesquisador.nome;
+    });
+
+    const request = http.expectOne('http://api.test/api/v1/pesquisadores/7/producoes');
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      pesquisador: {
+        id: 7,
+        lattes_id: '123',
+        nome: 'Ana Souza',
+        resumo: 'Resumo',
+        instituicao_nome: 'UNEB',
+        areas: [
+          {
+            id: 3,
+            grande_area: 'Ciencias Exatas',
+            area: 'Computacao',
+            sub_area: 'Inteligencia Artificial',
+            especialidade: null,
+          },
+        ],
+      },
+      producoes: [
+        {
+          id: 10,
+          tipo_producao: 'ARTIGO PUBLICADO',
+          titulo: 'Redes neurais aplicadas a saude',
+          ano: 2024,
+          revista: 'Revista Brasileira de IA',
+          evento: null,
+          natureza: null,
+          doi: '10.0000/teste',
+        },
+      ],
+    });
+
+    expect(profileName).toBe('Ana Souza');
   });
 });

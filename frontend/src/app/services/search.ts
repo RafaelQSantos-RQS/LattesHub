@@ -8,6 +8,7 @@ interface BuscaSemanticaApiResult {
   titulo: string;
   tipo_producao: string;
   ano: number | null;
+  pesquisador_id: number;
   pesquisador_nome: string;
   score: number;
   qualis_estrato: string | null;
@@ -80,6 +81,39 @@ interface GrandeAreaApiResponse {
   }[];
 }
 
+export interface ResearcherArea {
+  id: number;
+  grande_area: string;
+  area: string;
+  sub_area: string | null;
+  especialidade: string | null;
+}
+
+export interface ResearcherSummary {
+  id: number;
+  lattes_id: string;
+  nome: string;
+  resumo: string | null;
+  instituicao_nome: string | null;
+  areas: ResearcherArea[];
+}
+
+export interface ResearcherProduction {
+  id: number;
+  tipo_producao: string;
+  titulo: string;
+  ano: number | null;
+  revista: string | null;
+  evento: string | null;
+  natureza: string | null;
+  doi: string | null;
+}
+
+export interface ResearcherProfile {
+  pesquisador: ResearcherSummary;
+  producoes: ResearcherProduction[];
+}
+
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
   providedIn: 'root',
   factory: () => {
@@ -136,6 +170,11 @@ export class SearchService {
     }).subscribe({
       next: response => {
         const results = response.resultados.map(result => this.mapSemanticResult(result));
+        if (results.length === 0) {
+          this.loadProductions(perguntaNormalizada, filters);
+          return;
+        }
+
         this.resultsSignal.set(results);
         this.totalSignal.set(results.length);
         this.loadingSignal.set(false);
@@ -172,6 +211,10 @@ export class SearchService {
         ),
       )),
     );
+  }
+
+  getResearcherProfile(pesquisadorId: number) {
+    return this.http.get<ResearcherProfile>(`${this.apiBaseUrl}/pesquisadores/${pesquisadorId}/producoes`);
   }
 
   private buildFilters(pergunta: string): SearchFilters {
@@ -229,6 +272,7 @@ export class SearchService {
       id: String(result.id),
       title: result.titulo,
       author: result.pesquisador_nome,
+      researcherId: result.pesquisador_id,
       year: result.ano,
       productionType: result.tipo_producao,
       score: result.score,
@@ -245,6 +289,7 @@ export class SearchService {
       id: String(result.id),
       title: result.titulo,
       author: result.pesquisador_nome,
+      researcherId: result.pesquisador_id,
       year: result.ano,
       language: result.idioma,
       doi: result.doi,

@@ -30,7 +30,7 @@ Apache Hop (ETL)
     ↓
 PostgreSQL + pgvector
     ↓
-FastAPI + Langchain
+FastAPI + OpenAI embeddings
     ↓
 Angular Front-end
     ↓
@@ -48,7 +48,7 @@ Power BI
 | Banco Relacional | PostgreSQL              |
 | Banco Vetorial   | pgvector                |
 | Back-end         | Python + FastAPI        |
-| IA / Embeddings  | Langchain + OpenAI      |
+| IA / Embeddings  | OpenAI + pgvector       |
 | Front-end        | Angular + TailwindCSS   |
 | ETL              | Apache Hop              |
 | BI               | Power BI                |
@@ -64,6 +64,23 @@ Power BI
 * Dashboard analítico via Power BI;
 * Pipeline ETL automatizado;
 * Exportação CSV multidimensional.
+
+---
+
+# Acesso rapido
+
+Depois de iniciar os servicos locais, use os enderecos abaixo:
+
+| Recurso | URL padrao | Observacao |
+| --- | --- | --- |
+| Frontend Angular | `http://localhost:4200/` | Sobe pelo `docker compose up` ou, em desenvolvimento, por `cd frontend && npm install && npm start`. |
+| Swagger UI | `http://localhost:8000/docs` | Documentacao interativa da API FastAPI. |
+| ReDoc | `http://localhost:8000/redoc` | Documentacao alternativa gerada pelo OpenAPI. |
+| API v1 | `http://localhost:8000/api/v1` | Prefixo base dos endpoints REST. |
+| Health check | `http://localhost:8000/health-check` | Verificacao simples de disponibilidade da API. |
+| PostgreSQL local | `localhost:5437` | Porta padrao de `.env.example` via `DB_PORT_EXTERNAL`. |
+
+Se `FRONTEND_PORT`, `BACKEND_PORT` ou `DB_PORT_EXTERNAL` forem alterados no `.env`, ajuste as URLs acima para as portas configuradas.
 
 ---
 
@@ -92,7 +109,7 @@ git config --global core.autocrlf false
 
 ### Passo 1: Subindo a infraestrutura e executando o pipeline ETL (Carga Inicial)
 
-Para construir as imagens e rodar o pipeline completo de ponta a ponta (Banco > API > ETL > Embeddings), execute o comando na raiz do projeto:
+Para construir as imagens e rodar o pipeline completo de ponta a ponta (Banco > API > Frontend > ETL > Embeddings), execute o comando na raiz do projeto:
 
 ```bash
 docker compose --profile etl up --build
@@ -103,17 +120,38 @@ docker compose --profile etl up --build
 
 1. Inicia o **PostgreSQL** (com a extensão pgvector).
 2. Inicia o **Backend** (FastAPI) na porta 8000.
-3. Executa o serviço **Apache Hop** (`latteshub-etl`), que extrai as informações dos XMLs e as popula no banco de dados.
-4. Ao finalizar o ETL com sucesso, executa o serviço de **Embeddings** (`latteshub-embeddings`), que identifica as novas produções inseridas, gera os vetores semânticos chamando a API da OpenAI e os salva no banco, encerrando-se automaticamente ao finalizar a carga.
+3. Inicia o **Frontend** (Angular servido por Nginx) na porta 4200.
+4. Executa o serviço **Apache Hop** (`latteshub-etl`), que extrai as informações dos XMLs e as popula no banco de dados.
+5. Ao finalizar o ETL com sucesso, executa o serviço de **Embeddings** (`latteshub-embeddings`), que primeiro tenta importar o seed versionado `database/seed/vetores_seed.csv`. Se ainda houver artigos sem vetor, gera apenas o delta chamando a API da OpenAI, salva no banco e reexporta o seed.
 
 ### Passo 2: Desenvolvimento no dia a dia
 
 Após a carga inicial de dados ter sido concluída (Passo 1), você não precisa rodar o pipeline de ETL e gastar requisições da OpenAI a cada vez que for programar.
 
-Para subir apenas os serviços persistentes (Banco de Dados e API backend) no dia a dia, utilize:
+Para subir os servicos persistentes (Banco de Dados, API backend e frontend) no dia a dia, utilize:
 
 ```bash
 docker compose up
+
+```
+
+Com os containers ativos, o frontend fica disponivel em `http://localhost:4200/`, o backend em `http://localhost:8000`, e o Swagger em `http://localhost:8000/docs`.
+
+Para rodar a interface web fora do Docker, com live reload do Angular, abra outro terminal e execute:
+
+```bash
+cd frontend
+npm install
+npm start
+
+```
+
+A aplicacao ficara disponivel em `http://localhost:4200/` e consumira a API em `http://localhost:8000/api/v1`.
+
+Quando alterar codigo do backend usando Docker Compose, reconstrua a imagem para refletir as mudancas no container:
+
+```bash
+docker compose up -d --build backend
 
 ```
 
@@ -142,6 +180,41 @@ Smoke tests opcionais para banco externo podem ser executados com:
 RUN_SUPABASE_SMOKE=1 DATABASE_URL="<url-do-postgres-de-teste>" pytest -m supabase
 
 ```
+
+### Testes e build do frontend
+
+Na pasta `frontend/`, use:
+
+```bash
+npm install
+npm test
+npm run build
+
+```
+
+No Windows PowerShell, se `npm` for bloqueado por politica de execucao do `npm.ps1`, use `npm.cmd` nos mesmos comandos, por exemplo `npm.cmd test`.
+
+### Solucao de problemas: busca ou filtros vazios
+
+Se o frontend abrir, mas a busca mostrar "Nenhum resultado encontrado" e os filtros estiverem vazios, verifique primeiro se o ETL populou o banco:
+
+```bash
+docker compose exec db psql -U postgres -d lattes_hub -c "select count(*) from producoes;"
+```
+
+Se o total for `0`, execute novamente a carga ETL:
+
+```bash
+docker compose --profile etl up --force-recreate hop
+```
+
+A busca semantica depende da tabela `vetores`. Se `select count(*) from vetores;` retornar `0`, execute:
+
+```bash
+docker compose --profile etl run --rm embeddings
+```
+
+Esse servico importa `database/seed/vetores_seed.csv` quando o arquivo existe. Assim, em outra maquina com o mesmo conjunto de XMLs, o banco pode ser populado com vetores sem gastar creditos da OpenAI novamente. A API da OpenAI so e chamada para artigos que ainda nao tenham vetor no seed ou no banco.
 
 ---
 

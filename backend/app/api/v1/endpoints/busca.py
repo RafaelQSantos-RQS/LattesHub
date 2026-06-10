@@ -12,6 +12,14 @@ client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 @router.post("/semantica", response_model=BuscaSemanticaResponse)
 def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection)):
     try:
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+        cursor.execute("SELECT EXISTS (SELECT 1 FROM vetores LIMIT 1) AS possui_vetores")
+        if not cursor.fetchone()["possui_vetores"]:
+            cursor.close()
+            raise HTTPException(
+                status_code=503,
+                detail="Indice semantico ainda nao foi gerado.",
+            )
         # 1. Converte a pergunta do usuário num vetor matemático via OpenAI
         response = client.embeddings.create(
             input=payload.pergunta,  # Certifique-se de que no schemas/busca.py a variável se chama 'pergunta'
@@ -20,8 +28,6 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
         vetor_query = response.data[0].embedding
 
         # 2. Executa a busca vetorial com filtros opcionais de negócio
-        cursor = db.cursor(cursor_factory=RealDictCursor)
-
         filtros = []
         valores_filtros = []
 
@@ -60,6 +66,7 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
                 p.titulo, 
                 p.tipo_producao, 
                 p.ano,
+                p.pesquisador_id,
                 pes.nome AS pesquisador_nome,
                 q.estrato AS qualis_estrato,
                 q.area_avaliacao AS qualis_area_avaliacao,
@@ -79,6 +86,7 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
             titulo,
             tipo_producao,
             ano,
+            pesquisador_id,
             pesquisador_nome,
             score,
             qualis_estrato,
@@ -98,6 +106,8 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
 
         return {"resultados": resultados}
 
+    except HTTPException:
+        raise
     except Exception as e:
         db.rollback()
         raise HTTPException(

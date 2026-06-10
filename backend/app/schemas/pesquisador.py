@@ -1,5 +1,13 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 from typing import Optional
+
+
+class PesquisadorAreaResumo(BaseModel):
+    id: int
+    grande_area: str
+    area: str
+    sub_area: Optional[str] = None
+    especialidade: Optional[str] = None
 
 
 class PesquisadorResumo(BaseModel):
@@ -8,6 +16,7 @@ class PesquisadorResumo(BaseModel):
     nome: str
     resumo: Optional[str] = None
     instituicao_nome: Optional[str] = None
+    areas: list[PesquisadorAreaResumo] = Field(default_factory=list)
 
 
 class PesquisadorListResponse(BaseModel):

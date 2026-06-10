@@ -1,5 +1,5 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { convertToParamMap, ActivatedRoute } from '@angular/router';
+import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
 import { of } from 'rxjs';
 
 import { Results } from './results';
@@ -15,6 +15,8 @@ describe('Results', () => {
     total: () => 0,
     lastQuery: () => '',
     search: () => undefined,
+    getInstitutions: () => of([]),
+    getAreaOptions: () => of([]),
   };
 
   beforeEach(async () => {
@@ -27,6 +29,7 @@ describe('Results', () => {
             queryParamMap: of(convertToParamMap({})),
           },
         },
+        { provide: Router, useValue: { navigate: () => undefined } },
         { provide: SearchService, useValue: searchServiceStub },
       ],
     }).compileComponents();

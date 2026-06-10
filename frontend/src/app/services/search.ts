@@ -1,5 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
+import { map } from 'rxjs';
 import { SearchResult } from '../shared/result-card/result-card';
 
 interface BuscaSemanticaApiResult {
@@ -16,6 +17,28 @@ interface BuscaSemanticaApiResult {
 
 interface BuscaSemanticaApiResponse {
   resultados: BuscaSemanticaApiResult[];
+}
+
+export interface SearchFilters {
+  pergunta: string;
+  tipoProducao?: string;
+  ano?: number;
+  instituicaoId?: number;
+  areas: number[];
+}
+
+export interface FilterInstitution {
+  id: number;
+  nome: string;
+  cidade: string | null;
+  estado: string | null;
+  pais: string | null;
+}
+
+export interface FilterAreaOption {
+  id: number;
+  label: string;
+  group: string;
 }
 
 interface ProducaoApiResult {
@@ -37,6 +60,24 @@ interface ProducaoListApiResponse {
   pagina: number;
   tamanho_pagina: number;
   resultados: ProducaoApiResult[];
+}
+
+interface InstituicaoListApiResponse {
+  total: number;
+  pagina: number;
+  tamanho_pagina: number;
+  resultados: FilterInstitution[];
+}
+
+interface GrandeAreaApiResponse {
+  grande_area: string;
+  areas: {
+    nome: string;
+    subareas: {
+      id: number;
+      nome: string;
+    }[];
+  }[];
 }
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
@@ -73,12 +114,13 @@ export class SearchService {
     return this.results;
   }
 
-  search(pergunta: string) {
-    const perguntaNormalizada = pergunta.trim();
+  search(input: string | SearchFilters) {
+    const filters = typeof input === 'string' ? this.buildFilters(input) : input;
+    const perguntaNormalizada = filters.pergunta.trim();
     this.lastQuerySignal.set(perguntaNormalizada);
 
     if (perguntaNormalizada.length < 5) {
-      this.loadLatestProductions();
+      this.loadLatestProductions(filters);
       return;
     }
 
@@ -87,6 +129,10 @@ export class SearchService {
 
     this.http.post<BuscaSemanticaApiResponse>(`${this.apiBaseUrl}/busca/semantica`, {
       pergunta: perguntaNormalizada,
+      tipo_producao: filters.tipoProducao,
+      ano: filters.ano,
+      instituicao_id: filters.instituicaoId,
+      areas: filters.areas.length > 0 ? filters.areas : undefined,
     }).subscribe({
       next: response => {
         const results = response.resultados.map(result => this.mapSemanticResult(result));
@@ -95,16 +141,47 @@ export class SearchService {
         this.loadingSignal.set(false);
       },
       error: () => {
-        this.loadProductions(perguntaNormalizada);
+        this.loadProductions(perguntaNormalizada, filters);
       },
     });
   }
 
-  loadLatestProductions() {
-    this.loadProductions();
+  loadLatestProductions(filters = this.buildFilters('')) {
+    this.loadProductions(undefined, filters);
   }
 
-  private loadProductions(termo?: string) {
+  getInstitutions() {
+    const params = new HttpParams()
+      .set('pagina', '1')
+      .set('tamanho_pagina', '100');
+
+    return this.http
+      .get<InstituicaoListApiResponse>(`${this.apiBaseUrl}/instituicoes/`, { params })
+      .pipe(map(response => response.resultados));
+  }
+
+  getAreaOptions() {
+    return this.http.get<GrandeAreaApiResponse[]>(`${this.apiBaseUrl}/areas/`).pipe(
+      map(groups => groups.flatMap(group =>
+        group.areas.flatMap(area =>
+          area.subareas.map(subarea => ({
+            id: subarea.id,
+            label: subarea.nome,
+            group: `${group.grande_area} / ${area.nome}`,
+          })),
+        ),
+      )),
+    );
+  }
+
+  private buildFilters(pergunta: string): SearchFilters {
+    return {
+      pergunta,
+      areas: [],
+    };
+  }
+
+  private loadProductions(termo?: string, filters = this.buildFilters('')) {
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
 
@@ -114,6 +191,22 @@ export class SearchService {
 
     if (termo) {
       params = params.set('termo', termo);
+    }
+
+    if (filters.tipoProducao) {
+      params = params.set('tipo_producao', filters.tipoProducao);
+    }
+
+    if (filters.ano) {
+      params = params.set('ano', String(filters.ano));
+    }
+
+    if (filters.instituicaoId) {
+      params = params.set('instituicao_id', String(filters.instituicaoId));
+    }
+
+    for (const area of filters.areas) {
+      params = params.append('areas', String(area));
     }
 
     this.http.get<ProducaoListApiResponse>(`${this.apiBaseUrl}/producoes/`, { params }).subscribe({

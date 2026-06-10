@@ -1,7 +1,7 @@
 <aside class="sticky top-28 mt-8 mb-8 h-[calc(100vh-144px)] w-sidebar-width shrink-0 bg-surface-container-low dark:bg-surface-container border border-slate-200 rounded-sm shadow-sm overflow-y-auto custom-scrollbar p-6 flex flex-col gap-6">
   <div class="flex flex-col gap-1">
-    <h2 class="font-headline-sm text-headline-sm text-on-surface">Faceted Search</h2>
-    <p class="font-label-bold text-label-bold text-on-surface-variant opacity-70">Refine by metadata</p>
+    <h2 class="font-headline-sm text-headline-sm text-on-surface">Filtros</h2>
+    <p class="font-label-bold text-label-bold text-on-surface-variant opacity-70">Refinar por metadados</p>
   </div>
   
   <!-- Facet Sections -->
@@ -9,48 +9,42 @@
     <!-- Institution -->
     <div>
       <button class="w-full flex items-center justify-between font-label-bold text-label-bold text-on-surface py-2 border-b border-slate-200" (click)="toggleSection('institution')">
-        INSTITUTION
+        INSTITUIÇÃO
         <span class="material-symbols-outlined text-xs">{{ expandedSections().institution ? 'expand_less' : 'expand_more' }}</span>
       </button>
       @if (expandedSections().institution) {
-        <div class="mt-3 space-y-2">
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input class="rounded-sm border-outline-variant text-slate-900 focus:ring-slate-900 h-4 w-4" type="checkbox">
-            <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary">MIT</span>
-            <span class="ml-auto font-data-label text-data-label text-outline opacity-60">452k</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input class="rounded-sm border-outline-variant text-slate-900 focus:ring-slate-900 h-4 w-4" type="checkbox">
-            <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary">Oxford University</span>
-            <span class="ml-auto font-data-label text-data-label text-outline opacity-60">328k</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input class="rounded-sm border-outline-variant text-slate-900 focus:ring-slate-900 h-4 w-4" type="checkbox">
-            <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary">Stanford</span>
-            <span class="ml-auto font-data-label text-data-label text-outline opacity-60">310k</span>
-          </label>
-        </div>
+        <select class="mt-3 w-full border border-outline-variant rounded-sm bg-white p-2 text-body-sm font-body-sm text-on-surface focus:ring-primary"
+                (change)="onInstitutionChange($event)">
+          <option value="">Todas</option>
+          @for (institution of institutions(); track institution.id) {
+            <option [value]="institution.id" [selected]="selectedInstitutionId() === institution.id">
+              {{ institution.nome }}
+            </option>
+          }
+        </select>
       }
     </div>
     
     <!-- Research Area -->
     <div>
       <button class="w-full flex items-center justify-between font-label-bold text-label-bold text-on-surface py-2 border-b border-slate-200" (click)="toggleSection('researchArea')">
-        RESEARCH AREA
+        ÁREA
         <span class="material-symbols-outlined text-xs">{{ expandedSections().researchArea ? 'expand_less' : 'expand_more' }}</span>
       </button>
       @if (expandedSections().researchArea) {
-        <div class="mt-3 space-y-2">
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input checked class="rounded-sm border-outline-variant text-slate-900 focus:ring-slate-900 h-4 w-4" type="checkbox">
-            <span class="font-body-sm text-body-sm text-on-surface group-hover:text-primary">Computer Science</span>
-            <span class="ml-auto font-data-label text-data-label text-outline opacity-60">212</span>
-          </label>
-          <label class="flex items-center gap-3 cursor-pointer group">
-            <input class="rounded-sm border-outline-variant text-slate-900 focus:ring-slate-900 h-4 w-4" type="checkbox">
-            <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary">Bioinformatics</span>
-            <span class="ml-auto font-data-label text-data-label text-outline opacity-60">56</span>
-          </label>
+        <div class="mt-3 space-y-2 max-h-64 overflow-y-auto pr-1 custom-scrollbar">
+          @for (area of areaOptions(); track area.id) {
+            <label class="flex items-start gap-3 cursor-pointer group">
+              <input class="rounded-sm border-outline-variant text-slate-900 focus:ring-slate-900 h-4 w-4 mt-0.5"
+                     type="checkbox"
+                     [checked]="selectedAreas().includes(area.id)"
+                     (change)="onAreaToggle(area.id, $any($event.target).checked)">
+              <span class="flex flex-col">
+                <span class="font-body-sm text-body-sm text-on-surface-variant group-hover:text-primary">{{ area.label }}</span>
+                <span class="font-data-label text-[10px] text-outline">{{ area.group }}</span>
+              </span>
+            </label>
+          }
         </div>
       }
     </div>
@@ -58,23 +52,22 @@
     <!-- Production Type -->
     <div>
       <button class="w-full flex items-center justify-between font-label-bold text-label-bold text-on-surface py-2 border-b border-slate-200" (click)="toggleSection('productionType')">
-        PRODUCTION TYPE
+        TIPO DE PRODUÇÃO
         <span class="material-symbols-outlined text-xs">{{ expandedSections().productionType ? 'expand_less' : 'expand_more' }}</span>
       </button>
       @if (expandedSections().productionType) {
         <div class="mt-3 space-y-2">
-          <div class="flex items-center gap-3 px-4 py-2 bg-secondary-fixed dark:bg-secondary-fixed-dim text-on-secondary-fixed-variant rounded-lg">
-            <span class="material-symbols-outlined">description</span>
-            <span class="font-label-bold text-label-bold">Scientific Papers</span>
-          </div>
-          <a class="flex items-center gap-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant px-4 py-2 rounded-lg transition-all" href="#">
-            <span class="material-symbols-outlined">psychology</span>
-            <span class="font-label-bold text-label-bold">Patents</span>
-          </a>
-          <a class="flex items-center gap-3 text-on-surface-variant dark:text-surface-variant hover:bg-surface-variant px-4 py-2 rounded-lg transition-all" href="#">
-            <span class="material-symbols-outlined">code</span>
-            <span class="font-label-bold text-label-bold">Software</span>
-          </a>
+          @for (type of productionTypes; track type.value) {
+            <button class="w-full flex items-center gap-3 px-4 py-2 rounded-lg transition-all text-left"
+                    [class.bg-secondary-fixed]="selectedType() === type.value"
+                    [class.text-on-secondary-fixed-variant]="selectedType() === type.value"
+                    [class.text-on-surface-variant]="selectedType() !== type.value"
+                    [class.hover:bg-surface-variant]="selectedType() !== type.value"
+                    (click)="onTypeChange(type.value)">
+              <span class="material-symbols-outlined">{{ type.icon }}</span>
+              <span class="font-label-bold text-label-bold">{{ type.label }}</span>
+            </button>
+          }
         </div>
       }
     </div>
@@ -82,14 +75,18 @@
     <!-- Year Range -->
     <div>
       <button class="w-full flex items-center justify-between font-label-bold text-label-bold text-on-surface py-2 border-b border-slate-200" (click)="toggleSection('yearRange')">
-        YEAR RANGE
+        ANO
         <span class="material-symbols-outlined text-xs">{{ expandedSections().yearRange ? 'expand_less' : 'expand_more' }}</span>
       </button>
       @if (expandedSections().yearRange) {
-        <div class="mt-4 flex items-center gap-2">
-          <input class="w-full border-outline-variant rounded-sm text-body-sm font-data-label p-1 text-center focus:ring-primary" placeholder="2019" type="text">
-          <span class="text-outline">to</span>
-          <input class="w-full border-outline-variant rounded-sm text-body-sm font-data-label p-1 text-center focus:ring-primary" placeholder="2024" type="text">
+        <div class="mt-4">
+          <input class="w-full border border-outline-variant rounded-sm text-body-sm font-data-label p-2 text-center focus:ring-primary"
+                 placeholder="2025"
+                 min="1900"
+                 max="2100"
+                 type="number"
+                 [value]="selectedYear() ?? ''"
+                 (change)="onYearInput($event)">
         </div>
       }
     </div>
@@ -97,13 +94,10 @@
   
   <!-- Footer Sidebar Actions -->
   <div class="mt-auto pt-6 border-t border-outline-variant space-y-4">
-    <button class="w-full bg-slate-900 text-white py-3 rounded-sm font-label-bold text-label-bold hover:bg-primary-container transition-colors flex items-center justify-center gap-2">
-      <span class="material-symbols-outlined text-sm">download</span>
-      Export Results
+    <button class="w-full bg-slate-900 text-white py-3 rounded-sm font-label-bold text-label-bold hover:bg-primary-container transition-colors flex items-center justify-center gap-2"
+            (click)="clearFilters()">
+      <span class="material-symbols-outlined text-sm">filter_alt_off</span>
+      Limpar filtros
     </button>
-    <div class="flex justify-around text-on-surface-variant">
-      <button class="hover:text-primary transition-colors" title="Save Search"><span class="material-symbols-outlined">bookmark</span></button>
-      <button class="hover:text-primary transition-colors" title="Feedback"><span class="material-symbols-outlined">rate_review</span></button>
-    </div>
   </div>
 </aside>

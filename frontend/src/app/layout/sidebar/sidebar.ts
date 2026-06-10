@@ -1,4 +1,7 @@
-import { Component, signal } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FilterAreaOption, FilterInstitution, SearchService } from '../../services/search';
 
 interface SidebarSections {
   institution: boolean;
@@ -14,17 +17,108 @@ interface SidebarSections {
   styleUrl: './sidebar.scss',
 })
 export class Sidebar {
+  private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+  private readonly searchService = inject(SearchService);
+
   expandedSections = signal<SidebarSections>({
-    institution: false,
+    institution: true,
     researchArea: true,
     productionType: true,
-    yearRange: false
+    yearRange: true
   });
+  institutions = signal<FilterInstitution[]>([]);
+  areaOptions = signal<FilterAreaOption[]>([]);
+  selectedInstitutionId = signal<number | undefined>(undefined);
+  selectedType = signal<string | undefined>(undefined);
+  selectedYear = signal<number | undefined>(undefined);
+  selectedAreas = signal<number[]>([]);
+
+  productionTypes = [
+    {
+      label: 'Artigos publicados',
+      value: 'ARTIGO PUBLICADO',
+      icon: 'description',
+    },
+  ];
+
+  constructor() {
+    this.searchService.getInstitutions()
+      .pipe(takeUntilDestroyed())
+      .subscribe(institutions => this.institutions.set(institutions));
+
+    this.searchService.getAreaOptions()
+      .pipe(takeUntilDestroyed())
+      .subscribe(areas => this.areaOptions.set(areas));
+
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed())
+      .subscribe(params => {
+        this.selectedInstitutionId.set(this.toNumber(params.get('instituicao_id')));
+        this.selectedType.set(params.get('tipo_producao') ?? undefined);
+        this.selectedYear.set(this.toNumber(params.get('ano')));
+        this.selectedAreas.set(params.getAll('areas').map(Number).filter(Number.isFinite));
+      });
+  }
 
   toggleSection(section: keyof SidebarSections) {
     this.expandedSections.update(sections => ({
       ...sections,
       [section]: !sections[section]
     }));
+  }
+
+  onInstitutionChange(event: Event) {
+    const value = (event.target as HTMLSelectElement).value;
+    this.updateQueryParams({ instituicao_id: value || null });
+  }
+
+  onTypeChange(tipoProducao: string) {
+    this.updateQueryParams({
+      tipo_producao: this.selectedType() === tipoProducao ? null : tipoProducao,
+    });
+  }
+
+  onAreaToggle(areaId: number, checked: boolean) {
+    const selected = new Set(this.selectedAreas());
+
+    if (checked) {
+      selected.add(areaId);
+    } else {
+      selected.delete(areaId);
+    }
+
+    this.updateQueryParams({ areas: Array.from(selected) });
+  }
+
+  onYearInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.updateQueryParams({ ano: value || null });
+  }
+
+  clearFilters() {
+    this.updateQueryParams({
+      instituicao_id: null,
+      tipo_producao: null,
+      ano: null,
+      areas: null,
+    });
+  }
+
+  private updateQueryParams(queryParams: Record<string, string | number[] | null>) {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams,
+      queryParamsHandling: 'merge',
+    });
+  }
+
+  private toNumber(value: string | null) {
+    if (!value) {
+      return undefined;
+    }
+
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : undefined;
   }
 }

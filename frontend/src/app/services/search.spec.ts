@@ -69,12 +69,55 @@ describe('SearchService', () => {
     });
   });
 
+  it('sends production filters to the listing endpoint when no semantic query is provided', () => {
+    service.search({
+      pergunta: '',
+      tipoProducao: 'ARTIGO PUBLICADO',
+      ano: 2025,
+      instituicaoId: 2,
+      areas: [5, 35],
+    });
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '1'
+      && req.params.get('tamanho_pagina') === '20'
+      && req.params.get('tipo_producao') === 'ARTIGO PUBLICADO'
+      && req.params.get('ano') === '2025'
+      && req.params.get('instituicao_id') === '2'
+      && (req.params.getAll('areas') ?? []).join(',') === '5,35'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      total: 0,
+      pagina: 1,
+      tamanho_pagina: 20,
+      resultados: [],
+    });
+
+    expect(service.total()).toBe(0);
+    expect(service.results()).toEqual([]);
+  });
+
   it('runs semantic search against the API for valid queries', () => {
-    service.search('inteligencia artificial na saude');
+    service.search({
+      pergunta: 'inteligencia artificial na saude',
+      tipoProducao: 'ARTIGO PUBLICADO',
+      ano: 2023,
+      instituicaoId: 1,
+      areas: [30],
+    });
 
     const request = http.expectOne('http://api.test/api/v1/busca/semantica');
     expect(request.request.method).toBe('POST');
-    expect(request.request.body).toEqual({ pergunta: 'inteligencia artificial na saude' });
+    expect(request.request.body).toEqual({
+      pergunta: 'inteligencia artificial na saude',
+      tipo_producao: 'ARTIGO PUBLICADO',
+      ano: 2023,
+      instituicao_id: 1,
+      areas: [30],
+    });
 
     request.flush({
       resultados: [
@@ -109,13 +152,28 @@ describe('SearchService', () => {
   });
 
   it('falls back to textual production search when semantic search fails', () => {
-    service.search('dengue');
+    service.search({
+      pergunta: 'dengue',
+      tipoProducao: 'ARTIGO PUBLICADO',
+      ano: 2025,
+      instituicaoId: 2,
+      areas: [5],
+    });
 
     const semanticRequest = http.expectOne('http://api.test/api/v1/busca/semantica');
     expect(semanticRequest.request.method).toBe('POST');
     semanticRequest.flush({ detail: 'Erro na busca semantica' }, { status: 500, statusText: 'Server Error' });
 
-    const fallbackRequest = http.expectOne('http://api.test/api/v1/producoes/?pagina=1&tamanho_pagina=20&termo=dengue');
+    const fallbackRequest = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '1'
+      && req.params.get('tamanho_pagina') === '20'
+      && req.params.get('termo') === 'dengue'
+      && req.params.get('tipo_producao') === 'ARTIGO PUBLICADO'
+      && req.params.get('ano') === '2025'
+      && req.params.get('instituicao_id') === '2'
+      && (req.params.getAll('areas') ?? []).join(',') === '5'
+    );
     expect(fallbackRequest.request.method).toBe('GET');
 
     fallbackRequest.flush({

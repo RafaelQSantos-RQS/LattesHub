@@ -169,7 +169,7 @@ Ordering rule: complete Sprint 4 before Sprint 5. Within a sprint, do backend/AP
    - Verification: frontend filters cover institution, area, production type, and year, with options loaded from real FastAPI endpoints and filters sent to the backend.
 4. #35 Criar tela ou painel de detalhes do pesquisador.
    - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
-   - Status note: implemented locally on 2026-06-10; pending commit/PR/merge.
+   - Status note: implemented and merged on 2026-06-10 in PR #47.
    - Verification: users can navigate from search/listing views to researcher details and researcher productions.
 5. #36 Completar exportacao CSV dimensional para Power BI.
    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.

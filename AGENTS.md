@@ -1,19 +1,35 @@
 # AGENTS.md
 
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
+Guidelines for agents working on LattesHub. This file is the single source of truth for project instructions and is tracked in the code repository.
 
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
+## Usage Scope
+
+- Open Codex/agents from the `LattesHub/` repository root, or from one of its subdirectories, so this file is loaded automatically.
+- The parent folder name is not important. What matters is that the code repository and optional wiki checkout are sibling directories:
+
+```text
+any-parent-folder/
+  LattesHub/
+    AGENTS.md
+  LattesHub.wiki/
+```
+
+- The wiki checkout is optional and must be detected relative to this repository as `../LattesHub.wiki/`.
+- If `../LattesHub.wiki/` exists, consult it before changing architecture, API contracts, ETL, embeddings, database schema, backlog behavior, or documentation.
+- If `../LattesHub.wiki/` does not exist, continue using the codebase as the source of truth and mention that the wiki was unavailable when it matters to the task.
+- Do not assume the wiki exists in another path without verifying it.
+- If an agent is opened from the parent folder and there is no `AGENTS.md` there, this repository file may not be loaded automatically.
 
 ## 1. Think Before Coding
 
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
+**Do not assume. Do not hide confusion. Surface tradeoffs.**
 
 Before implementing:
 
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
+- State assumptions explicitly when they affect the implementation.
+- If multiple interpretations exist, present them instead of silently choosing.
 - If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
+- If something is unclear and cannot be discovered from the repo, stop and ask.
 
 ## 2. Simplicity First
 
@@ -21,29 +37,29 @@ Before implementing:
 
 - No features beyond what was asked.
 - No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
+- No flexibility or configurability that was not requested.
 - No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
+- If a solution is much larger than the problem requires, simplify it.
 
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
+Ask yourself: would a senior engineer say this is overcomplicated? If yes, simplify.
 
 ## 3. Surgical Changes
 
-**Touch only what you must. Clean up only your own mess.**
+**Touch only what is needed. Clean up only your own mess.**
 
 When editing existing code:
 
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
+- Do not improve adjacent code, comments, or formatting incidentally.
+- Do not refactor things that are not broken.
+- Match existing style, even if you would choose differently.
+- If you notice unrelated dead code, mention it instead of deleting it.
 
 When your changes create orphans:
 
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
+- Remove imports, variables, and functions that your changes made unused.
+- Do not remove pre-existing dead code unless asked.
 
-The test: Every changed line should trace directly to the user's request.
+Every changed line should trace directly to the user request.
 
 ## 4. Goal-Driven Execution
 
@@ -51,43 +67,43 @@ The test: Every changed line should trace directly to the user's request.
 
 Transform tasks into verifiable goals:
 
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
+- "Add validation" -> write tests for invalid inputs, then make them pass.
+- "Fix the bug" -> write or identify a reproduction, then make it pass.
+- "Refactor X" -> ensure relevant behavior still passes after the change.
 
 For multi-step tasks, state a brief plan:
 
+```text
+1. [Step] -> verify: [check]
+2. [Step] -> verify: [check]
+3. [Step] -> verify: [check]
 ```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
-```
 
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+Strong success criteria let you loop independently. Weak criteria require clarification.
 
----
+## 5. Proactive Operational Notes
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+**Capture lessons that prevent repeated mistakes.**
 
-# Repository Guidelines
+When a task reveals an operational detail, environment behavior, verification trap, or workflow constraint that is likely to matter again, add a concise note to this `AGENTS.md` automatically. Keep the note close to the relevant section, make it specific to the observed behavior, and avoid broad policy changes. Do this without waiting for the user to ask when the note would have prevented confusion or rework in the current task.
 
-## Project Structure & Module Organization
+## Project Structure
 
-LattesHub combines ETL, API, database, and web UI components. In this workspace, the source repository lives under `LattesHub/` and the wiki checkout should live beside it at `../LattesHub.wiki/`.
+LattesHub combines ETL, API, database, and web UI components.
 
-- `LattesHub/backend/`: FastAPI application. Main entrypoint is `backend/app/main.py`; API routes live in `backend/app/api/v1/endpoints/`, schemas in `backend/app/schemas/`, database helpers in `backend/app/core/`, and utility scripts in `backend/app/scripts/`.
-- `LattesHub/frontend/`: Angular application. Source lives in `frontend/src/app/`, organized into `pages/`, `layout/`, `shared/`, and `services/`. Unit specs use `*.spec.ts`.
-- `LattesHub/database/`: PostgreSQL build context, Apache Hop project metadata, and input datasets under `database/data/`.
-- `LattesHub/docker-compose.yml`: local orchestration for PostgreSQL, FastAPI backend, and Apache Hop ETL.
+- `backend/`: FastAPI application. Main entrypoint is `backend/app/main.py`; API routes live in `backend/app/api/v1/endpoints/`, schemas in `backend/app/schemas/`, database helpers in `backend/app/core/`, and utility scripts in `backend/app/scripts/`.
+- `frontend/`: Angular application. Source lives in `frontend/src/app/`, organized into `pages/`, `layout/`, `shared/`, and `services/`. Unit specs use `*.spec.ts`.
+- `database/`: PostgreSQL build context, Apache Hop project metadata, and input datasets under `database/data/`.
+- `docker-compose.yml`: local orchestration for PostgreSQL, FastAPI backend, and Apache Hop ETL.
 
-## LattesHub Wiki Context
+## LattesHub Context
 
-Treat the codebase as the source of truth when it conflicts with the wiki, but consult `../LattesHub.wiki/` before changing architecture, API contracts, ETL, embeddings, database schema, or backlog-related behavior. The wiki documents the intended product: a platform for search and analysis of scientific productions extracted from Curriculo Lattes XML files, with textual search, semantic search, REST APIs, an analytical UI, and future BI/CSV outputs.
+The codebase is the source of truth when it conflicts with the wiki. The wiki, when available at `../LattesHub.wiki/`, documents the intended product: a platform for search and analysis of scientific productions extracted from Curriculo Lattes XML files, with textual search, semantic search, REST APIs, an analytical UI, and future BI/CSV outputs.
 
 The implemented stack is:
 
-- Data ingestion: Apache Hop pipelines and workflows under `LattesHub/database/apache_hop/`, reading Lattes XML and Qualis CAPES CSV input from `LattesHub/database/data/`.
-- Database: PostgreSQL with `pgvector`, initialized by `LattesHub/database/init.sql`.
+- Data ingestion: Apache Hop pipelines and workflows under `database/apache_hop/`, reading Lattes XML and Qualis CAPES CSV input from `database/data/`.
+- Database: PostgreSQL with `pgvector`, initialized by `database/init.sql`.
 - Backend: Python + FastAPI, exposed under `/api/v1`.
 - Frontend: Angular 21 + Tailwind CSS, using standalone-style components and signals.
 - Infrastructure: Docker Compose services for `db`, `backend`, and profile-gated `hop` ETL.
@@ -102,7 +118,7 @@ Lattes XML / Qualis CSV
   -> Angular frontend
 ```
 
-The core schema currently centers on `instituicoes`, `pesquisadores`, `areas_conhecimento`, `pesquisador_areas`, `producoes`, `vetores`, and `qualis_periodicos`. Embeddings use OpenAI `text-embedding-3-small`, 1536 dimensions, stored in `vetores`, and are generated from production titles by `LattesHub/backend/app/scripts/gerar_embeddings.py`.
+The core schema currently centers on `instituicoes`, `pesquisadores`, `areas_conhecimento`, `pesquisador_areas`, `producoes`, `vetores`, and `qualis_periodicos`. Embeddings use OpenAI `text-embedding-3-small`, 1536 dimensions, stored in `vetores`, and are generated from production titles by `backend/app/scripts/gerar_embeddings.py`.
 
 The implemented API routes are:
 
@@ -119,27 +135,66 @@ The implemented API routes are:
 
 ## Known Documentation Drift
 
-These items were found while comparing the wiki with the current code. Do not "fix" them incidentally; address them only when the task asks for documentation or implementation alignment.
+These items were found while comparing the wiki with the current code. Do not fix them incidentally; address them only when the task asks for documentation or implementation alignment.
 
 - The wiki and root `README.md` mention Next.js in several places, but `frontend/package.json` and `frontend/README.md` show the current frontend is Angular 21.
 - The API wiki documents `GET /instituicoes/{instituicao_id}/pesquisadores`, but the backend currently implements only institution details and institution productions for that sub-resource area.
-- The semantic architecture wiki describes an HNSW vector index, while `LattesHub/database/init.sql` currently creates an `ivfflat` index on `vetores.embedding`.
-- The backlog includes backend tests and CSV/Power BI export deliverables, but no backend test suite or backend CSV exporter was found.
-- The frontend currently has mock search results in `LattesHub/frontend/src/app/services/search.ts` and is not yet wired to the FastAPI search/listing endpoints.
-- `LattesHub/backend/app/scripts/buscar_artigos.py` contains a hardcoded database password fallback; remove that in a focused security cleanup before treating the script as production-safe.
+- The semantic architecture wiki describes an HNSW vector index, while `database/init.sql` currently creates an `ivfflat` index on `vetores.embedding`.
+- The backlog includes backend tests and CSV/Power BI export deliverables, but no broad backend test suite or backend CSV exporter is established yet.
+- `backend/app/scripts/buscar_artigos.py` contains a hardcoded database password fallback; remove that in a focused security cleanup before treating the script as production-safe.
+
+## Open Issue Execution Queue
+
+This queue reflects the open GitHub issues last organized on 2026-06-10. When the user asks "faca a proxima issue" or "prossiga para a proxima issue", use this queue directly instead of reanalyzing GitHub issues from scratch. Pick the first item that is not marked here as implemented or merged. If GitHub has clearly changed since this date, refresh the queue and update this section before starting work.
+
+Ordering rule: complete Sprint 4 before Sprint 5. Within a sprint, do backend/API contract work before frontend integration, integration before UI filters/details, data exports before BI/dashboard work, and deploy/checklist/demo near the end.
+
+### Current Next-Issue Queue
+
+1. #42 Adicionar busca por Qualis na busca semantica.
+   - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status note: implemented and merged on 2026-06-10.
+   - Verification: semantic search accepts `qualis_estrato`, enriches responses with Qualis fields when available, and Docker backend was rebuilt so Swagger shows the updated contract.
+2. #28 Integrar o front com o back.
+   - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status note: implemented and merged on 2026-06-10.
+   - Verification: Angular search/results flow consumes real FastAPI calls to semantic search and production listing endpoints, including textual fallback when semantic search is unavailable.
+3. #31 Implementar filtros reais no frontend.
+   - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status note: implemented and merged on 2026-06-10.
+   - Verification: frontend filters cover institution, area, production type, and year, with options loaded from real FastAPI endpoints and filters sent to the backend.
+4. #35 Criar tela ou painel de detalhes do pesquisador.
+   - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Verification: users can navigate from search/listing views to researcher details and researcher productions.
+5. #36 Completar exportacao CSV dimensional para Power BI.
+   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
+   - Verification: generated CSVs include the dimensional fields expected by the Power BI dashboard.
+6. #34 Criar dashboard Power BI com KPIs e segmentacoes.
+   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
+   - Verification: KPIs, slicers, and relationships work using the exported CSV data.
+7. #43 Preparar deploy do backend, frontend e banco.
+   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
+   - Verification: environment variables, Docker/database configuration, and deployment path cover backend, frontend, and PostgreSQL.
+8. #37 Consolidar checklist de entrega final.
+   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
+   - Verification: implementation, documentation, deployment, and demo artifacts are accounted for.
+9. #32 Gravar e publicar video de demonstracao da solucao.
+   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
+   - Verification: recorded flow demonstrates search, filters, details, BI outputs, and deployment state.
 
 ## Build, Test, and Development Commands
 
-- `cd LattesHub && docker compose up -d db backend`: start database and API locally.
-- `cd LattesHub && docker compose --profile etl up hop`: run the Apache Hop ETL job.
-- `cd LattesHub/backend && pip install -r requirements.txt`: install backend dependencies.
-- `cd LattesHub/backend && uvicorn app.main:app --reload`: run the FastAPI app in development.
-- `cd LattesHub/frontend && npm install`: install frontend dependencies.
-- `cd LattesHub/frontend && npm start`: run Angular dev server at `http://localhost:4200/`.
-- `cd LattesHub/frontend && npm run build`: build the frontend into `dist/`.
-- `cd LattesHub/frontend && npm test`: run frontend unit tests.
+- `docker compose up -d db backend`: start database and API locally.
+- `docker compose up -d --build backend`: rebuild and restart the FastAPI backend after code changes when using Docker Compose. The backend service copies source files into the image and does not mount the local `backend/` directory as a live volume, so Swagger/OpenAPI at `http://localhost:8000/docs` keeps showing the old contract until the backend image/container is rebuilt.
+- `docker compose --profile etl up hop`: run the Apache Hop ETL job.
+- `cd backend && pip install -r requirements.txt`: install backend dependencies.
+- `cd backend && uvicorn app.main:app --reload`: run the FastAPI app in development.
+- `cd frontend && npm install`: install frontend dependencies.
+- `cd frontend && npm start`: run Angular dev server at `http://localhost:4200/`.
+- `cd frontend && npm run build`: build the frontend into `dist/`.
+- `cd frontend && npm test`: run frontend unit tests.
 
-## Coding Style & Naming Conventions
+## Coding Style
 
 Python code uses 4-space indentation, type hints where practical, and snake_case for modules, functions, and variables. Keep FastAPI routers focused by resource, matching the existing endpoint files such as `pesquisadores.py` and `producoes.py`.
 
@@ -147,14 +202,20 @@ Angular code uses TypeScript, standalone-style components, and kebab-case file n
 
 ## Testing Guidelines
 
-Frontend tests are colocated as `*.spec.ts` under `frontend/src/app/`. Add or update specs when changing services, routing behavior, or component logic. Backend tests are not currently established; when adding them, prefer `pytest` under `backend/tests/` and cover endpoint behavior plus database edge cases.
+Frontend tests are colocated as `*.spec.ts` under `frontend/src/app/`. Add or update specs when changing services, routing behavior, or component logic.
 
-## Commit & Pull Request Guidelines
+Backend tests are not broadly established; when adding them, prefer `pytest` under `backend/tests/` and cover endpoint behavior plus database edge cases.
+
+When integrating frontend search with backend semantic search, verify the browser flow with a real query such as `dengue`. The semantic endpoint depends on `OPENAI_API_KEY`; if the key is invalid or unavailable, the frontend must still degrade gracefully to a real backend textual search (`/api/v1/producoes/?termo=...`) instead of showing a generic failure state.
+
+## Commit, PR, and Wiki Workflow
 
 Git history uses a mix of concise imperative commits and Conventional Commit prefixes, such as `feat(frontend): ...`, `build(docker): ...`, and `docs(frontend): ...`. Prefer that format for scoped changes.
 
 Pull requests should include a short summary, affected areas (`backend`, `frontend`, `database`, `etl`), commands run, and any relevant screenshots for UI changes. Link related issues when available and mention required `.env` or Docker changes.
 
-## Security & Configuration Tips
+After using the `$gh-create-pr` skill to open a PR in the code repository, check whether related documentation changes exist in `../LattesHub.wiki/`. If they do, commit and push them directly to the wiki's main branch (`master` in the current checkout), because GitHub wikis are separate repositories and do not go through the code PR. If the wiki remote rejects the push, run `git pull --rebase origin master`, resolve conflicts by preserving remote updates plus the local documentation change, then push again.
+
+## Security and Configuration
 
 Keep secrets in `.env`; do not commit real `OPENAI_API_KEY` or production database passwords. Inside Docker, services should connect to PostgreSQL with `DB_HOST=db` and `DB_PORT=5432`; host-only access uses `DB_PORT_EXTERNAL`.

@@ -47,6 +47,10 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
             """)
             valores_filtros.append(payload.areas)
 
+        if payload.qualis_estrato:
+            filtros.append("UPPER(q.estrato) = UPPER(%s)")
+            valores_filtros.append(payload.qualis_estrato)
+
         where_clause = "WHERE " + " AND ".join(filtros) if filtros else ""
 
         sql = f"""
@@ -57,16 +61,29 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
                 p.tipo_producao, 
                 p.ano,
                 pes.nome AS pesquisador_nome,
+                q.estrato AS qualis_estrato,
+                q.area_avaliacao AS qualis_area_avaliacao,
+                q.titulo AS qualis_titulo,
                 (1 - (v.embedding <=> %s::vector)) * 100 AS score,
                 ROW_NUMBER() OVER(PARTITION BY p.titulo ORDER BY (v.embedding <=> %s::vector) ASC) as rn
             FROM producoes p
             JOIN vetores v ON p.id = v.producao_id
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+            LEFT JOIN qualis_periodicos q ON p.issn = q.issn
             {where_clause}
             ORDER BY (v.embedding <=> %s::vector) ASC
             LIMIT 50
         )
-        SELECT id, titulo, tipo_producao, ano, pesquisador_nome, score
+        SELECT
+            id,
+            titulo,
+            tipo_producao,
+            ano,
+            pesquisador_nome,
+            score,
+            qualis_estrato,
+            qualis_area_avaliacao,
+            qualis_titulo
         FROM ranked_producoes
         WHERE rn = 1
         ORDER BY score DESC

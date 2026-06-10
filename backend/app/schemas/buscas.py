@@ -21,6 +21,10 @@ class BuscaSemanticaRequest(BaseModel):
         None,
         description="Filtra por múltiplos IDs de áreas de conhecimento",
     )
+    qualis_estrato: Optional[str] = Field(
+        None,
+        description="Filtra por estrato Qualis do periódico, como A1, A2, B1 ou B2",
+    )
 
 
 class ArtigoRelevante(BaseModel):
@@ -30,6 +34,9 @@ class ArtigoRelevante(BaseModel):
     ano: int | None
     pesquisador_nome: str
     score: float = Field(..., description="Score de similaridade de 0 a 100")
+    qualis_estrato: str | None = None
+    qualis_area_avaliacao: str | None = None
+    qualis_titulo: str | None = None
 
 
 class BuscaSemanticaResponse(BaseModel):

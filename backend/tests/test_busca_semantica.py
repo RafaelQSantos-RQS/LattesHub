@@ -68,6 +68,7 @@ def test_busca_semantica_filtra_por_qualis(client, issue30_data, monkeypatch):
         "/api/v1/busca/semantica",
         json={
             "pergunta": "consulta semantica de teste",
+            "instituicao_id": issue30_data["instituicao"]["id"],
             "qualis_estrato": "A1",
         },
     )

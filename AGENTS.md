@@ -87,6 +87,10 @@ Strong success criteria let you loop independently. Weak criteria require clarif
 
 When a task reveals an operational detail, environment behavior, verification trap, or workflow constraint that is likely to matter again, add a concise note to this `AGENTS.md` automatically. Keep the note close to the relevant section, make it specific to the observed behavior, and avoid broad policy changes. Do this without waiting for the user to ask when the note would have prevented confusion or rework in the current task.
 
+At the start of each working session, check whether the root `README.md` still matches the current project state. Compare it against the codebase and, when available, `../LattesHub.wiki/` for commands, URLs, stack, API access, frontend/backend startup flow, environment variables, and implemented features. If the README is stale and the current task touches related behavior or documentation, update it as part of the task; otherwise mention the drift instead of silently ignoring it.
+
+When completing any issue or feature that changes user-facing behavior, API contracts, local setup, development commands, deployment steps, exported artifacts, or major project capabilities, update `README.md` in the same change if that information belongs there. Do not add noisy implementation details, but make sure future users can run, access, and understand the relevant feature from the README.
+
 ## Project Structure
 
 LattesHub combines ETL, API, database, and web UI components.
@@ -94,7 +98,7 @@ LattesHub combines ETL, API, database, and web UI components.
 - `backend/`: FastAPI application. Main entrypoint is `backend/app/main.py`; API routes live in `backend/app/api/v1/endpoints/`, schemas in `backend/app/schemas/`, database helpers in `backend/app/core/`, and utility scripts in `backend/app/scripts/`.
 - `frontend/`: Angular application. Source lives in `frontend/src/app/`, organized into `pages/`, `layout/`, `shared/`, and `services/`. Unit specs use `*.spec.ts`.
 - `database/`: PostgreSQL build context, Apache Hop project metadata, and input datasets under `database/data/`.
-- `docker-compose.yml`: local orchestration for PostgreSQL, FastAPI backend, and Apache Hop ETL.
+- `docker-compose.yml`: local orchestration for PostgreSQL, FastAPI backend, Angular frontend, and Apache Hop ETL.
 
 ## LattesHub Context
 
@@ -106,7 +110,7 @@ The implemented stack is:
 - Database: PostgreSQL with `pgvector`, initialized by `database/init.sql`.
 - Backend: Python + FastAPI, exposed under `/api/v1`.
 - Frontend: Angular 21 + Tailwind CSS, using standalone-style components and signals.
-- Infrastructure: Docker Compose services for `db`, `backend`, and profile-gated `hop` ETL.
+- Infrastructure: Docker Compose services for `db`, `backend`, `frontend`, and profile-gated `hop` ETL.
 
 The main data flow is:
 
@@ -165,6 +169,7 @@ Ordering rule: complete Sprint 4 before Sprint 5. Within a sprint, do backend/AP
    - Verification: frontend filters cover institution, area, production type, and year, with options loaded from real FastAPI endpoints and filters sent to the backend.
 4. #35 Criar tela ou painel de detalhes do pesquisador.
    - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status note: implemented locally on 2026-06-10; pending commit/PR/merge.
    - Verification: users can navigate from search/listing views to researcher details and researcher productions.
 5. #36 Completar exportacao CSV dimensional para Power BI.
    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
@@ -184,15 +189,19 @@ Ordering rule: complete Sprint 4 before Sprint 5. Within a sprint, do backend/AP
 
 ## Build, Test, and Development Commands
 
-- `docker compose up -d db backend`: start database and API locally.
+- `docker compose up -d`: start database, API, and frontend locally. The frontend container serves the production Angular build through Nginx at `http://localhost:4200/` by default.
+- `docker compose up -d --build frontend`: rebuild and restart the frontend container after frontend changes when using Docker Compose.
 - `docker compose up -d --build backend`: rebuild and restart the FastAPI backend after code changes when using Docker Compose. The backend service copies source files into the image and does not mount the local `backend/` directory as a live volume, so Swagger/OpenAPI at `http://localhost:8000/docs` keeps showing the old contract until the backend image/container is rebuilt.
 - `docker compose --profile etl up hop`: run the Apache Hop ETL job.
+- If frontend filters and production search are empty, first verify database counts; an empty `producoes` or `instituicoes` table means the Hop ETL did not populate the database. The Hop container fails on Windows CRLF shell scripts, so keep `database/apache_hop/docker/*.sh` as LF; `.gitattributes` enforces this for `*.sh`.
+- Semantic search requires rows in `vetores`. If `vetores` is empty, the backend returns semantic search as unavailable and the frontend should fall back to textual `/producoes` search until embeddings are generated. Use `docker compose --profile etl run --rm embeddings`; the script imports `database/seed/vetores_seed.csv` first and only calls OpenAI for missing vectors, then rewrites the seed for future machines.
 - `cd backend && pip install -r requirements.txt`: install backend dependencies.
 - `cd backend && uvicorn app.main:app --reload`: run the FastAPI app in development.
 - `cd frontend && npm install`: install frontend dependencies.
-- `cd frontend && npm start`: run Angular dev server at `http://localhost:4200/`.
+- `cd frontend && npm start`: run the Angular dev server at `http://localhost:4200/` outside Docker; stop the compose frontend first or change `FRONTEND_PORT` if port 4200 is already in use.
 - `cd frontend && npm run build`: build the frontend into `dist/`.
 - `cd frontend && npm test`: run frontend unit tests.
+- On Windows PowerShell, use `npm.cmd` instead of `npm` when execution policy blocks `npm.ps1`. In the managed sandbox, Angular build/test may also fail with `Cannot read directory "../../../../../..": Access is denied`; rerun the same `npm.cmd run build` or `npm.cmd test` command with sandbox escalation instead of changing project paths.
 
 ## Coding Style
 

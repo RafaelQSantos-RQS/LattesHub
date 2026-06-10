@@ -10,6 +10,10 @@ export const routes: Routes = [
     loadComponent: () => import('./pages/results/results').then(m => m.Results)
   },
   {
+    path: 'pesquisadores/:id',
+    loadComponent: () => import('./pages/researcher-detail/researcher-detail').then(m => m.ResearcherDetail)
+  },
+  {
     path: 'indicadores',
     loadComponent: () => import('./pages/indicators/indicators').then(m => m.Indicators)
   },

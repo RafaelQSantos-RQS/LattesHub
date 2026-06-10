@@ -11,6 +11,23 @@ from psycopg2.extras import RealDictCursor
 router = APIRouter()
 
 
+def buscar_areas_pesquisador(cursor, pesquisador_id: int):
+    sql = """
+        SELECT
+            ac.id,
+            ac.grande_area,
+            ac.area,
+            ac.sub_area,
+            ac.especialidade
+        FROM pesquisador_areas pa
+        JOIN areas_conhecimento ac ON ac.id = pa.area_id
+        WHERE pa.pesquisador_id = %s
+        ORDER BY ac.grande_area ASC, ac.area ASC, ac.sub_area ASC NULLS LAST;
+    """
+    cursor.execute(sql, (pesquisador_id,))
+    return cursor.fetchall()
+
+
 @router.get("/", response_model=PesquisadorListResponse)
 def listar_pesquisadores(
     pagina: int = Query(1, ge=1, description="Número da página"),
@@ -112,11 +129,14 @@ def obter_pesquisador_por_id(pesquisador_id: int, db=Depends(get_db_connection))
         """
         cursor.execute(sql, (pesquisador_id,))
         pesquisador = cursor.fetchone()
-        cursor.close()
 
         # Proteção contra IDs inexistentes
         if not pesquisador:
+            cursor.close()
             raise HTTPException(status_code=404, detail="Pesquisador não encontrado.")
+
+        pesquisador["areas"] = buscar_areas_pesquisador(cursor, pesquisador_id)
+        cursor.close()
 
         return pesquisador
 
@@ -149,9 +169,12 @@ def obter_producoes_pesquisador(pesquisador_id: int, db=Depends(get_db_connectio
         dados_pesquisador = cursor.fetchone()
 
         if not dados_pesquisador:
+            cursor.close()
             raise HTTPException(status_code=404, detail="Pesquisador não encontrado.")
 
         # 2. Busca o histórico cronológico de produções científicas
+        dados_pesquisador["areas"] = buscar_areas_pesquisador(cursor, pesquisador_id)
+
         sql_producoes = """
             SELECT 
                 id, 

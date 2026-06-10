@@ -6,7 +6,7 @@
     <!-- Results Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div>
-        <h1 class="font-headline-md text-headline-md text-slate-800">Showing 1.2M articles found</h1>
+        <h1 class="font-headline-md text-headline-md text-slate-800">{{ resultSummary() }}</h1>
         <div class="flex gap-6 mt-4 border-b border-slate-200">
           <button class="text-primary font-bold border-b-2 border-primary pb-2 font-label-bold text-label-bold">Tudo</button>
           <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Pesquisadores</button>
@@ -25,8 +25,22 @@
     
     <!-- Result Cards List -->
     <div class="flex flex-col gap-2">
-      @for (result of results(); track result.id) {
-        <app-result-card [result]="result"></app-result-card>
+      @if (loading()) {
+        <div class="bg-white border border-slate-200 rounded-sm p-8 text-on-surface-variant font-body-sm">
+          Carregando resultados...
+        </div>
+      } @else if (error()) {
+        <div class="bg-white border border-red-200 rounded-sm p-8 text-red-700 font-body-sm">
+          {{ error() }}
+        </div>
+      } @else if (results().length === 0) {
+        <div class="bg-white border border-slate-200 rounded-sm p-8 text-on-surface-variant font-body-sm">
+          Nenhum resultado encontrado.
+        </div>
+      } @else {
+        @for (result of results(); track result.id) {
+          <app-result-card [result]="result"></app-result-card>
+        }
       }
     </div>
     

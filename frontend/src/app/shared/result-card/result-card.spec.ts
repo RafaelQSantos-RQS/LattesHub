@@ -12,6 +12,13 @@ describe('ResultCard', () => {
     }).compileComponents();
 
     fixture = TestBed.createComponent(ResultCard);
+    fixture.componentRef.setInput('result', {
+      id: '1',
+      title: 'Resultado de teste',
+      author: 'Pesquisador Teste',
+      year: 2024,
+      productionType: 'ARTIGO PUBLICADO',
+    });
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -9,9 +9,20 @@ import { Router } from '@angular/router';
 })
 export class SearchBox {
   isFocused = signal(false);
+  query = signal('');
   private router = inject(Router);
 
+  onQueryInput(event: Event) {
+    this.query.set((event.target as HTMLInputElement).value);
+  }
+
   onSearch() {
-    this.router.navigate(['/explorar']);
+    const query = this.query().trim();
+
+    if (query.length < 5) {
+      return;
+    }
+
+    this.router.navigate(['/explorar'], { queryParams: { q: query } });
   }
 }

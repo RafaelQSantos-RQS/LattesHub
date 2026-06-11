@@ -23,13 +23,24 @@
     </hop>
     <hop>
       <from>Replace in string</from>
-      <to>Gravar Qualis no BD</to>
+      <to>Ordenar ISSN</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Ordenar ISSN</from>
+      <to>Remover Duplicados</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Remover Duplicados</from>
+      <to>Table Output - Qualis</to>
       <enabled>Y</enabled>
     </hop>
   </order>
+
   <transform>
-    <name>Gravar Qualis no BD</name>
-    <type>InsertUpdate</type>
+    <name>Ordenar ISSN</name>
+    <type>SortRows</type>
     <description />
     <distribute>Y</distribute>
     <custom_distribution />
@@ -38,45 +49,109 @@
       <method>none</method>
       <schema_name />
     </partitioning>
-    <commit>1000</commit>
-    <connection>DB_LATTES_HUB</connection>
-    <lookup>
-      <key>
-        <condition>=</condition>
-        <field>issn</field>
+    <directory>${java.io.tmpdir}</directory>
+    <prefix>out</prefix>
+    <sort_size>1000000</sort_size>
+    <free_memory />
+    <compress>N</compress>
+    <compress_variable />
+    <unique_rows>N</unique_rows>
+    <fields>
+      <field>
         <name>ISSN</name>
-        <name2 />
-      </key>
-      <schema>"public"</schema>
-      <table>qualis_periodicos</table>
-      <value>
-        <name>issn</name>
-        <rename>ISSN</rename>
-        <update>N</update>
-      </value>
-      <value>
-        <name>titulo</name>
-        <rename>Título</rename>
-        <update>Y</update>
-      </value>
-      <value>
-        <name>area_avaliacao</name>
-        <rename>Área de Avaliação</rename>
-        <update>Y</update>
-      </value>
-      <value>
-        <name>estrato</name>
-        <rename>Estrato</rename>
-        <update>Y</update>
-      </value>
-    </lookup>
-    <update_bypassed>N</update_bypassed>
+        <ascending>Y</ascending>
+        <case_sensitive>N</case_sensitive>
+        <collator_enabled>N</collator_enabled>
+        <collator_strength>0</collator_strength>
+        <presorted>N</presorted>
+      </field>
+    </fields>
     <attributes />
     <GUI>
-      <xloc>576</xloc>
+      <xloc>544</xloc>
+      <yloc>176</yloc>
+    </GUI>
+  </transform>
+
+  <transform>
+    <name>Remover Duplicados</name>
+    <type>Unique</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <count_rows>N</count_rows>
+    <count_field />
+    <reject_duplicate_row>N</reject_duplicate_row>
+    <error_description />
+    <fields>
+      <field>
+        <name>ISSN</name>
+        <case_insensitive>N</case_insensitive>
+      </field>
+    </fields>
+    <attributes />
+    <GUI>
+      <xloc>544</xloc>
       <yloc>336</yloc>
     </GUI>
   </transform>
+
+  <transform>
+    <name>Table Output - Qualis</name>
+    <type>TableOutput</type>
+    <description />
+    <distribute>Y</distribute>
+    <custom_distribution />
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name />
+    </partitioning>
+    <commit>10000</commit>
+    <connection>DB_LATTES_HUB</connection>
+    <fields>
+      <field>
+        <column_name>issn</column_name>
+        <stream_name>ISSN</stream_name>
+      </field>
+      <field>
+        <column_name>titulo</column_name>
+        <stream_name>Título</stream_name>
+      </field>
+      <field>
+        <column_name>area_avaliacao</column_name>
+        <stream_name>Área de Avaliação</stream_name>
+      </field>
+      <field>
+        <column_name>estrato</column_name>
+        <stream_name>Estrato</stream_name>
+      </field>
+    </fields>
+    <ignore_errors>N</ignore_errors>
+    <only_when_have_rows>N</only_when_have_rows>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <return_keys>N</return_keys>
+    <schema>public</schema>
+    <specify_fields>Y</specify_fields>
+    <table>qualis_periodicos</table>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_in_table>Y</tablename_in_table>
+    <truncate>N</truncate>
+    <use_batch>Y</use_batch>
+    <attributes />
+    <GUI>
+      <xloc>736</xloc>
+      <yloc>336</yloc>
+    </GUI>
+  </transform>
+
   <transform>
     <name>Ler CSV Qualis</name>
     <type>CSVInput</type>
@@ -155,6 +230,7 @@
       <yloc>176</yloc>
     </GUI>
   </transform>
+
   <transform>
     <name>Limpar ISSN</name>
     <type>StringOperations</type>
@@ -187,6 +263,7 @@
       <yloc>336</yloc>
     </GUI>
   </transform>
+
   <transform>
     <name>Replace in string</name>
     <type>ReplaceString</type>

@@ -232,7 +232,7 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Status note: implemented on 2026-06-11; awaiting PR/merge.
     - Verification: home search button and submit accept terms from two characters, one-character terms remain blocked in the UI, 2-4 character queries use textual `/producoes?termo=...`, semantic search is reserved for 5+ character queries, and frontend tests/build passed.
 12. #66 enhancement(search): melhorar busca textual com unaccent e multiplos campos.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: high; urgency: soon.
     - Rationale: improves literal search quality across title, researcher, venue, DOI, and accent variants.
     - Verification: backend tests cover accented/unaccented terms and non-title fields.
@@ -258,52 +258,56 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Rationale: visible tabs currently imply behavior that does not exist.
     - Verification: category tabs update query params and filter/render Tudo, Pesquisadores, Artigos, and Eventos correctly.
 17. #56 bug(frontend): implementar paginacao real em Explorar.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: high; urgency: soon.
     - Rationale: current pagination controls are placeholders while backend already returns pagination metadata.
     - Verification: page controls use `pagina`, `tamanho_pagina`, and `total`, preserving search and filters.
-    - Batch: search & browse quality PR (with #66, #68, #69).
+    - Batch: search & browse quality PR #74 (with #66, #68, #69).
 18. #55 enhancement(search): permitir busca por area e instituicao.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: medium-high; urgency: after core search/filter fixes.
     - Rationale: typeahead avoids unwieldy full lists and improves filter discovery.
     - Verification: users can search/select area and institution by text while query params keep stable IDs.
 19. #68 bug(frontend): tratar falha ao carregar filtros da sidebar.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: medium-high; urgency: soon.
     - Rationale: filter load failures currently look like empty data.
     - Verification: sidebar distinguishes loading, error, empty, and success states for areas/institutions.
-    - Batch: search & browse quality PR (with #66, #56, #69).
+    - Batch: search & browse quality PR #74 (with #66, #56, #69).
 20. #69 bug(frontend): nao exibir revista evento natureza como abstract.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: medium; urgency: soon.
     - Rationale: metadata is currently rendered as if it were an abstract/summary.
     - Verification: result cards render source/venue metadata separately from true summaries.
-    - Batch: search & browse quality PR (with #66, #56, #68).
+    - Batch: search & browse quality PR #74 (with #66, #56, #68).
 21. #49 enhancement(frontend): abrir detalhes ao clicar no titulo de uma producao.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium-high; urgency: after result-card metadata cleanup if possible.
     - Rationale: titles look clickable but do not open the existing production detail endpoint.
     - Verification: production titles navigate to a detail route/panel backed by `GET /api/v1/producoes/{id}`.
+    - Batch: result-card & navigation UX PR (with #71, #70, #59).
 22. #71 bug(frontend): botao Voltar aos resultados deve ter fallback.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: soon.
     - Rationale: direct visits to researcher detail can make the back button leave the app.
     - Verification: direct `/pesquisadores/:id` access falls back to `/explorar`.
+    - Batch: result-card & navigation UX PR (with #49, #70, #59).
 23. #70 bug(frontend): implementar ou remover acoes Cite e Share.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: later unless demo focuses on result cards.
     - Rationale: visible buttons currently have no behavior.
     - Verification: Cite/Share either work accessibly or are removed.
+    - Batch: result-card & navigation UX PR (with #49, #71, #59).
 24. #51 bug(frontend): corrigir navegacao por ancoras na pagina Sobre.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: medium; urgency: later.
     - Rationale: page-internal links should not navigate users away from `/sobre`.
     - Verification: `/sobre#missao`, `/sobre#tecnologia`, and `/sobre#parceiros` scroll correctly.
 25. #59 bug(frontend): corrigir links do footer.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: later.
     - Rationale: footer has placeholder links and external-link security gaps.
+    - Batch: result-card & navigation UX PR (with #49, #71, #70).
     - Verification: no footer link uses `href="#"`; GitHub opens with `target="_blank"` and `rel="noopener noreferrer"`.
 26. #52 bug(frontend): conectar botao Exportar CSV em Indicadores.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.

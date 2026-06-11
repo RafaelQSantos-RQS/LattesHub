@@ -8,10 +8,20 @@
       <div>
         <h1 class="font-headline-md text-headline-md text-slate-800">{{ resultSummary() }}</h1>
         <div class="flex gap-6 mt-4 border-b border-slate-200">
-          <button class="text-primary font-bold border-b-2 border-primary pb-2 font-label-bold text-label-bold">Tudo</button>
-          <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Pesquisadores</button>
-          <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Artigos</button>
-          <button class="text-on-surface-variant hover:text-primary pb-2 font-label-bold text-label-bold transition-colors">Eventos</button>
+          @for (tab of categoryTabs; track tab.value) {
+            <button
+              type="button"
+              class="pb-2 font-label-bold text-label-bold transition-colors"
+              [class.text-primary]="activeCategory() === tab.value"
+              [class.font-bold]="activeCategory() === tab.value"
+              [class.border-b-2]="activeCategory() === tab.value"
+              [class.border-primary]="activeCategory() === tab.value"
+              [class.text-on-surface-variant]="activeCategory() !== tab.value"
+              [class.hover:text-primary]="activeCategory() !== tab.value"
+              (click)="changeCategory(tab.value)">
+              {{ tab.label }}
+            </button>
+          }
         </div>
       </div>
       <div class="flex flex-col items-end gap-1">

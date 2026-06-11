@@ -32,3 +32,12 @@ class ProducaoListResponse(BaseModel):
     pagina: int
     tamanho_pagina: int
     resultados: list[ProducaoDetalhe]
+
+
+class ProducaoTipoResumo(BaseModel):
+    tipo_producao: str
+    total: int
+
+
+class ProducaoTiposResponse(BaseModel):
+    resultados: list[ProducaoTipoResumo]

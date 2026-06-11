@@ -84,6 +84,14 @@ Se `FRONTEND_PORT`, `BACKEND_PORT` ou `DB_PORT_EXTERNAL` forem alterados no `.en
 
 ---
 
+# Busca e filtros
+
+Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v1/producoes` aceita filtros combinados por `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`. O endpoint `POST /api/v1/busca/semantica` preserva `ano` como filtro exato e tambem aceita `ano_inicio`/`ano_fim` para intervalo.
+
+Os tipos de producao exibidos no frontend sao carregados dinamicamente de `GET /api/v1/producoes/tipos`, refletindo os tipos reais presentes no banco. As abas da pagina Explorar usam `categoria` na URL: `tudo` lista producoes, `pesquisadores` lista pesquisadores, `artigos` filtra `ARTIGO PUBLICADO` e `eventos` filtra `TRABALHO EM EVENTOS`.
+
+---
+
 # Getting Started (Como rodar o projeto)
 
 A infraestrutura do LattesHub é totalmente orquestrada via Docker. Siga os passos abaixo para inicializar o ambiente com a carga de dados completa.

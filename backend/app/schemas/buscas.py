@@ -13,6 +13,8 @@ class BuscaSemanticaRequest(BaseModel):
         description="Filtra por tipo de produção",
     )
     ano: Optional[int] = Field(None, description="Filtra por ano específico")
+    ano_inicio: Optional[int] = Field(None, description="Filtra produções a partir deste ano")
+    ano_fim: Optional[int] = Field(None, description="Filtra produções até este ano")
     instituicao_id: Optional[int] = Field(
         None,
         description="Filtra por instituição do pesquisador",

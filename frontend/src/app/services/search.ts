@@ -3,6 +3,8 @@ import { Injectable, InjectionToken, inject, signal } from '@angular/core';
 import { Subscription, map } from 'rxjs';
 import { SearchResult } from '../shared/result-card/result-card';
 
+export type SearchCategory = 'tudo' | 'pesquisadores' | 'artigos' | 'eventos';
+
 interface BuscaSemanticaApiResult {
   id: number;
   titulo: string;
@@ -24,8 +26,11 @@ export interface SearchFilters {
   pergunta: string;
   tipoProducao?: string;
   ano?: number;
+  anoInicio?: number;
+  anoFim?: number;
   instituicaoId?: number;
   areas: number[];
+  categoria?: SearchCategory;
 }
 
 export interface FilterInstitution {
@@ -40,6 +45,11 @@ export interface FilterAreaOption {
   id: number;
   label: string;
   group: string;
+}
+
+export interface ProductionTypeOption {
+  tipo_producao: string;
+  total: number;
 }
 
 interface ProducaoApiResult {
@@ -63,6 +73,17 @@ interface ProducaoListApiResponse {
   pagina: number;
   tamanho_pagina: number;
   resultados: ProducaoApiResult[];
+}
+
+interface PesquisadorListApiResponse {
+  total: number;
+  pagina: number;
+  tamanho_pagina: number;
+  resultados: ResearcherSummary[];
+}
+
+interface ProducaoTiposApiResponse {
+  resultados: ProductionTypeOption[];
 }
 
 interface InstituicaoListApiResponse {
@@ -143,6 +164,10 @@ export interface ProductionDetail {
 
 const MIN_TEXTUAL_SEARCH_LENGTH = 2;
 const MIN_SEMANTIC_SEARCH_LENGTH = 5;
+const CATEGORY_PRODUCTION_TYPES: Partial<Record<SearchCategory, string>> = {
+  artigos: 'ARTIGO PUBLICADO',
+  eventos: 'TRABALHO EM EVENTOS',
+};
 
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
   providedIn: 'root',
@@ -179,19 +204,21 @@ export class SearchService {
     const perguntaNormalizada = filters.pergunta.trim();
     const searchId = this.startSearch(perguntaNormalizada);
 
+    if (filters.categoria === 'pesquisadores') {
+      this.loadResearchers(filters, searchId);
+      return;
+    }
+
     if (perguntaNormalizada.length < MIN_SEMANTIC_SEARCH_LENGTH) {
       const termo = perguntaNormalizada.length >= MIN_TEXTUAL_SEARCH_LENGTH ? perguntaNormalizada : undefined;
       this.loadProductions(termo, filters, searchId);
       return;
     }
 
-    const request = this.http.post<BuscaSemanticaApiResponse>(`${this.apiBaseUrl}/busca/semantica`, {
-      pergunta: perguntaNormalizada,
-      tipo_producao: filters.tipoProducao,
-      ano: filters.ano,
-      instituicao_id: filters.instituicaoId,
-      areas: filters.areas.length > 0 ? filters.areas : undefined,
-    }).subscribe({
+    const request = this.http.post<BuscaSemanticaApiResponse>(
+      `${this.apiBaseUrl}/busca/semantica`,
+      this.buildSemanticPayload(perguntaNormalizada, filters),
+    ).subscribe({
       next: response => {
         if (!this.isActiveSearch(searchId)) {
           return;
@@ -225,6 +252,11 @@ export class SearchService {
   loadPage(pagina: number, filters: SearchFilters) {
     const pergunta = filters.pergunta.trim();
     const searchId = this.startSearch(pergunta);
+    if (filters.categoria === 'pesquisadores') {
+      this.loadResearchers(filters, searchId, pagina);
+      return;
+    }
+
     const termo = pergunta.length >= MIN_TEXTUAL_SEARCH_LENGTH ? pergunta : undefined;
     this.loadProductions(termo, filters, searchId, pagina);
   }
@@ -253,6 +285,12 @@ export class SearchService {
     );
   }
 
+  getProductionTypes() {
+    return this.http
+      .get<ProducaoTiposApiResponse>(`${this.apiBaseUrl}/producoes/tipos`)
+      .pipe(map(response => response.resultados));
+  }
+
   getResearcherProfile(pesquisadorId: number) {
     return this.http.get<ResearcherProfile>(`${this.apiBaseUrl}/pesquisadores/${pesquisadorId}/producoes`);
   }
@@ -265,6 +303,7 @@ export class SearchService {
     return {
       pergunta,
       areas: [],
+      categoria: 'tudo',
     };
   }
 
@@ -290,12 +329,21 @@ export class SearchService {
       params = params.set('termo', termo);
     }
 
-    if (filters.tipoProducao) {
-      params = params.set('tipo_producao', filters.tipoProducao);
+    const tipoProducao = this.getProductionTypeFilter(filters);
+    if (tipoProducao) {
+      params = params.set('tipo_producao', tipoProducao);
     }
 
-    if (filters.ano) {
+    if (filters.ano !== undefined) {
       params = params.set('ano', String(filters.ano));
+    }
+
+    if (filters.anoInicio !== undefined) {
+      params = params.set('ano_inicio', String(filters.anoInicio));
+    }
+
+    if (filters.anoFim !== undefined) {
+      params = params.set('ano_fim', String(filters.anoFim));
     }
 
     if (filters.instituicaoId) {
@@ -331,6 +379,44 @@ export class SearchService {
     this.activeSearchSubscription = request;
   }
 
+  private loadResearchers(filters: SearchFilters, searchId: number, pagina = 1) {
+    let params = new HttpParams()
+      .set('pagina', String(pagina))
+      .set('tamanho_pagina', '20');
+
+    if (filters.instituicaoId) {
+      params = params.set('instituicao_id', String(filters.instituicaoId));
+    }
+
+    for (const area of filters.areas) {
+      params = params.append('areas', String(area));
+    }
+
+    const request = this.http.get<PesquisadorListApiResponse>(`${this.apiBaseUrl}/pesquisadores/`, { params }).subscribe({
+      next: response => {
+        if (!this.isActiveSearch(searchId)) {
+          return;
+        }
+
+        this.resultsSignal.set(response.resultados.map(result => this.mapResearcherResult(result)));
+        this.totalSignal.set(response.total);
+        this.loadingSignal.set(false);
+      },
+      error: () => {
+        if (!this.isActiveSearch(searchId)) {
+          return;
+        }
+
+        this.resultsSignal.set([]);
+        this.totalSignal.set(0);
+        this.errorSignal.set('Nao foi possivel carregar os pesquisadores.');
+        this.loadingSignal.set(false);
+      },
+    });
+
+    this.activeSearchSubscription = request;
+  }
+
   private mapSemanticResult(result: BuscaSemanticaApiResult): SearchResult {
     return {
       id: String(result.id),
@@ -349,21 +435,89 @@ export class SearchService {
   }
 
   private mapProductionResult(result: ProducaoApiResult): SearchResult {
-    return {
+    const mapped: SearchResult = {
       id: String(result.id),
       title: result.titulo,
       author: result.pesquisador_nome,
       researcherId: result.pesquisador_id,
       year: result.ano,
-      language: result.idioma,
-      doi: result.doi,
       productionType: result.tipo_producao,
-      venue: result.revista || result.evento || undefined,
-      natureza: result.natureza || undefined,
-      qualisEstrato: result.qualis_estrato ?? null,
-      qualisAreaAvaliacao: result.qualis_area_avaliacao ?? null,
-      tag: result.qualis_estrato ? `Qualis ${result.qualis_estrato}` : undefined,
     };
+
+    if (result.idioma) {
+      mapped.language = result.idioma;
+    }
+
+    if (result.doi) {
+      mapped.doi = result.doi;
+    }
+
+    if (result.revista || result.evento) {
+      mapped.venue = result.revista || result.evento || undefined;
+    }
+
+    if (result.natureza) {
+      mapped.natureza = result.natureza;
+    }
+
+    if (result.qualis_estrato) {
+      mapped.qualisEstrato = result.qualis_estrato;
+      mapped.tag = `Qualis ${result.qualis_estrato}`;
+    }
+
+    if (result.qualis_area_avaliacao) {
+      mapped.qualisAreaAvaliacao = result.qualis_area_avaliacao;
+    }
+
+    return mapped;
+  }
+
+  private mapResearcherResult(result: ResearcherSummary): SearchResult {
+    return {
+      id: String(result.id),
+      resourceType: 'researcher',
+      title: result.nome,
+      author: 'Pesquisador',
+      researcherId: result.id,
+      institution: result.instituicao_nome ?? undefined,
+      abstract: result.resumo ?? undefined,
+      tag: result.areas[0]?.sub_area ?? result.areas[0]?.area,
+    };
+  }
+
+  private getProductionTypeFilter(filters: SearchFilters) {
+    return CATEGORY_PRODUCTION_TYPES[filters.categoria ?? 'tudo'] ?? filters.tipoProducao;
+  }
+
+  private buildSemanticPayload(pergunta: string, filters: SearchFilters) {
+    const payload: Record<string, string | number | number[]> = { pergunta };
+    const tipoProducao = this.getProductionTypeFilter(filters);
+
+    if (tipoProducao) {
+      payload['tipo_producao'] = tipoProducao;
+    }
+
+    if (filters.ano !== undefined) {
+      payload['ano'] = filters.ano;
+    }
+
+    if (filters.anoInicio !== undefined) {
+      payload['ano_inicio'] = filters.anoInicio;
+    }
+
+    if (filters.anoFim !== undefined) {
+      payload['ano_fim'] = filters.anoFim;
+    }
+
+    if (filters.instituicaoId !== undefined) {
+      payload['instituicao_id'] = filters.instituicaoId;
+    }
+
+    if (filters.areas.length > 0) {
+      payload['areas'] = filters.areas;
+    }
+
+    return payload;
   }
 
   private toRelevance(score: number): SearchResult['relevance'] {

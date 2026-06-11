@@ -239,32 +239,32 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Verification: backend tests cover accented/unaccented terms and non-title fields.
     - Batch: search & browse quality PR (with #56, #68, #69).
 13. #63 enhancement(semantic): gerar embeddings para mais tipos e texto mais rico.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: merged/done.
     - Impact: high; urgency: soon.
     - Rationale: semantic quality and coverage depend on embedding more than article titles.
-    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Status note: implemented in PR #77 and merged on 2026-06-11; GitHub issue is closed and project item is Done.
     - Verification: embedding script processes configurable eligible production types with text composed from title, English title, type, nature, year, language, venue/event, researcher areas, and keywords while preserving the seed CSV format; backend pytest passed.
     - Batch: ETL + embeddings coverage PR (with #67).
 14. #67 enhancement(etl): importar outros tipos de producao alem de artigos.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: merged/done.
     - Impact: high; urgency: soon.
     - Rationale: enables event/book/category filters and richer analytics beyond articles.
-    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Status note: implemented in PR #77 and merged on 2026-06-11; GitHub issue is closed and project item is Done.
     - Verification: Hop pipelines import event papers, books, and book chapters; local smoke populated `TRABALHO EM EVENTOS` (321), `LIVRO PUBLICADO` (26), and `CAPITULO DE LIVRO` (80), then a second run kept counts stable; backend pytest passed.
     - Batch: ETL + embeddings coverage PR (with #63).
 15. #54 enhancement(filters): tornar tipos de producao dinamicos e adicionar intervalo de anos.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: high; urgency: after #67 unless implemented with current data fallback.
     - Rationale: dynamic type filters and year ranges improve backend/frontend contract and analytics filtering.
-    - Status note: assigned to `brugabi` and moved to In Progress on 2026-06-11 for the next filters/explore batch.
-    - Verification: `/producoes` and `/busca/semantica` accept `ano_inicio`/`ano_fim`, preserve `ano`, and expose real production types.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: `/producoes` and `/busca/semantica` accept `ano_inicio`/`ano_fim`, preserve `ano`, and expose real production types via `/producoes/tipos`; focused backend pytest, frontend tests, frontend build, and `git diff --check` passed.
     - Batch: filters/explore PR (with #48).
 16. #48 bug(frontend): aplicar abas de categoria na pagina Explorar.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: high; urgency: after #54/#67 where possible.
     - Rationale: visible tabs currently imply behavior that does not exist.
-    - Status note: assigned to `brugabi` and moved to In Progress on 2026-06-11 for the next filters/explore batch.
-    - Verification: category tabs update query params and filter/render Tudo, Pesquisadores, Artigos, and Eventos correctly.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: category tabs update `categoria` query params and render Tudo, Pesquisadores, Artigos, and Eventos correctly; frontend tests/build passed.
     - Batch: filters/explore PR (with #54).
 17. #56 bug(frontend): implementar paginacao real em Explorar.
     - Milestone: Sprint 5 - BI e Fechamento. Status: done.
@@ -314,15 +314,16 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Verification: Cite/Share either work accessibly or are removed.
     - Batch: frontend UX fixes (with #49, #71).
 24. #51 bug(frontend): corrigir navegacao por ancoras na pagina Sobre.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: medium; urgency: later.
     - Rationale: page-internal links should not navigate users away from `/sobre`.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
     - Verification: `/sobre#missao`, `/sobre#tecnologia`, and `/sobre#parceiros` scroll correctly.
 25. #59 bug(frontend): corrigir links do footer.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: medium; urgency: later.
     - Rationale: footer has placeholder links and external-link security gaps.
-    - Status note: GitHub issue is assigned to `brugabi` and project item is In Progress as of 2026-06-11.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
     - Verification: no footer link uses `href="#"`; GitHub opens with `target="_blank"` and `rel="noopener noreferrer"`.
 26. #52 bug(frontend): conectar botao Exportar CSV em Indicadores.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.

@@ -2,7 +2,7 @@ import { Component, inject, signal } from '@angular/core';
 type FilterState = 'loading' | 'error' | 'empty' | 'success';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FilterAreaOption, FilterInstitution, SearchService } from '../../services/search';
+import { FilterAreaOption, FilterInstitution, ProductionTypeOption, SearchService } from '../../services/search';
 
 interface SidebarSections {
   institution: boolean;
@@ -32,18 +32,14 @@ export class Sidebar {
   institutionsState = signal<FilterState>('loading');
   areaOptions = signal<FilterAreaOption[]>([]);
   areasState = signal<FilterState>('loading');
+  productionTypes = signal<ProductionTypeOption[]>([]);
+  productionTypesState = signal<FilterState>('loading');
   selectedInstitutionId = signal<number | undefined>(undefined);
   selectedType = signal<string | undefined>(undefined);
   selectedYear = signal<number | undefined>(undefined);
+  selectedYearStart = signal<number | undefined>(undefined);
+  selectedYearEnd = signal<number | undefined>(undefined);
   selectedAreas = signal<number[]>([]);
-
-  productionTypes = [
-    {
-      label: 'Artigos publicados',
-      value: 'ARTIGO PUBLICADO',
-      icon: 'description',
-    },
-  ];
 
   constructor() {
     this.searchService.getInstitutions()
@@ -66,12 +62,24 @@ export class Sidebar {
         error: () => this.areasState.set('error'),
       });
 
+    this.searchService.getProductionTypes()
+      .pipe(takeUntilDestroyed())
+      .subscribe({
+        next: productionTypes => {
+          this.productionTypes.set(productionTypes);
+          this.productionTypesState.set(productionTypes.length === 0 ? 'empty' : 'success');
+        },
+        error: () => this.productionTypesState.set('error'),
+      });
+
     this.route.queryParamMap
       .pipe(takeUntilDestroyed())
       .subscribe(params => {
         this.selectedInstitutionId.set(this.toNumber(params.get('instituicao_id')));
         this.selectedType.set(params.get('tipo_producao') ?? undefined);
         this.selectedYear.set(this.toNumber(params.get('ano')));
+        this.selectedYearStart.set(this.toNumber(params.get('ano_inicio')));
+        this.selectedYearEnd.set(this.toNumber(params.get('ano_fim')));
         this.selectedAreas.set(params.getAll('areas').map(Number).filter(Number.isFinite));
       });
   }
@@ -111,13 +119,37 @@ export class Sidebar {
     this.updateQueryParams({ ano: value || null });
   }
 
+  onYearStartInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.updateQueryParams({ ano_inicio: value || null, ano: null });
+  }
+
+  onYearEndInput(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.updateQueryParams({ ano_fim: value || null, ano: null });
+  }
+
   clearFilters() {
     this.updateQueryParams({
       instituicao_id: null,
       tipo_producao: null,
       ano: null,
+      ano_inicio: null,
+      ano_fim: null,
       areas: null,
     });
+  }
+
+  productionTypeIcon(tipoProducao: string) {
+    if (tipoProducao.includes('EVENTO')) {
+      return 'event';
+    }
+
+    if (tipoProducao.includes('LIVRO')) {
+      return 'menu_book';
+    }
+
+    return 'description';
   }
 
   private updateQueryParams(queryParams: Record<string, string | number[] | null>) {

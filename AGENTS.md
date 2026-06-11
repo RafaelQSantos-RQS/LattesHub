@@ -130,68 +130,223 @@ The implemented API routes are:
 - `GET /api/v1/areas`
 - `GET /api/v1/instituicoes`
 - `GET /api/v1/instituicoes/{instituicao_id}`
+- `GET /api/v1/instituicoes/{instituicao_id}/pesquisadores`
 - `GET /api/v1/instituicoes/{instituicao_id}/producoes`
 - `GET /api/v1/pesquisadores`
 - `GET /api/v1/pesquisadores/{pesquisador_id}`
 - `GET /api/v1/pesquisadores/{pesquisador_id}/producoes`
 - `GET /api/v1/producoes`
 - `GET /api/v1/producoes/{producao_id}`
+- `GET /api/v1/exportacoes/producoes.csv`
 
 ## Known Documentation Drift
 
 These items were found while comparing the wiki with the current code. Do not fix them incidentally; address them only when the task asks for documentation or implementation alignment.
 
-- The wiki and root `README.md` mention Next.js in several places, but `frontend/package.json` and `frontend/README.md` show the current frontend is Angular 21.
-- The API wiki documents `GET /instituicoes/{instituicao_id}/pesquisadores`, but the backend currently implements only institution details and institution productions for that sub-resource area.
+- The wiki mentions Next.js in several places, but `frontend/package.json`, `frontend/README.md`, and the root `README.md` show the current frontend is Angular 21.
 - The semantic architecture wiki describes an HNSW vector index, while `database/init.sql` currently creates an `ivfflat` index on `vetores.embedding`.
-- The backlog includes backend tests and CSV/Power BI export deliverables, but no broad backend test suite or backend CSV exporter is established yet.
-- `backend/app/scripts/buscar_artigos.py` contains a hardcoded database password fallback; remove that in a focused security cleanup before treating the script as production-safe.
+- The root `README.md` presents the Power BI dashboard and multidimensional CSV export as project capabilities, but issues #34 and #36 are still pending for those deliverables.
 
 ## Open Issue Execution Queue
 
-This queue reflects the open GitHub issues last organized on 2026-06-10. When the user asks "faca a proxima issue" or "prossiga para a proxima issue", use this queue directly instead of reanalyzing GitHub issues from scratch. Pick the first item that is not marked here as implemented or merged. If GitHub has clearly changed since this date, refresh the queue and update this section before starting work.
+This queue reflects the GitHub issues last organized on 2026-06-11. When the user asks "faca a proxima issue" or "prossiga para a proxima issue", use this queue directly instead of reanalyzing GitHub issues from scratch. Pick the first item that is not marked here as implemented, merged, or done. If GitHub has clearly changed since this date, refresh the queue and update this section before starting work.
 
-Ordering rule: complete Sprint 4 before Sprint 5. Within a sprint, do backend/API contract work before frontend integration, integration before UI filters/details, data exports before BI/dashboard work, and deploy/checklist/demo near the end.
+Whenever an agent creates a GitHub issue for this repository, it must immediately assess impact and urgency, then insert the new issue into this cronograma in the same turn. Each queue item must include explicit status (`pending`, `in_progress`, `implemented`, `merged`, `blocked`, or `done`), impact, urgency, and verification. Do not leave newly created issues outside this section unless the issue is explicitly out of scope for LattesHub execution.
+
+Ordering rule: security, data integrity, deploy blockers, and API/runtime reliability come first; then backend/API contracts; then ETL/embeddings/data quality; then frontend integration and UX bugs; then exports/BI; then deployment/checklist/demo. Within the same impact tier, prefer issues that unblock other issues or reduce demo risk.
+
+Execution batching rule: do not default to one PR per issue. When several pending issues are closely related, implement them together on one branch and open one PR after the grouped work is complete and verified. Good batches are same-layer/same-surface changes, such as API reliability fixes, search/filter contract changes, result-card UX fixes, export/BI work, or final documentation/demo tasks. Keep a PR separate when the issue is security-sensitive, risky, likely to require rollback, changes deployment/infrastructure broadly, or would make the PR too large to review cleanly. When batching, list every covered issue in the PR body and update this queue's status notes for each issue.
 
 ### Current Next-Issue Queue
 
 1. #42 Adicionar busca por Qualis na busca semantica.
    - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status: merged/done.
+   - Impact: high; urgency: done reference.
    - Status note: implemented and merged on 2026-06-10.
    - Verification: semantic search accepts `qualis_estrato`, enriches responses with Qualis fields when available, and Docker backend was rebuilt so Swagger shows the updated contract.
 2. #28 Integrar o front com o back.
    - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status: merged/done.
+   - Impact: high; urgency: done reference.
    - Status note: implemented and merged on 2026-06-10.
    - Verification: Angular search/results flow consumes real FastAPI calls to semantic search and production listing endpoints, including textual fallback when semantic search is unavailable.
 3. #31 Implementar filtros reais no frontend.
    - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status: merged/done.
+   - Impact: high; urgency: done reference.
    - Status note: implemented and merged on 2026-06-10.
    - Verification: frontend filters cover institution, area, production type, and year, with options loaded from real FastAPI endpoints and filters sent to the backend.
 4. #35 Criar tela ou painel de detalhes do pesquisador.
    - Milestone: Sprint 4 - Frontend. Original due date: 2026-06-02.
+   - Status: merged/done.
+   - Impact: high; urgency: done reference.
    - Status note: implemented and merged on 2026-06-10 in PR #47.
    - Verification: users can navigate from search/listing views to researcher details and researcher productions.
-5. #36 Completar exportacao CSV dimensional para Power BI.
-   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
-   - Verification: generated CSVs include the dimensional fields expected by the Power BI dashboard.
-6. #34 Criar dashboard Power BI com KPIs e segmentacoes.
-   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
-   - Verification: KPIs, slicers, and relationships work using the exported CSV data.
-7. #43 Preparar deploy do backend, frontend e banco.
-   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
-   - Verification: environment variables, Docker/database configuration, and deployment path cover backend, frontend, and PostgreSQL.
-8. #37 Consolidar checklist de entrega final.
-   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
-   - Verification: implementation, documentation, deployment, and demo artifacts are accounted for.
-9. #32 Gravar e publicar video de demonstracao da solucao.
-   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09.
-   - Verification: recorded flow demonstrates search, filters, details, BI outputs, and deployment state.
+5. #60 bug(api/security): restringir CORS em producao.
+   - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+   - Impact: critical; urgency: immediate.
+   - Rationale: deploy/security risk because wildcard CORS with credentials can expose the API in production.
+   - Status note: implemented on 2026-06-11; awaiting PR/merge.
+   - Verification: `BACKEND_CORS_ORIGINS` configures allowed origins, `APP_ENV=production` rejects wildcard, local Angular origins remain allowed, blocked-origin preflight is tested, and backend pytest passed.
+6. #61 bug(api): evitar conexoes idle in transaction no pool.
+   - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+   - Impact: critical; urgency: immediate.
+   - Rationale: database pool hygiene can affect reliability under repeated API calls.
+   - Status note: implemented on 2026-06-11; awaiting PR/merge.
+   - Verification: `get_db_connection` rolls back before returning healthy connections to the pool, broken cleanup discards the connection, a regression test checks `TRANSACTION_STATUS_IDLE`, and backend pytest passed.
+7. #62 bug(api): padronizar erros 500 sem expor detalhes internos.
+   - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+   - Impact: high; urgency: immediate.
+   - Rationale: prevents leaking internal database/runtime details through API responses.
+   - Status note: implemented on 2026-06-11; awaiting PR/merge.
+   - Verification: internal HTTP 500 responses are sanitized by the FastAPI exception handler, technical details are logged server-side, a regression test verifies sensitive error text is absent from the client response, and backend pytest passed.
+8. #64 bug(frontend): configurar base URL da API sem porta fixa.
+   - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+   - Impact: high; urgency: immediate.
+   - Rationale: deploy blocker when backend is not reachable at `hostname:8000`.
+   - Status note: implemented on 2026-06-11; awaiting PR/merge.
+   - Verification: frontend defaults to relative `/api/v1`, Angular dev server proxies `/api/` via configurable `LATTESHUB_API_PROXY_TARGET`, Docker Nginx proxies `/api/` to `backend:8000`, unit tests cover the default API base, and frontend tests/build passed.
+9. #43 Preparar deploy do backend, frontend e banco.
+   - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: implemented.
+   - Impact: critical; urgency: immediate after #60/#64.
+   - Rationale: final delivery depends on deployable backend, frontend, and PostgreSQL configuration.
+   - Status note: implemented on 2026-06-11 with a self-hosted Docker Compose deployment baseline; awaiting PR/merge.
+   - Verification: `docker-compose.prod.yml`, `.env.production.example`, and `docs/deploy.md` cover backend, frontend, PostgreSQL, ETL, embeddings, secrets, first load, validation, backup, and tradeoffs; production compose config passed with and without `--profile etl`; production db/backend/frontend builds passed.
+10. #65 bug(frontend): evitar resultados fora de ordem em buscas rapidas.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+    - Impact: high; urgency: soon.
+    - Rationale: stale async responses can make search results incorrect during demos and real use.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: `SearchService` cancels the previous active search subscription, guards state writes with the active search id, preserves semantic-to-textual fallback, and frontend tests/build passed.
+11. #50 bug(search): permitir busca da home com menos de 5 caracteres.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+    - Impact: high; urgency: soon.
+    - Rationale: blocks valid short textual searches even though `/producoes` accepts terms from two characters.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: home search button and submit accept terms from two characters, one-character terms remain blocked in the UI, 2-4 character queries use textual `/producoes?termo=...`, semantic search is reserved for 5+ character queries, and frontend tests/build passed.
+12. #66 enhancement(search): melhorar busca textual com unaccent e multiplos campos.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: high; urgency: soon.
+    - Rationale: improves literal search quality across title, researcher, venue, DOI, and accent variants.
+    - Verification: backend tests cover accented/unaccented terms and non-title fields.
+13. #63 enhancement(semantic): gerar embeddings para mais tipos e texto mais rico.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: high; urgency: soon.
+    - Rationale: semantic quality and coverage depend on embedding more than article titles.
+    - Verification: embedding script processes eligible production types with richer text while preserving seed behavior.
+14. #67 enhancement(etl): importar outros tipos de producao alem de artigos.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: high; urgency: soon.
+    - Rationale: enables event/book/category filters and richer analytics beyond articles.
+    - Verification: ETL populates multiple `tipo_producao` values from available XMLs without duplicating existing article rows.
+15. #54 enhancement(filters): tornar tipos de producao dinamicos e adicionar intervalo de anos.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: high; urgency: after #67 unless implemented with current data fallback.
+    - Rationale: dynamic type filters and year ranges improve backend/frontend contract and analytics filtering.
+    - Verification: `/producoes` and `/busca/semantica` accept `ano_inicio`/`ano_fim`, preserve `ano`, and expose real production types.
+16. #48 bug(frontend): aplicar abas de categoria na pagina Explorar.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: high; urgency: after #54/#67 where possible.
+    - Rationale: visible tabs currently imply behavior that does not exist.
+    - Verification: category tabs update query params and filter/render Tudo, Pesquisadores, Artigos, and Eventos correctly.
+17. #56 bug(frontend): implementar paginacao real em Explorar.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: high; urgency: soon.
+    - Rationale: current pagination controls are placeholders while backend already returns pagination metadata.
+    - Verification: page controls use `pagina`, `tamanho_pagina`, and `total`, preserving search and filters.
+18. #55 enhancement(search): permitir busca por area e instituicao.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: after core search/filter fixes.
+    - Rationale: typeahead avoids unwieldy full lists and improves filter discovery.
+    - Verification: users can search/select area and institution by text while query params keep stable IDs.
+19. #68 bug(frontend): tratar falha ao carregar filtros da sidebar.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: soon.
+    - Rationale: filter load failures currently look like empty data.
+    - Verification: sidebar distinguishes loading, error, empty, and success states for areas/institutions.
+20. #69 bug(frontend): nao exibir revista evento natureza como abstract.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium; urgency: soon.
+    - Rationale: metadata is currently rendered as if it were an abstract/summary.
+    - Verification: result cards render source/venue metadata separately from true summaries.
+21. #49 enhancement(frontend): abrir detalhes ao clicar no titulo de uma producao.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: after result-card metadata cleanup if possible.
+    - Rationale: titles look clickable but do not open the existing production detail endpoint.
+    - Verification: production titles navigate to a detail route/panel backed by `GET /api/v1/producoes/{id}`.
+22. #71 bug(frontend): botao Voltar aos resultados deve ter fallback.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium; urgency: soon.
+    - Rationale: direct visits to researcher detail can make the back button leave the app.
+    - Verification: direct `/pesquisadores/:id` access falls back to `/explorar`.
+23. #70 bug(frontend): implementar ou remover acoes Cite e Share.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium; urgency: later unless demo focuses on result cards.
+    - Rationale: visible buttons currently have no behavior.
+    - Verification: Cite/Share either work accessibly or are removed.
+24. #51 bug(frontend): corrigir navegacao por ancoras na pagina Sobre.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium; urgency: later.
+    - Rationale: page-internal links should not navigate users away from `/sobre`.
+    - Verification: `/sobre#missao`, `/sobre#tecnologia`, and `/sobre#parceiros` scroll correctly.
+25. #59 bug(frontend): corrigir links do footer.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium; urgency: later.
+    - Rationale: footer has placeholder links and external-link security gaps.
+    - Verification: no footer link uses `href="#"`; GitHub opens with `target="_blank"` and `rel="noopener noreferrer"`.
+26. #52 bug(frontend): conectar botao Exportar CSV em Indicadores.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: before BI/demo.
+    - Rationale: backend CSV exists but the indicators button is visual only.
+    - Verification: button downloads `/api/v1/exportacoes/producoes.csv` and handles download failures.
+27. #57 enhancement(frontend): conectar Exportar Dados Analiticos nos resultados.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: before BI/demo.
+    - Rationale: results export button is visual only and should use real CSV data.
+    - Verification: button downloads real CSV and documents whether current filters are respected.
+28. #36 Completar exportacao CSV dimensional para Power BI.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
+    - Impact: high; urgency: before #34.
+    - Rationale: Power BI dashboard depends on stable dimensional CSVs.
+    - Verification: generated CSVs include the dimensional fields expected by the Power BI dashboard.
+29. #34 Criar dashboard Power BI com KPIs e segmentacoes.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
+    - Impact: high; urgency: after #36.
+    - Rationale: final BI deliverable depends on exported dimensional data.
+    - Verification: KPIs, slicers, and relationships work using the exported CSV data.
+30. #58 enhancement(indicators): substituir KPIs e graficos mockados por dados reais.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: before final demo if web indicators are shown.
+    - Rationale: web indicators currently show fixed/mock values.
+    - Verification: KPIs and charts use backend data or explicit no-data states.
+31. #53 enhancement(frontend): melhorar UI do mapa de colaboracoes internacionais.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium; urgency: after #58 or if indicators are part of demo.
+    - Rationale: map currently looks like static/demo data and should clarify real data availability.
+    - Verification: map section has clear no-data/demo state, legend, and robust visuals without pretending backend integration exists.
+32. #72 enhancement(infra): avaliar deploy gerenciado com Supabase/Vercel.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Impact: medium-high; urgency: near end after core features/export/BI stabilize.
+    - Rationale: #43 establishes a self-hosted Docker Compose baseline, but a public managed deployment may be better for final availability and operations.
+    - Verification: Supabase/Vercel or equivalent options are evaluated with tradeoffs, the chosen path covers frontend/backend/database/secrets/data load, and public smoke validation is documented or a fallback justification keeps self-hosted deploy as the delivery path.
+33. #37 Consolidar checklist de entrega final.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
+    - Impact: high; urgency: near end.
+    - Rationale: final delivery needs implementation, documentation, deployment, and demo artifacts accounted for.
+    - Verification: implementation, documentation, deployment, and demo artifacts are accounted for.
+34. #32 Gravar e publicar video de demonstracao da solucao.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
+    - Impact: high; urgency: last delivery step.
+    - Rationale: video should reflect the actual final state after fixes, deploy, BI, and checklist.
+    - Verification: recorded flow demonstrates search, filters, details, BI outputs, and deployment state.
 
 ## Build, Test, and Development Commands
 
 - `docker compose up -d`: start database, API, and frontend locally. The frontend container serves the production Angular build through Nginx at `http://localhost:4200/` by default.
 - `docker compose up -d --build frontend`: rebuild and restart the frontend container after frontend changes when using Docker Compose.
 - `docker compose up -d --build backend`: rebuild and restart the FastAPI backend after code changes when using Docker Compose. The backend service copies source files into the image and does not mount the local `backend/` directory as a live volume, so Swagger/OpenAPI at `http://localhost:8000/docs` keeps showing the old contract until the backend image/container is rebuilt.
+- `docker compose --env-file .env.production -f docker-compose.prod.yml config`: validate the self-hosted production Compose configuration before deploy. Production deploy details live in `docs/deploy.md`.
 - `docker compose --profile etl up hop`: run the Apache Hop ETL job.
 - If frontend filters and production search are empty, first verify database counts; an empty `producoes` or `instituicoes` table means the Hop ETL did not populate the database. The Hop container fails on Windows CRLF shell scripts, so keep `database/apache_hop/docker/*.sh` as LF; `.gitattributes` enforces this for `*.sh`.
 - Semantic search requires rows in `vetores`. If `vetores` is empty, the backend returns semantic search as unavailable and the frontend should fall back to textual `/producoes` search until embeddings are generated. Use `docker compose --profile etl run --rm embeddings`; the script imports `database/seed/vetores_seed.csv` first and only calls OpenAI for missing vectors, then rewrites the seed for future machines.
@@ -213,7 +368,7 @@ Angular code uses TypeScript, standalone-style components, and kebab-case file n
 
 Frontend tests are colocated as `*.spec.ts` under `frontend/src/app/`. Add or update specs when changing services, routing behavior, or component logic.
 
-Backend tests are not broadly established; when adding them, prefer `pytest` under `backend/tests/` and cover endpoint behavior plus database edge cases.
+Backend tests use `pytest` under `backend/tests/`. When changing backend behavior, add or update focused tests for endpoint behavior, filters, error handling, and database edge cases.
 
 When integrating frontend search with backend semantic search, verify the browser flow with a real query such as `dengue`. The semantic endpoint depends on `OPENAI_API_KEY`; if the key is invalid or unavailable, the frontend must still degrade gracefully to a real backend textual search (`/api/v1/producoes/?termo=...`) instead of showing a generic failure state.
 
@@ -222,6 +377,8 @@ When integrating frontend search with backend semantic search, verify the browse
 Git history uses a mix of concise imperative commits and Conventional Commit prefixes, such as `feat(frontend): ...`, `build(docker): ...`, and `docs(frontend): ...`. Prefer that format for scoped changes.
 
 Pull requests should include a short summary, affected areas (`backend`, `frontend`, `database`, `etl`), commands run, and any relevant screenshots for UI changes. Link related issues when available and mention required `.env` or Docker changes.
+
+Prefer grouped PRs for related issue batches instead of opening one PR per issue. Before creating a PR, check the completed local scope and decide whether more adjacent queue items should be included while the branch context is active. A grouped PR should stay reviewable: one coherent theme, focused files, clear test evidence, and explicit `Closes #...` or `Refs #...` entries for each covered issue. Use a single-issue PR only when the change is isolated, urgent, security/deploy-sensitive, or mixing it with nearby work would obscure risk.
 
 After using the `$gh-create-pr` skill to open a PR in the code repository, check whether related documentation changes exist in `../LattesHub.wiki/`. If they do, commit and push them directly to the wiki's main branch (`master` in the current checkout), because GitHub wikis are separate repositories and do not go through the code PR. If the wiki remote rejects the push, run `git pull --rebase origin master`, resolve conflicts by preserving remote updates plus the local documentation change, then push again.
 

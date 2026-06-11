@@ -1,9 +1,11 @@
 import logging
 
-from fastapi import APIRouter, Depends, HTTPException
-from app.schemas.area import GrandeAreaFiltro
-from app.core.database import get_db_connection
+from fastapi import APIRouter, Depends
 from psycopg2.extras import RealDictCursor
+
+from app.core.database import get_db_connection
+from app.core.errors import raise_internal_server_error
+from app.schemas.area import GrandeAreaFiltro
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
@@ -13,10 +15,9 @@ logger = logging.getLogger(__name__)
 def listar_areas_agrupadas(db=Depends(get_db_connection)):
     try:
         cursor = db.cursor(cursor_factory=RealDictCursor)
-        # Adicionamos a sub_area no SELECT
         cursor.execute("""
-            SELECT id, grande_area, area, sub_area 
-            FROM areas_conhecimento 
+            SELECT id, grande_area, area, sub_area
+            FROM areas_conhecimento
             ORDER BY grande_area, area, sub_area ASC;
         """)
         linhas = cursor.fetchall()
@@ -27,8 +28,6 @@ def listar_areas_agrupadas(db=Depends(get_db_connection)):
         for linha in linhas:
             ga = linha["grande_area"]
             ar = linha["area"]
-
-            # Tratamento: se a sub_area for nula no banco, chamamos de "Geral"
             sub_nome = linha["sub_area"] if linha["sub_area"] else "Geral"
             _id = linha["id"]
 
@@ -38,7 +37,6 @@ def listar_areas_agrupadas(db=Depends(get_db_connection)):
             if ar not in arvore[ga]:
                 arvore[ga][ar] = []
 
-            # Em vez de apenas o ID, adicionamos o objeto completo
             arvore[ga][ar].append({"id": _id, "nome": sub_nome})
 
         resultado_final = []
@@ -52,8 +50,4 @@ def listar_areas_agrupadas(db=Depends(get_db_connection)):
         return resultado_final
 
     except Exception as e:
-        logger.error(f"Erro ao agrupar áreas: {e}", exc_info=True)
-        raise HTTPException(
-            status_code=500,
-            detail="Erro interno no servidor ao processar a requisição.",
-        )
+        raise_internal_server_error(logger, "Erro ao agrupar areas", e)

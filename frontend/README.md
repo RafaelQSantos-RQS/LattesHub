@@ -1,69 +1,77 @@
 # LattesHub - Frontend
 
-Este é o frontend do **LattesHub**, o Portal de Dados Abertos. O projeto foi desenvolvido utilizando as tecnologias mais modernas do ecossistema web para garantir performance, acessibilidade e uma ótima experiência de usuário.
+Frontend Angular do LattesHub, o Portal de Dados Abertos.
 
-## 🚀 Tecnologias Utilizadas
+## Tecnologias Utilizadas
 
-* **[Angular 21](https://angular.dev/)**: Framework principal, utilizando Standalone Components e Signals para reatividade.
-* **[Tailwind CSS v4](https://tailwindcss.com/)**: Estilização utilitária e design system customizado.
-* **[TypeScript](https://www.typescriptlang.org/)**: Tipagem estática para maior segurança no código.
-* **[Docker](https://www.docker.com/) & [Nginx](https://nginx.org/)**: Containerização otimizada para produção (multi-stage build com usuário *unprivileged*).
+* **Angular 21**: framework principal, utilizando Standalone Components e Signals.
+* **Tailwind CSS v4**: estilos utilitarios e design system customizado.
+* **TypeScript**: tipagem estatica para maior seguranca no codigo.
+* **Docker e Nginx**: build multi-stage e servidor estatico sem privilegios de root.
 
-## 📋 Pré-requisitos
+## Pre-requisitos
 
-Para rodar o projeto localmente, você precisará de:
-* **Node.js** (versão recomendada: `v24.15.0` ou superior)
-* **npm** (gerenciador de pacotes)
-* **Docker** (opcional, para rodar via container)
+Para rodar o projeto localmente, voce precisara de:
 
-## 💻 Desenvolvimento Local
+* **Node.js**: versao recomendada `v24.15.0` ou superior.
+* **npm**.
+* **Docker**: opcional, para rodar via container.
 
-1. Clone o repositório e acesse a pasta do frontend:
+## Desenvolvimento Local
+
+1. Acesse a pasta do frontend:
+
    ```bash
    cd frontend
    ```
 
-2. Instale as dependências do projeto:
+2. Instale as dependencias:
+
    ```bash
    npm install
    ```
 
 3. Inicie o servidor de desenvolvimento:
+
    ```bash
    npm start
    ```
-   O aplicativo estará disponível em `http://localhost:4200/`. A página será recarregada automaticamente caso você faça alterações no código.
 
-## 🐳 Executando com Docker (Produção)
+   O aplicativo fica disponivel em `http://localhost:4200/`.
 
-O projeto possui um `Dockerfile` otimizado para produção, utilizando um build em múltiplos estágios e servindo os arquivos estáticos através de um servidor Nginx seguro (rodando sem privilégios de root).
+O frontend consome a API pelo caminho relativo `/api/v1`. No desenvolvimento local, `npm start` usa `proxy.conf.js` para encaminhar `/api/` para `http://localhost:8000`. Se o backend estiver em outra URL, defina:
 
-Na raiz do repositorio, o `docker-compose.yml` publica este frontend em `http://localhost:4200/`:
+```bash
+LATTESHUB_API_PROXY_TARGET=http://localhost:9000 npm start
+```
+
+## Executando com Docker
+
+Na raiz do repositorio, o `docker-compose.yml` publica este frontend em `http://localhost:4200/` e o Nginx encaminha `/api/` para o servico interno `backend:8000`:
 
 ```bash
 docker compose up -d frontend
 ```
 
-1. Construa a imagem Docker:
-   ```bash
-   docker build -t lattes-hub-frontend .
-   ```
+Para construir e rodar apenas a imagem do frontend:
 
-2. Execute o container:
-   ```bash
-   docker run -p 8080:8080 lattes-hub-frontend
-   ```
-   O aplicativo estará disponível em `http://localhost:8080/`.
+```bash
+docker build -t lattes-hub-frontend .
+docker run -p 8080:8080 lattes-hub-frontend
+```
 
-## 🏗️ Estrutura do Projeto
+O aplicativo fica disponivel em `http://localhost:8080/`.
 
-* `src/app/`: Contém os componentes da aplicação (Home, Results, Indicators, About, Layouts).
-* `src/styles.scss`: Arquivo de estilos globais e configuração do Tailwind CSS v4.
-* `Dockerfile`: Configuração de containerização para produção.
-* `nginx.conf`: Configuração do servidor web Nginx para roteamento SPA e cache.
+## Estrutura do Projeto
 
-## 🛠️ Comandos Úteis
+* `src/app/`: componentes da aplicacao.
+* `src/styles.scss`: estilos globais e configuracao do Tailwind CSS v4.
+* `Dockerfile`: configuracao de containerizacao.
+* `nginx.conf`: servidor web, roteamento SPA, cache e proxy `/api/`.
+* `proxy.conf.js`: proxy do Angular dev server para a API local.
 
-* `npm start`: Inicia o servidor de desenvolvimento.
-* `npm run build`: Compila o projeto para produção na pasta `dist/`.
-* `npm test`: Executa os testes unitários via Vitest/Karma (dependendo da configuração).
+## Comandos Uteis
+
+* `npm start`: inicia o servidor de desenvolvimento com proxy de API.
+* `npm run build`: compila o projeto para producao na pasta `dist/`.
+* `npm test`: executa os testes unitarios.

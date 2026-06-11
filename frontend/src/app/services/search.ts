@@ -1,6 +1,6 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
-import { map } from 'rxjs';
+import { Subscription, map } from 'rxjs';
 import { SearchResult } from '../shared/result-card/result-card';
 
 interface BuscaSemanticaApiResult {
@@ -114,15 +114,12 @@ export interface ResearcherProfile {
   producoes: ResearcherProduction[];
 }
 
+const MIN_TEXTUAL_SEARCH_LENGTH = 2;
+const MIN_SEMANTIC_SEARCH_LENGTH = 5;
+
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
   providedIn: 'root',
-  factory: () => {
-    const location = globalThis.location;
-    const protocol = location?.protocol || 'http:';
-    const hostname = location?.hostname || 'localhost';
-
-    return `${protocol}//${hostname}:8000/api/v1`;
-  },
+  factory: () => '/api/v1',
 });
 
 @Injectable({
@@ -137,6 +134,8 @@ export class SearchService {
   private readonly errorSignal = signal<string | null>(null);
   private readonly totalSignal = signal(0);
   private readonly lastQuerySignal = signal('');
+  private activeSearchId = 0;
+  private activeSearchSubscription: Subscription | null = null;
 
   readonly results = this.resultsSignal.asReadonly();
   readonly loading = this.loadingSignal.asReadonly();
@@ -151,17 +150,15 @@ export class SearchService {
   search(input: string | SearchFilters) {
     const filters = typeof input === 'string' ? this.buildFilters(input) : input;
     const perguntaNormalizada = filters.pergunta.trim();
-    this.lastQuerySignal.set(perguntaNormalizada);
+    const searchId = this.startSearch(perguntaNormalizada);
 
-    if (perguntaNormalizada.length < 5) {
-      this.loadLatestProductions(filters);
+    if (perguntaNormalizada.length < MIN_SEMANTIC_SEARCH_LENGTH) {
+      const termo = perguntaNormalizada.length >= MIN_TEXTUAL_SEARCH_LENGTH ? perguntaNormalizada : undefined;
+      this.loadProductions(termo, filters, searchId);
       return;
     }
 
-    this.loadingSignal.set(true);
-    this.errorSignal.set(null);
-
-    this.http.post<BuscaSemanticaApiResponse>(`${this.apiBaseUrl}/busca/semantica`, {
+    const request = this.http.post<BuscaSemanticaApiResponse>(`${this.apiBaseUrl}/busca/semantica`, {
       pergunta: perguntaNormalizada,
       tipo_producao: filters.tipoProducao,
       ano: filters.ano,
@@ -169,9 +166,13 @@ export class SearchService {
       areas: filters.areas.length > 0 ? filters.areas : undefined,
     }).subscribe({
       next: response => {
+        if (!this.isActiveSearch(searchId)) {
+          return;
+        }
+
         const results = response.resultados.map(result => this.mapSemanticResult(result));
         if (results.length === 0) {
-          this.loadProductions(perguntaNormalizada, filters);
+          this.loadProductions(perguntaNormalizada, filters, searchId);
           return;
         }
 
@@ -180,13 +181,18 @@ export class SearchService {
         this.loadingSignal.set(false);
       },
       error: () => {
-        this.loadProductions(perguntaNormalizada, filters);
+        if (this.isActiveSearch(searchId)) {
+          this.loadProductions(perguntaNormalizada, filters, searchId);
+        }
       },
     });
+
+    this.activeSearchSubscription = request;
   }
 
   loadLatestProductions(filters = this.buildFilters('')) {
-    this.loadProductions(undefined, filters);
+    const searchId = this.startSearch(filters.pergunta.trim());
+    this.loadProductions(undefined, filters, searchId);
   }
 
   getInstitutions() {
@@ -224,10 +230,20 @@ export class SearchService {
     };
   }
 
-  private loadProductions(termo?: string, filters = this.buildFilters('')) {
+  private startSearch(pergunta: string) {
+    this.activeSearchSubscription?.unsubscribe();
+    this.activeSearchId += 1;
     this.loadingSignal.set(true);
     this.errorSignal.set(null);
+    this.lastQuerySignal.set(pergunta);
+    return this.activeSearchId;
+  }
 
+  private isActiveSearch(searchId: number) {
+    return searchId === this.activeSearchId;
+  }
+
+  private loadProductions(termo?: string, filters = this.buildFilters(''), searchId = this.startSearch(filters.pergunta.trim())) {
     let params = new HttpParams()
       .set('pagina', '1')
       .set('tamanho_pagina', '20');
@@ -252,19 +268,29 @@ export class SearchService {
       params = params.append('areas', String(area));
     }
 
-    this.http.get<ProducaoListApiResponse>(`${this.apiBaseUrl}/producoes/`, { params }).subscribe({
+    const request = this.http.get<ProducaoListApiResponse>(`${this.apiBaseUrl}/producoes/`, { params }).subscribe({
       next: response => {
+        if (!this.isActiveSearch(searchId)) {
+          return;
+        }
+
         this.resultsSignal.set(response.resultados.map(result => this.mapProductionResult(result)));
         this.totalSignal.set(response.total);
         this.loadingSignal.set(false);
       },
       error: () => {
+        if (!this.isActiveSearch(searchId)) {
+          return;
+        }
+
         this.resultsSignal.set([]);
         this.totalSignal.set(0);
         this.errorSignal.set('Nao foi possivel carregar as producoes.');
         this.loadingSignal.set(false);
       },
     });
+
+    this.activeSearchSubscription = request;
   }
 
   private mapSemanticResult(result: BuscaSemanticaApiResult): SearchResult {

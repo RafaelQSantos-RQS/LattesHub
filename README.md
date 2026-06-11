@@ -12,7 +12,7 @@ O projeto realiza:
 
 * Extração de dados XML do Currículo Lattes, incluindo artigos, trabalhos em eventos, livros e capítulos;
 * Processo ETL com Apache Hop;
-* Armazenamento relacional no PostgreSQL;
+* Armazenamento relacional no Supabase (PostgreSQL gerenciado);
 * Busca textual com PostgreSQL Full-Text Search;
 * Busca semântica com pgvector + embeddings;
 * API REST com FastAPI;
@@ -28,14 +28,13 @@ XML Lattes
     ↓
 Apache Hop (ETL)
     ↓
-PostgreSQL + pgvector
+Supabase (PostgreSQL + pgvector)
     ↓
 FastAPI + OpenAI embeddings
     ↓
 Angular Front-end
     ↓
 Power BI
-
 ```
 
 ---
@@ -45,8 +44,8 @@ Power BI
 | Camada           | Tecnologia              |
 | ---------------- | ----------------------- |
 | Infraestrutura   | Docker + Docker Compose |
-| Banco Relacional | PostgreSQL              |
-| Banco Vetorial   | pgvector                |
+| Banco Relacional | Supabase (PostgreSQL)   |
+| Banco Vetorial   | pgvector (via Supabase) |
 | Back-end         | Python + FastAPI        |
 | IA / Embeddings  | OpenAI + pgvector       |
 | Front-end        | Angular + TailwindCSS   |
@@ -67,44 +66,44 @@ Power BI
 
 ---
 
-# Acesso rapido
+# Acesso rápido
 
-Depois de iniciar os servicos locais, use os enderecos abaixo:
+Depois de iniciar os serviços locais, use os endereços abaixo:
 
-| Recurso | URL padrao | Observacao |
+| Recurso | URL padrão | Observação |
 | --- | --- | --- |
 | Frontend Angular | `http://localhost:4200/` | Sobe pelo `docker compose up` ou, em desenvolvimento, por `cd frontend && npm install && npm start`. |
-| Swagger UI | `http://localhost:8000/docs` | Documentacao interativa da API FastAPI. |
-| ReDoc | `http://localhost:8000/redoc` | Documentacao alternativa gerada pelo OpenAPI. |
+| Swagger UI | `http://localhost:8000/docs` | Documentação interativa da API FastAPI. |
+| ReDoc | `http://localhost:8000/redoc` | Documentação alternativa gerada pelo OpenAPI. |
 | API v1 | `http://localhost:8000/api/v1` | Prefixo base dos endpoints REST. |
-| Health check | `http://localhost:8000/health-check` | Verificacao simples de disponibilidade da API. |
-| PostgreSQL local | `localhost:5437` | Porta padrao de `.env.example` via `DB_PORT_EXTERNAL`. |
+| Health check | `http://localhost:8000/health-check` | Verificação simples de disponibilidade da API. |
+| Banco de dados | Painel do Supabase | Acesse via dashboard em supabase.com para inspecionar tabelas. |
 
-Se `FRONTEND_PORT`, `BACKEND_PORT` ou `DB_PORT_EXTERNAL` forem alterados no `.env`, ajuste as URLs acima para as portas configuradas.
+Se `FRONTEND_PORT` ou `BACKEND_PORT` forem alterados no `.env`, ajuste as URLs acima para as portas configuradas.
 
 ---
 
 # Busca e filtros
 
-Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v1/producoes` aceita filtros combinados por `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`. O endpoint `POST /api/v1/busca/semantica` preserva `ano` como filtro exato e tambem aceita `ano_inicio`/`ano_fim` para intervalo.
+Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v1/producoes` aceita filtros combinados por `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`. O endpoint `POST /api/v1/busca/semantica` preserva `ano` como filtro exato e também aceita `ano_inicio`/`ano_fim` para intervalo.
 
-Os tipos de producao exibidos no frontend sao carregados dinamicamente de `GET /api/v1/producoes/tipos`, refletindo os tipos reais presentes no banco. As abas da pagina Explorar usam `categoria` na URL: `tudo` lista producoes, `pesquisadores` lista pesquisadores, `artigos` filtra `ARTIGO PUBLICADO` e `eventos` filtra `TRABALHO EM EVENTOS`.
+Os tipos de produção exibidos no frontend são carregados dinamicamente de `GET /api/v1/producoes/tipos`, refletindo os tipos reais presentes no banco. As abas da página Explorar usam `categoria` na URL: `tudo` lista produções, `pesquisadores` lista pesquisadores, `artigos` filtra `ARTIGO PUBLICADO` e `eventos` filtra `TRABALHO EM EVENTOS`.
 
 ---
 
-# Exportacoes CSV e Power BI
+# Exportações CSV e Power BI
 
-O endpoint `GET /api/v1/exportacoes/producoes.csv` gera um CSV analitico para Power BI, Python ou planilhas. O arquivo inclui campos de fato e dimensoes como producao, ano, quadrienio-ano, pesquisador, instituicao, areas, Qualis e metadados bibliograficos enriquecidos.
+O endpoint `GET /api/v1/exportacoes/producoes.csv` gera um CSV analítico para Power BI, Python ou planilhas. O arquivo inclui campos de fato e dimensões como produção, ano, quadriênio-ano, pesquisador, instituição, áreas, Qualis e metadados bibliográficos enriquecidos.
 
-A exportacao aceita os filtros `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`, os mesmos filtros principais usados na listagem de producoes. Na pagina Explorar, o botao "Exportar Dados Analiticos (CSV)" baixa o CSV respeitando os filtros atuais da URL. Quando a busca visual vem de consulta semantica, o CSV usa o texto da busca como filtro textual (`termo`) e nao reproduz a ordenacao vetorial por similaridade.
+A exportação aceita os filtros `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`, os mesmos filtros principais usados na listagem de produções. Na página Explorar, o botão "Exportar Dados Analíticos (CSV)" baixa o CSV respeitando os filtros atuais da URL. Quando a busca visual vem de consulta semântica, o CSV usa o texto da busca como filtro textual (`termo`) e não reproduz a ordenação vetorial por similaridade.
 
-Na pagina Indicadores, o botao "Exportar CSV" baixa o dataset completo de producoes.
+Na página Indicadores, o botão "Exportar CSV" baixa o dataset completo de produções.
 
 ---
 
 # Getting Started (Como rodar o projeto)
 
-A infraestrutura do LattesHub é totalmente orquestrada via Docker. Siga os passos abaixo para inicializar o ambiente com a carga de dados completa.
+A infraestrutura do LattesHub é orquestrada via Docker e usa o **Supabase** como banco de dados. Não é necessário rodar PostgreSQL localmente.
 
 ### Passo 0: Pré-requisitos e Configuração
 
@@ -112,35 +111,40 @@ A infraestrutura do LattesHub é totalmente orquestrada via Docker. Siga os pass
 2. Crie o arquivo de variáveis de ambiente a partir do exemplo:
 ```bash
 cp .env.example .env
-
 ```
 
+3. Preencha as variáveis obrigatórias no `.env`:
 
-3. Preencha a variável `OPENAI_API_KEY` dentro do arquivo `.env` com a sua chave válida da OpenAI.
+| Variável | Descrição |
+| --- | --- |
+| `DATABASE_URL` | Connection string do Supabase (Session Pooler, porta 5432) |
+| `DB_SSLMODE` | Deve ser `require` para o Supabase |
+| `OPENAI_API_KEY` | Chave válida da OpenAI |
+
+A `DATABASE_URL` tem o formato:
+```
+postgresql://postgres.<project-ref>:<senha>@aws-X-sa-east-1.pooler.supabase.com:5432/postgres
+```
+
 4. **(Apenas para usuários Windows):** Para evitar problemas de execução (CRLF vs LF) nos scripts bash do Apache Hop dentro do container Linux, execute o comando abaixo no seu terminal antes de realizar novos *pulls* ou *commits*:
 ```bash
 git config --global core.autocrlf false
-
 ```
-
-
 
 ### Passo 1: Subindo a infraestrutura e executando o pipeline ETL (Carga Inicial)
 
-Para construir as imagens e rodar o pipeline completo de ponta a ponta (Banco > API > Frontend > ETL > Embeddings), execute o comando na raiz do projeto:
+Para construir as imagens e rodar o pipeline completo de ponta a ponta (API > Frontend > ETL > Embeddings), execute o comando na raiz do projeto:
 
 ```bash
 docker compose --profile etl up --build
-
 ```
 
 **O que este comando faz de forma orquestrada:**
 
-1. Inicia o **PostgreSQL** (com a extensão pgvector).
-2. Inicia o **Backend** (FastAPI) na porta 8000.
-3. Inicia o **Frontend** (Angular servido por Nginx) na porta 4200.
-4. Executa o serviço **Apache Hop** (`latteshub-etl`), que extrai as informações dos XMLs e as popula no banco de dados.
-5. Ao finalizar o ETL com sucesso, executa o serviço de **Embeddings** (`latteshub-embeddings`), que primeiro tenta importar o seed versionado `database/seed/vetores_seed.csv`. Se ainda houver produções elegíveis sem vetor, gera apenas o delta chamando a API da OpenAI, salva no banco e reexporta o seed.
+1. Inicia o **Backend** (FastAPI) na porta 8000, conectado ao Supabase via `DATABASE_URL`.
+2. Inicia o **Frontend** (Angular servido por Nginx) na porta 4200.
+3. Executa o serviço **Apache Hop** (`latteshub-etl`), que extrai as informações dos XMLs e as popula no banco de dados.
+4. Ao finalizar o ETL com sucesso, executa o serviço de **Embeddings** (`latteshub-embeddings`), que primeiro tenta importar o seed versionado `database/seed/vetores_seed.csv`. Se ainda houver produções elegíveis sem vetor, gera apenas o delta chamando a API da OpenAI, salva no banco e reexporta o seed.
 
 ### Cobertura do ETL e embeddings
 
@@ -152,14 +156,13 @@ Por padrão, o serviço de embeddings processa os tipos `ARTIGO PUBLICADO`, `TRA
 
 Após a carga inicial de dados ter sido concluída (Passo 1), você não precisa rodar o pipeline de ETL e gastar requisições da OpenAI a cada vez que for programar.
 
-Para subir os servicos persistentes (Banco de Dados, API backend e frontend) no dia a dia, utilize:
+Para subir os serviços persistentes (API backend e frontend) no dia a dia, utilize:
 
 ```bash
 docker compose up
-
 ```
 
-Com os containers ativos, o frontend fica disponivel em `http://localhost:4200/`, o backend em `http://localhost:8000`, e o Swagger em `http://localhost:8000/docs`.
+Com os containers ativos, o frontend fica disponível em `http://localhost:4200/`, o backend em `http://localhost:8000`, e o Swagger em `http://localhost:8000/docs`.
 
 Para rodar a interface web fora do Docker, com live reload do Angular, abra outro terminal e execute:
 
@@ -167,10 +170,9 @@ Para rodar a interface web fora do Docker, com live reload do Angular, abra outr
 cd frontend
 npm install
 npm start
-
 ```
 
-A aplicacao ficara disponivel em `http://localhost:4200/` e consumira a API pelo caminho relativo `/api/v1`, usando o proxy do Angular para `http://localhost:8000` por padrao.
+A aplicação ficará disponível em `http://localhost:4200/` e consumirá a API pelo caminho relativo `/api/v1`, usando o proxy do Angular para `http://localhost:8000` por padrão.
 
 Se o backend local estiver em outro host ou porta, defina `LATTESHUB_API_PROXY_TARGET` antes do `npm start`:
 
@@ -178,28 +180,37 @@ Se o backend local estiver em outro host ou porta, defina `LATTESHUB_API_PROXY_T
 LATTESHUB_API_PROXY_TARGET=http://localhost:9000 npm start
 ```
 
-No Docker Compose, o Nginx do frontend encaminha `/api/` diretamente para o servico `backend:8000` na rede interna. Em deploy, publique backend e frontend sob o mesmo dominio ou configure o proxy externo para encaminhar `/api/` ao backend.
+No Docker Compose, o Nginx do frontend encaminha `/api/` diretamente para o serviço `backend:8000` na rede interna. Em deploy, publique backend e frontend sob o mesmo domínio ou configure o proxy externo para encaminhar `/api/` ao backend.
 
-Para preparar um deploy reproduzivel em VM/VPS/servidor com Docker Compose, use o guia [docs/deploy.md](docs/deploy.md). Ele cobre `.env.production`, `docker-compose.prod.yml`, carga inicial, ETL, embeddings e validacao pos-deploy.
+Para preparar um deploy reproduzível em VM/VPS/servidor com Docker Compose, use o guia [docs/deploy.md](docs/deploy.md). Ele cobre `.env.production`, `docker-compose.prod.yml`, carga inicial, ETL, embeddings e validação pós-deploy.
 
-Quando alterar codigo do backend usando Docker Compose, reconstrua a imagem para refletir as mudancas no container:
+Quando alterar código do backend usando Docker Compose, reconstrua a imagem para refletir as mudanças no container:
 
 ```bash
 docker compose up -d --build backend
-
 ```
 
-Quando alterar codigo do frontend usando Docker Compose, reconstrua a imagem do frontend:
+Quando alterar código do frontend usando Docker Compose, reconstrua a imagem do frontend:
 
 ```bash
 docker compose up -d --build frontend
 ```
 
-O Nginx do container frontend serve `index.html` e rotas da SPA sem cache para que novas builds aparecam com refresh normal da pagina. Arquivos estaticos versionados (`.js`, `.css`, imagens e fontes) continuam com cache longo porque o build Angular gera nomes com hash.
+O Nginx do container frontend serve `index.html` e rotas da SPA sem cache para que novas builds apareçam com refresh normal da página. Arquivos estáticos versionados (`.js`, `.css`, imagens e fontes) continuam com cache longo porque o build Angular gera nomes com hash.
 
-### Configuracao de CORS do backend
+### Banco de dados local (opcional)
 
-O backend aceita por padrao as origens locais `http://localhost:4200` e `http://127.0.0.1:4200`. Para deploy, configure `BACKEND_CORS_ORIGINS` no `.env` com a lista de origens permitidas, separadas por virgula, e use `APP_ENV=production`.
+Se precisar rodar um PostgreSQL local em vez do Supabase (por exemplo, para trabalhar offline), o serviço `db` está disponível via profile `local-db`:
+
+```bash
+docker compose --profile local-db up db
+```
+
+Nesse caso, ajuste o `.env` removendo `DATABASE_URL` e restaurando as variáveis individuais (`DB_HOST=db`, `DB_PORT=5432`, etc.).
+
+### Configuração de CORS do backend
+
+O backend aceita por padrão as origens locais `http://localhost:4200` e `http://127.0.0.1:4200`. Para deploy, configure `BACKEND_CORS_ORIGINS` no `.env` com a lista de origens permitidas, separadas por vírgula, e use `APP_ENV=production`.
 
 Exemplo:
 
@@ -208,32 +219,22 @@ APP_ENV=production
 BACKEND_CORS_ORIGINS=https://seu-frontend.example.com
 ```
 
-Nao use `*` em `BACKEND_CORS_ORIGINS` em producao, porque o backend habilita credenciais no CORS.
+Não use `*` em `BACKEND_CORS_ORIGINS` em produção, porque o backend habilita credenciais no CORS.
 
 ### Testes automatizados do backend
 
-Os testes do backend usam `pytest`, `TestClient` do FastAPI e um PostgreSQL real. A suite cria dados minimos com prefixo `PYTEST_ISSUE30_` e remove esses dados ao final, sem depender do conteudo carregado pelo ETL. A chamada para OpenAI e mockada nos testes de busca semantica.
+Os testes do backend usam `pytest`, `TestClient` do FastAPI e um PostgreSQL real. A suite cria dados mínimos com prefixo `PYTEST_ISSUE30_` e remove esses dados ao final, sem depender do conteúdo carregado pelo ETL. A chamada para OpenAI é mockada nos testes de busca semântica.
 
-Para rodar localmente com Docker:
-
-```bash
-docker compose up -d db
-docker compose run --rm backend pytest
-
-```
-
-Para rodar contra Supabase ou outro banco de teste externo, defina `DATABASE_URL` com uma credencial de ambiente de teste antes de executar o pytest. Nao use banco de producao, porque a suite insere e remove fixtures.
+Para rodar os testes contra o Supabase (ou outro banco de teste externo), defina `DATABASE_URL` com uma credencial de ambiente de teste antes de executar o pytest. Não use o banco de produção, porque a suite insere e remove fixtures.
 
 ```bash
 DATABASE_URL="<url-do-postgres-de-teste>" pytest
-
 ```
 
 Smoke tests opcionais para banco externo podem ser executados com:
 
 ```bash
 RUN_SUPABASE_SMOKE=1 DATABASE_URL="<url-do-postgres-de-teste>" pytest -m supabase
-
 ```
 
 ### Testes e build do frontend
@@ -244,22 +245,23 @@ Na pasta `frontend/`, use:
 npm install
 npm test
 npm run build
-
 ```
 
-No Windows PowerShell, se `npm` for bloqueado por politica de execucao do `npm.ps1`, use `npm.cmd` nos mesmos comandos, por exemplo `npm.cmd test`.
+No Windows PowerShell, se `npm` for bloqueado por política de execução do `npm.ps1`, use `npm.cmd` nos mesmos comandos, por exemplo `npm.cmd test`.
 
-### Solucao de problemas: busca ou filtros vazios
+---
+
+### Solução de problemas: busca ou filtros vazios
 
 Se o frontend abrir, mas a busca mostrar "Nenhum resultado encontrado" e os filtros estiverem vazios, diferencie primeiro falha de API/proxy de banco sem dados:
 
 ```bash
-curl http://localhost:8000/api/v1/producoes/?pagina=1\&tamanho_pagina=1
-curl http://localhost:4200/api/v1/producoes/?pagina=1\&tamanho_pagina=1
+curl http://localhost:8000/api/v1/producoes/?pagina=1&tamanho_pagina=1
+curl http://localhost:4200/api/v1/producoes/?pagina=1&tamanho_pagina=1
 docker compose logs --tail=120 backend
 ```
 
-Se a API direta falhar ou o frontend retornar `502 Bad Gateway`, o problema esta no backend/proxy, nao nos dados. Reinicie ou reconstrua o backend depois de alteracoes:
+Se a API direta falhar ou o frontend retornar `502 Bad Gateway`, o problema está no backend/proxy, não nos dados. Reinicie ou reconstrua o backend depois de alterações:
 
 ```bash
 docker compose up -d --build backend
@@ -267,8 +269,14 @@ docker compose up -d --build backend
 
 Se a API responder, verifique se o ETL populou o banco:
 
+**Supabase (padrão):** acesse o painel → Table Editor → `producoes`, ou use o SQL Editor:
+```sql
+SELECT count(*) FROM producoes;
+```
+
+**Banco local (`--profile local-db`):**
 ```bash
-docker compose exec db psql -U postgres -d lattes_hub -c "select count(*) from producoes;"
+docker compose --profile local-db exec db psql -U postgres -d postgres -c "SELECT count(*) FROM producoes;"
 ```
 
 Se o total for `0`, execute novamente a carga ETL:
@@ -277,13 +285,13 @@ Se o total for `0`, execute novamente a carga ETL:
 docker compose --profile etl up --force-recreate hop
 ```
 
-A busca semantica depende da tabela `vetores`. Se `select count(*) from vetores;` retornar `0`, execute:
+A busca semântica depende da tabela `vetores`. Se `SELECT count(*) FROM vetores;` retornar `0` (Supabase SQL Editor) ou o comando equivalente acima retornar `0`, execute:
 
 ```bash
 docker compose --profile etl run --rm embeddings
 ```
 
-Esse servico importa `database/seed/vetores_seed.csv` quando o arquivo existe. Assim, em outra maquina com o mesmo conjunto de XMLs, o banco pode ser populado com vetores sem gastar creditos da OpenAI novamente. A API da OpenAI so e chamada para producoes elegiveis que ainda nao tenham vetor no seed ou no banco.
+Este serviço importa `database/seed/vetores_seed.csv` quando o arquivo existe. Assim, em outra máquina com o mesmo conjunto de XMLs, o banco pode ser populado com vetores sem gastar créditos da OpenAI novamente. A API da OpenAI só é chamada para produções elegíveis que ainda não tenham vetor no seed ou no banco.
 
 ---
 

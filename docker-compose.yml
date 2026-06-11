@@ -1,11 +1,15 @@
 services:
-  # Banco de Dados (PostgreSQL + pgvector)
+  # Banco de Dados local (PostgreSQL + pgvector) — apenas com profile "local-db"
+  # Para usar Supabase em dev, não suba este serviço.
+  # Para usar local: docker compose --profile local-db up db
   db:
     build:
       context: ./database
       network: host
     container_name: latteshub-db
     restart: always
+    profiles:
+      - local-db
     environment:
       POSTGRES_USER: ${DB_USER}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
@@ -90,12 +94,12 @@ services:
       context: ./backend
       network: host
     container_name: latteshub-enriquecer
-    profiles:
-      - etl
-    restart: "no"
     depends_on:
       db:
         condition: service_healthy
+    profiles:
+      - etl
+    restart: "no"
     env_file:
       - .env
     environment:

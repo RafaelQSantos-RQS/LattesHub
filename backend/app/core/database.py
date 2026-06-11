@@ -35,8 +35,8 @@ def get_db_pool():
     if db_pool is not None:
         return db_pool
 
-    max_attempts = int(os.getenv("DB_POOL_INIT_ATTEMPTS", "10"))
-    retry_delay = float(os.getenv("DB_POOL_INIT_DELAY_SECONDS", "2"))
+    max_attempts = int(os.getenv("DB_POOL_INIT_ATTEMPTS", "20"))
+    retry_delay = float(os.getenv("DB_POOL_INIT_DELAY_SECONDS", "3"))
 
     with _db_pool_lock:
         if db_pool is not None:

@@ -41,6 +41,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
     environment:
       <<: *app-env
       APP_ENV: ${APP_ENV:-production}
@@ -79,6 +80,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
     profiles:
       - etl
     restart: "no"
@@ -106,6 +108,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
       hop:
         condition: service_completed_successfully
     environment:

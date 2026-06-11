@@ -34,6 +34,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
     profiles:
       - etl
     restart: "no"
@@ -68,6 +69,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
     env_file:
       - .env
     ports:
@@ -97,6 +99,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
     profiles:
       - etl
     restart: "no"
@@ -121,6 +124,7 @@ services:
     depends_on:
       db:
         condition: service_healthy
+        required: false
       hop:
         condition: service_completed_successfully
     env_file:

@@ -27,8 +27,7 @@ def test_busca_textual_por_fts_sucesso(client, issue30_data):
     assert response.status_code == 200
     resultados = response.json()["resultados"]
     assert any(
-        item["id"] == issue30_data["producao_textual"]["id"]
-        for item in resultados
+        item["id"] == issue30_data["producao_textual"]["id"] for item in resultados
     )
 
 
@@ -63,3 +62,44 @@ def test_obter_producao_por_id_404(client):
     response = client.get(f"/api/v1/producoes/{MISSING_ID}")
 
     assert response.status_code == 404
+
+
+def test_erro_interno_500_nao_vaza_detalhes(client):
+    """
+    Garante que erros catastróficos no banco de dados não exponham
+    detalhes da query ou senhas no JSON de resposta.
+    """
+    from app.main import app
+    from app.core.database import get_db_connection
+
+    def mock_get_db_connection_com_falha():
+        class FakeCursor:
+            def execute(self, *args, **kwargs):
+                raise Exception("SenhaSecretaDoBancoDeDados123!")
+
+            def close(self):
+                pass
+
+        class FakeConn:
+            def cursor(self, *args, **kwargs):
+                return FakeCursor()
+
+            def rollback(self):
+                pass
+
+        yield FakeConn()
+
+    app.dependency_overrides[get_db_connection] = mock_get_db_connection_com_falha
+
+    try:
+        response = client.get("/api/v1/producoes/")
+
+        assert response.status_code == 500
+        json_resp = response.json()
+
+        assert "SenhaSecretaDoBancoDeDados123!" not in response.text
+        assert (
+            json_resp["detail"] == "Erro interno no servidor ao processar a requisição."
+        )
+    finally:
+        app.dependency_overrides.clear()

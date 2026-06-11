@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional
 from app.schemas.pesquisador import (
@@ -9,6 +10,7 @@ from app.core.database import get_db_connection
 from psycopg2.extras import RealDictCursor
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 def buscar_areas_pesquisador(cursor, pesquisador_id: int):
@@ -110,6 +112,7 @@ def listar_pesquisadores(
             status_code=500, detail=f"Erro ao listar pesquisadores: {str(e)}"
         )
 
+
 @router.get("/{pesquisador_id}", response_model=PesquisadorResumo)
 def obter_pesquisador_por_id(pesquisador_id: int, db=Depends(get_db_connection)):
     try:
@@ -147,6 +150,7 @@ def obter_pesquisador_por_id(pesquisador_id: int, db=Depends(get_db_connection))
         raise HTTPException(
             status_code=500, detail=f"Erro ao buscar detalhes do pesquisador: {str(e)}"
         )
+
 
 @router.get("/{pesquisador_id}/producoes", response_model=PesquisadorPerfilResponse)
 def obter_producoes_pesquisador(pesquisador_id: int, db=Depends(get_db_connection)):
@@ -200,6 +204,8 @@ def obter_producoes_pesquisador(pesquisador_id: int, db=Depends(get_db_connectio
         raise
     except Exception as e:
         db.rollback()
+        logger.error(f"Erro na operação de pesquisadores: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Erro ao buscar currículo: {str(e)}"
+            status_code=500,
+            detail="Erro interno no servidor ao processar a requisição.",
         )

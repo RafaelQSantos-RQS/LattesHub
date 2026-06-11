@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
 from typing import Optional
 from app.schemas.instituicao import (
@@ -10,6 +11,7 @@ from app.core.database import get_db_connection
 from psycopg2.extras import RealDictCursor
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_model=InstituicaoListResponse)
@@ -189,24 +191,26 @@ def listar_pesquisadores_por_instituicao(
 def listar_producoes_por_instituicao(
     instituicao_id: int,
     pagina: int = Query(1, ge=1, description="Número da página"),
-    tamanho_pagina: int = Query(20, ge=1, le=100, description="Quantidade de registros por página"),
-    db = Depends(get_db_connection)
+    tamanho_pagina: int = Query(
+        20, ge=1, le=100, description="Quantidade de registros por página"
+    ),
+    db=Depends(get_db_connection),
 ):
     offset = (pagina - 1) * tamanho_pagina
-    
+
     try:
         cursor = db.cursor(cursor_factory=RealDictCursor)
-        
+
         # 1. Valida a instituição
         cursor.execute(
-            "SELECT id, nome, cidade, estado, pais FROM instituicoes WHERE id = %s;", 
-            (instituicao_id,)
+            "SELECT id, nome, cidade, estado, pais FROM instituicoes WHERE id = %s;",
+            (instituicao_id,),
         )
         dados_instituicao = cursor.fetchone()
-        
+
         if not dados_instituicao:
             raise HTTPException(status_code=404, detail="Instituição não encontrada.")
-            
+
         # 2. Conta o total de produções vinculadas a pesquisadores desta instituição
         sql_count = """
             SELECT COUNT(prod.id) as total 
@@ -215,8 +219,8 @@ def listar_producoes_por_instituicao(
             WHERE pes.instituicao_id = %s;
         """
         cursor.execute(sql_count, (instituicao_id,))
-        total_registros = cursor.fetchone()['total']
-        
+        total_registros = cursor.fetchone()["total"]
+
         # 3. Busca a lista paginada de produções com os dados do autor
         sql_producoes = """
             SELECT 
@@ -234,19 +238,25 @@ def listar_producoes_por_instituicao(
         """
         cursor.execute(sql_producoes, (instituicao_id, tamanho_pagina, offset))
         lista_producoes = cursor.fetchall()
-        
+
         cursor.close()
-        
+
         return {
             "instituicao": dados_instituicao,
             "total": total_registros,
             "pagina": pagina,
             "tamanho_pagina": tamanho_pagina,
-            "resultados": lista_producoes
+            "resultados": lista_producoes,
         }
-        
+
     except HTTPException:
         raise
     except Exception as e:
         db.rollback()
-        raise HTTPException(status_code=500, detail=f"Erro ao listar produções da instituição: {str(e)}")
+        logger.error(
+            f"Erro ao listar instituições: {e}", exc_info=True
+        )  # Mude a mensagem para o contexto da função
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno no servidor ao processar a requisição.",
+        )

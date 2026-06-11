@@ -4,8 +4,10 @@ from app.core.database import get_db_connection
 from psycopg2.extras import RealDictCursor
 from openai import OpenAI
 import os
+import logging
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 
@@ -110,6 +112,8 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
         raise
     except Exception as e:
         db.rollback()
+        logger.error(f"Erro na busca semântica: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Erro na busca semântica: {str(e)}"
+            status_code=500,
+            detail="Erro interno no servidor ao processar a requisição.",
         )

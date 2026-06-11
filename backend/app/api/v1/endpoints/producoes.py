@@ -1,3 +1,4 @@
+import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
 from app.schemas.producao import ProducaoListResponse, ProducaoDetalhe
 from app.core.database import get_db_connection
@@ -5,6 +6,7 @@ from psycopg2.extras import RealDictCursor
 from typing import Optional
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_model=ProducaoListResponse)
@@ -124,6 +126,7 @@ def listar_todas_producoes(
             status_code=500, detail=f"Erro ao listar produções: {str(e)}"
         )
 
+
 @router.get("/{producao_id}", response_model=ProducaoDetalhe)
 def obter_producao_por_id(producao_id: int, db=Depends(get_db_connection)):
     try:
@@ -164,6 +167,8 @@ def obter_producao_por_id(producao_id: int, db=Depends(get_db_connection)):
         raise
     except Exception as e:
         db.rollback()
+        logger.error(f"Erro na operação de produções: {e}", exc_info=True)
         raise HTTPException(
-            status_code=500, detail=f"Erro ao buscar produção: {str(e)}"
+            status_code=500,
+            detail="Erro interno no servidor ao processar a requisição.",
         )

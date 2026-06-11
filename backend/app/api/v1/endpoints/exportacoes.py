@@ -1,3 +1,4 @@
+import logging
 import csv
 from io import StringIO
 
@@ -8,6 +9,7 @@ from psycopg2.extras import RealDictCursor
 from app.core.database import get_db_connection
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/producoes.csv")
@@ -111,7 +113,8 @@ def exportar_producoes_csv(db=Depends(get_db_connection)):
 
     except Exception as e:
         db.rollback()
+        logger.error(f"Erro ao exportar produções em CSV: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail=f"Erro ao exportar produções em CSV: {str(e)}",
+            detail="Erro interno no servidor ao processar a requisição.",
         )

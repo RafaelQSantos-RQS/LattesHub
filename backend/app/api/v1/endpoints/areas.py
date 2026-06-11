@@ -1,9 +1,12 @@
+import logging
+
 from fastapi import APIRouter, Depends, HTTPException
 from app.schemas.area import GrandeAreaFiltro
 from app.core.database import get_db_connection
 from psycopg2.extras import RealDictCursor
 
 router = APIRouter()
+logger = logging.getLogger(__name__)
 
 
 @router.get("/", response_model=list[GrandeAreaFiltro])
@@ -49,4 +52,8 @@ def listar_areas_agrupadas(db=Depends(get_db_connection)):
         return resultado_final
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Erro ao agrupar áreas: {str(e)}")
+        logger.error(f"Erro ao agrupar áreas: {e}", exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail="Erro interno no servidor ao processar a requisição.",
+        )

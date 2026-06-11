@@ -74,7 +74,7 @@ describe('SearchService', () => {
       language: 'pt',
       doi: '10.0000/teste',
       productionType: 'ARTIGO PUBLICADO',
-      abstract: 'Revista Brasileira de IA',
+      venue: 'Revista Brasileira de IA',
     });
   });
 

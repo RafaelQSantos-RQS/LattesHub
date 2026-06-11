@@ -327,7 +327,8 @@ export class SearchService {
       language: result.idioma,
       doi: result.doi,
       productionType: result.tipo_producao,
-      abstract: result.revista || result.evento || result.natureza || undefined,
+      venue: result.revista || result.evento || undefined,
+      natureza: result.natureza || undefined,
     };
   }
 

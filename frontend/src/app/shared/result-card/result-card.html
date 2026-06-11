@@ -35,6 +35,9 @@
       @if (result().doi) {
         <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">DOI: {{ result().doi }}</span>
       }
+      @if (result().natureza) {
+        <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ result().natureza }}</span>
+      }
       @if (result().tag) {
         <span class="bg-teal-50 text-teal-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ result().tag }}</span>
       }
@@ -43,8 +46,13 @@
       }
     </div>
     
+    @if (result().venue) {
+      <p class="text-body-sm text-on-surface-variant">
+        <span class="font-semibold">Fonte:</span> {{ result().venue }}
+      </p>
+    }
     @if (result().abstract) {
-      <p class="text-body-sm text-on-surface-variant line-clamp-2">{{ result().abstract }}</p>
+      <p class="text-body-sm text-on-surface-variant line-clamp-2 mt-1">{{ result().abstract }}</p>
     }
   </div>
   

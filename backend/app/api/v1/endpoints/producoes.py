@@ -134,17 +134,25 @@ def obter_producao_por_id(producao_id: int, db=Depends(get_db_connection)):
 
         # Query detalhada com JOIN para capturar o nome do pesquisador autor
         sql = """
-            SELECT 
-                p.id, 
-                p.tipo_producao, 
-                p.titulo, 
-                p.ano, 
-                p.idioma, 
-                p.natureza, 
-                p.doi, 
-                p.revista, 
+            SELECT
+                p.id,
+                p.tipo_producao,
+                p.titulo,
+                p.ano,
+                p.idioma,
+                p.natureza,
+                p.doi,
+                p.revista,
                 p.evento,
                 p.issn,
+                p.volume,
+                p.fasciculo,
+                p.pagina_inicial,
+                p.pagina_final,
+                p.pais_publicacao,
+                p.titulo_ingles,
+                p.palavras_chave,
+                p.coautores,
                 p.pesquisador_id,
                 pes.nome AS pesquisador_nome
             FROM producoes p

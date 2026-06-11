@@ -125,6 +125,14 @@ export interface ProductionDetail {
   revista: string | null;
   evento: string | null;
   issn: string | null;
+  volume: string | null;
+  fasciculo: string | null;
+  pagina_inicial: string | null;
+  pagina_final: string | null;
+  pais_publicacao: string | null;
+  titulo_ingles: string | null;
+  palavras_chave: string | null;
+  coautores: string | null;
   pesquisador_id: number;
   pesquisador_nome: string;
 }

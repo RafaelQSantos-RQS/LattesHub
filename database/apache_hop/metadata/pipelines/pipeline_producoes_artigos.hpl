@@ -395,6 +395,96 @@
         <type>String</type>
         <xPath>DETALHAMENTO-DO-ARTIGO/@ISSN</xPath>
       </field>
+      <field>
+        <currency />
+        <decimal />
+        <element_type>Node</element_type>
+        <format />
+        <group />
+        <length>-1</length>
+        <name>volume</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DETALHAMENTO-DO-ARTIGO/@VOLUME</xPath>
+      </field>
+      <field>
+        <currency />
+        <decimal />
+        <element_type>Node</element_type>
+        <format />
+        <group />
+        <length>-1</length>
+        <name>fasciculo</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DETALHAMENTO-DO-ARTIGO/@FASCICULO</xPath>
+      </field>
+      <field>
+        <currency />
+        <decimal />
+        <element_type>Node</element_type>
+        <format />
+        <group />
+        <length>-1</length>
+        <name>pagina_inicial</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DETALHAMENTO-DO-ARTIGO/@PAGINA-INICIAL</xPath>
+      </field>
+      <field>
+        <currency />
+        <decimal />
+        <element_type>Node</element_type>
+        <format />
+        <group />
+        <length>-1</length>
+        <name>pagina_final</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DETALHAMENTO-DO-ARTIGO/@PAGINA-FINAL</xPath>
+      </field>
+      <field>
+        <currency />
+        <decimal />
+        <element_type>Node</element_type>
+        <format />
+        <group />
+        <length>-1</length>
+        <name>pais_publicacao</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DADOS-BASICOS-DO-ARTIGO/@PAIS-DE-PUBLICACAO</xPath>
+      </field>
+      <field>
+        <currency />
+        <decimal />
+        <element_type>Node</element_type>
+        <format />
+        <group />
+        <length>-1</length>
+        <name>titulo_ingles</name>
+        <precision>-1</precision>
+        <repeat>N</repeat>
+        <result_type>valueof</result_type>
+        <trim_type>both</trim_type>
+        <type>String</type>
+        <xPath>DADOS-BASICOS-DO-ARTIGO/@TITULO-DO-ARTIGO-INGLES</xPath>
+      </field>
     </fields>
     <file>
       <file_required>N</file_required>
@@ -561,6 +651,36 @@
       <value>
         <name>evento</name>
         <rename>evento</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>volume</name>
+        <rename>volume</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>fasciculo</name>
+        <rename>fasciculo</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>pagina_inicial</name>
+        <rename>pagina_inicial</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>pagina_final</name>
+        <rename>pagina_final</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>pais_publicacao</name>
+        <rename>pais_publicacao</rename>
+        <update>Y</update>
+      </value>
+      <value>
+        <name>titulo_ingles</name>
+        <rename>titulo_ingles</rename>
         <update>Y</update>
       </value>
     </lookup>

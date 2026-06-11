@@ -127,6 +127,15 @@ CREATE TABLE producoes (
 
     issn VARCHAR(20),
 
+    volume VARCHAR(20),
+    fasciculo VARCHAR(20),
+    pagina_inicial VARCHAR(20),
+    pagina_final VARCHAR(20),
+    pais_publicacao VARCHAR(100),
+    titulo_ingles TEXT,
+    palavras_chave TEXT,
+    coautores TEXT,
+
     -- Full Text Search
     titulo_tsv tsvector,
 

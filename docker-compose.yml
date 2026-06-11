@@ -85,6 +85,27 @@ services:
     networks:
       - latteshub_network
 
+  enriquecer:
+    build:
+      context: ./backend
+      network: host
+    container_name: latteshub-enriquecer
+    profiles:
+      - etl
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file:
+      - .env
+    environment:
+      DATA_DIR: /data/lattes
+    volumes:
+      - ./database/data:/data
+    command: ["python", "app/scripts/enriquecer_producoes.py"]
+    networks:
+      - latteshub_network
+
   embeddings:
     build:
       context: ./backend

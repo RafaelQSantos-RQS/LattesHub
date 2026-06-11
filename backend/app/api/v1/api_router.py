@@ -3,6 +3,7 @@ from app.api.v1.endpoints import (
     areas,
     busca,
     exportacoes,
+    indicadores,
     instituicoes,
     pesquisadores,
     producoes,
@@ -28,3 +29,5 @@ api_router.include_router(
 api_router.include_router(areas.router, prefix="/areas", tags=["Áreas de Conhecimento"])
 
 api_router.include_router(exportacoes.router, prefix="/exportacoes", tags=["Exportações"])
+
+api_router.include_router(indicadores.router, prefix="/indicadores", tags=["Indicadores"])

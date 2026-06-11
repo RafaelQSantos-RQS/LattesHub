@@ -380,6 +380,10 @@ Backend tests use `pytest` under `backend/tests/`. When changing backend behavio
 
 When integrating frontend search with backend semantic search, verify the browser flow with a real query such as `dengue`. The semantic endpoint depends on `OPENAI_API_KEY`; if the key is invalid or unavailable, the frontend must still degrade gracefully to a real backend textual search (`/api/v1/producoes/?termo=...`) instead of showing a generic failure state.
 
+## Branch protection rule
+
+Never commit directly to `main`. Every change — including docs, AGENTS.md updates, and configuration — must be made on a dedicated feature branch and reach `main` only via a pull request. Create the branch before making any local commit. If an accidental commit lands on `main`, move it to a branch immediately via `git checkout -b <branch>` (the commit moves with the branch checkout, so `main` can be reset with `git reset --hard HEAD~1`).
+
 ## Commit, PR, and Wiki Workflow
 
 Git history uses a mix of concise imperative commits and Conventional Commit prefixes, such as `feat(frontend): ...`, `build(docker): ...`, and `docs(frontend): ...`. Prefer that format for scoped changes.

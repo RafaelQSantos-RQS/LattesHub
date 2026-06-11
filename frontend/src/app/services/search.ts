@@ -195,6 +195,13 @@ export class SearchService {
     this.loadProductions(undefined, filters, searchId);
   }
 
+  loadPage(pagina: number, filters: SearchFilters) {
+    const pergunta = filters.pergunta.trim();
+    const searchId = this.startSearch(pergunta);
+    const termo = pergunta.length >= MIN_TEXTUAL_SEARCH_LENGTH ? pergunta : undefined;
+    this.loadProductions(termo, filters, searchId, pagina);
+  }
+
   getInstitutions() {
     const params = new HttpParams()
       .set('pagina', '1')
@@ -243,9 +250,9 @@ export class SearchService {
     return searchId === this.activeSearchId;
   }
 
-  private loadProductions(termo?: string, filters = this.buildFilters(''), searchId = this.startSearch(filters.pergunta.trim())) {
+  private loadProductions(termo?: string, filters = this.buildFilters(''), searchId = this.startSearch(filters.pergunta.trim()), pagina = 1) {
     let params = new HttpParams()
-      .set('pagina', '1')
+      .set('pagina', String(pagina))
       .set('tamanho_pagina', '20');
 
     if (termo) {

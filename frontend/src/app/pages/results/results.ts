@@ -1,9 +1,9 @@
-import { Component, computed, inject } from '@angular/core';
+import { Component, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute, ParamMap } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResultCard } from '../../shared/result-card/result-card';
-import { SearchService } from '../../services/search';
+import { SearchFilters, SearchService } from '../../services/search';
 
 @Component({
   selector: 'app-results',
@@ -21,6 +21,13 @@ export class Results {
   total = this.searchService.total;
   lastQuery = this.searchService.lastQuery;
 
+  readonly pageSize = 20;
+  currentPage = signal(1);
+  totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
+  pageNumbers = computed(() => this.buildPageNumbers(this.currentPage(), this.totalPages()));
+
+  private lastFilters: SearchFilters = { pergunta: '', areas: [] };
+
   resultSummary = computed(() => {
     if (this.loading()) {
       return 'Carregando resultados';
@@ -36,10 +43,47 @@ export class Results {
   constructor() {
     this.route.queryParamMap
       .pipe(takeUntilDestroyed())
-      .subscribe(params => this.searchService.search(this.buildFilters(params)));
+      .subscribe(params => {
+        this.currentPage.set(1);
+        this.lastFilters = this.buildFilters(params);
+        this.searchService.search(this.lastFilters);
+      });
   }
 
-  private buildFilters(params: ParamMap) {
+  goToPage(page: number) {
+    if (page < 1 || page > this.totalPages() || page === this.currentPage()) {
+      return;
+    }
+    this.currentPage.set(page);
+    this.searchService.loadPage(page, this.lastFilters);
+  }
+
+  private buildPageNumbers(current: number, total: number): (number | null)[] {
+    if (total <= 5) {
+      return Array.from({ length: total }, (_, i) => i + 1);
+    }
+
+    const pages: (number | null)[] = [1];
+
+    if (current > 3) {
+      pages.push(null);
+    }
+
+    const start = Math.max(2, current - 1);
+    const end = Math.min(total - 1, current + 1);
+    for (let p = start; p <= end; p++) {
+      pages.push(p);
+    }
+
+    if (current < total - 2) {
+      pages.push(null);
+    }
+
+    pages.push(total);
+    return pages;
+  }
+
+  private buildFilters(params: ParamMap): SearchFilters {
     return {
       pergunta: params.get('q') ?? '',
       tipoProducao: params.get('tipo_producao') ?? undefined,

@@ -420,6 +420,21 @@ describe('SearchService', () => {
     expect(service.results()[0].title).toContain('Dengue');
   });
 
+  it('loadPage sends the correct page number to the productions endpoint', () => {
+    service.loadPage(3, { pergunta: '', areas: [] });
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '3'
+      && req.params.get('tamanho_pagina') === '20'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({ total: 60, pagina: 3, tamanho_pagina: 20, resultados: [] });
+
+    expect(service.total()).toBe(60);
+  });
+
   it('loads a researcher profile with productions', () => {
     let profileName = '';
 

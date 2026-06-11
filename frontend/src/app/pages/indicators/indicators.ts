@@ -81,4 +81,8 @@ export class Indicators implements OnInit {
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;
     return String(n);
   }
+
+  shortYear(ano: number): string {
+    return String(ano % 100).padStart(2, '0');
+  }
 }

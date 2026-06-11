@@ -100,6 +100,13 @@ describe('Indicators', () => {
     expect(component.formatCount(2_000_000)).toBe('2.0M');
   });
 
+  it('shortYear returns last 2 digits zero-padded', () => {
+    expect(component.shortYear(1999)).toBe('99');
+    expect(component.shortYear(2000)).toBe('00');
+    expect(component.shortYear(2024)).toBe('24');
+    expect(component.shortYear(2005)).toBe('05');
+  });
+
   it('exports the productions CSV', () => {
     component.exportCsv();
 

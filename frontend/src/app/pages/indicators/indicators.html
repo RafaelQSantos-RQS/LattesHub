@@ -94,9 +94,9 @@
             Nenhum dado de produção por ano disponível.
           </div>
         } @else {
-          <div class="flex items-end gap-px h-52 pb-6 relative overflow-x-auto">
+          <div class="flex items-end gap-px h-72 pb-6 relative overflow-x-auto">
             @for (ponto of resumo()!.producoes_por_ano; track ponto.ano) {
-              <div class="flex-1 min-w-[18px] flex flex-col items-center justify-end gap-1 h-full group/bar">
+              <div class="flex-1 min-w-[20px] flex flex-col items-center justify-end gap-1 h-full group/bar">
                 <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
                   {{ formatCount(ponto.total) }}
                 </span>
@@ -105,7 +105,7 @@
                   [style.height]="chartBarHeightPct(ponto.total)"
                   [title]="ponto.ano + ': ' + ponto.total">
                 </div>
-                <span class="font-data-label text-data-label text-slate-400 text-[9px]">{{ ponto.ano }}</span>
+                <span class="font-data-label text-data-label text-slate-400 text-[10px]">{{ shortYear(ponto.ano) }}</span>
               </div>
             }
           </div>

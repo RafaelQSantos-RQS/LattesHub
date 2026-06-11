@@ -195,12 +195,90 @@
       <attributes_hac />
     </action>
     <action>
+      <name>Executar Eventos</name>
+      <description />
+      <type>PIPELINE</type>
+      <attributes />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_producoes_eventos.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>480</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Executar Livros</name>
+      <description />
+      <type>PIPELINE</type>
+      <attributes />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_producoes_livros.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>976</xloc>
+      <yloc>480</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Executar Capitulos</name>
+      <description />
+      <type>PIPELINE</type>
+      <attributes />
+      <add_date>N</add_date>
+      <add_time>N</add_time>
+      <clear_files>N</clear_files>
+      <clear_rows>N</clear_rows>
+      <create_parent_folder>N</create_parent_folder>
+      <exec_per_row>N</exec_per_row>
+      <filename>${PROJECT_HOME}/metadata/pipelines/pipeline_producoes_capitulos.hpl</filename>
+      <loglevel>Basic</loglevel>
+      <parameters>
+        <pass_all_parameters>Y</pass_all_parameters>
+      </parameters>
+      <params_from_previous>N</params_from_previous>
+      <run_configuration>local</run_configuration>
+      <set_append_logfile>N</set_append_logfile>
+      <set_logfile>N</set_logfile>
+      <wait_until_finished>Y</wait_until_finished>
+      <parallel>N</parallel>
+      <xloc>1152</xloc>
+      <yloc>480</yloc>
+      <attributes_hac />
+    </action>
+    <action>
       <name>Success</name>
       <description />
       <type>SUCCESS</type>
       <attributes />
       <parallel>N</parallel>
-      <xloc>736</xloc>
+      <xloc>1328</xloc>
       <yloc>480</yloc>
       <attributes_hac />
     </action>
@@ -261,6 +339,42 @@
       <message>Artigos erro</message>
       <parallel>N</parallel>
       <xloc>624</xloc>
+      <yloc>608</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - eventos</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Eventos erro</message>
+      <parallel>N</parallel>
+      <xloc>800</xloc>
+      <yloc>608</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - livros</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Livros erro</message>
+      <parallel>N</parallel>
+      <xloc>976</xloc>
+      <yloc>608</yloc>
+      <attributes_hac />
+    </action>
+    <action>
+      <name>Abort - capitulos</name>
+      <description />
+      <type>ABORT</type>
+      <attributes />
+      <always_log_rows>N</always_log_rows>
+      <message>Capitulos erro</message>
+      <parallel>N</parallel>
+      <xloc>1152</xloc>
       <yloc>608</yloc>
       <attributes_hac />
     </action>
@@ -343,6 +457,27 @@
     </hop>
     <hop>
       <from>Executar Artigos</from>
+      <to>Executar Eventos</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Eventos</from>
+      <to>Executar Livros</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Livros</from>
+      <to>Executar Capitulos</to>
+      <enabled>Y</enabled>
+      <evaluation>Y</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Capitulos</from>
       <to>Success</to>
       <enabled>Y</enabled>
       <evaluation>Y</evaluation>
@@ -386,6 +521,27 @@
     <hop>
       <from>Executar Artigos</from>
       <to>Abort - artigos</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Eventos</from>
+      <to>Abort - eventos</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Livros</from>
+      <to>Abort - livros</to>
+      <enabled>Y</enabled>
+      <evaluation>N</evaluation>
+      <unconditional>N</unconditional>
+    </hop>
+    <hop>
+      <from>Executar Capitulos</from>
+      <to>Abort - capitulos</to>
       <enabled>Y</enabled>
       <evaluation>N</evaluation>
       <unconditional>N</unconditional>

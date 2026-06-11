@@ -10,7 +10,7 @@ Sistema acadêmico para extração, indexação e busca inteligente de produçõ
 
 O projeto realiza:
 
-* Extração de dados XML do Currículo Lattes;
+* Extração de dados XML do Currículo Lattes, incluindo artigos, trabalhos em eventos, livros e capítulos;
 * Processo ETL com Apache Hop;
 * Armazenamento relacional no PostgreSQL;
 * Busca textual com PostgreSQL Full-Text Search;
@@ -59,7 +59,7 @@ Power BI
 
 * Busca textual por títulos científicos;
 * Busca semântica utilizando IA;
-* Indexação vetorial de produções;
+* Indexação vetorial de produções elegíveis com título, tipo, natureza, veículo/evento, áreas e palavras-chave;
 * API REST desacoplada;
 * Dashboard analítico via Power BI;
 * Pipeline ETL automatizado;
@@ -122,7 +122,13 @@ docker compose --profile etl up --build
 2. Inicia o **Backend** (FastAPI) na porta 8000.
 3. Inicia o **Frontend** (Angular servido por Nginx) na porta 4200.
 4. Executa o serviço **Apache Hop** (`latteshub-etl`), que extrai as informações dos XMLs e as popula no banco de dados.
-5. Ao finalizar o ETL com sucesso, executa o serviço de **Embeddings** (`latteshub-embeddings`), que primeiro tenta importar o seed versionado `database/seed/vetores_seed.csv`. Se ainda houver artigos sem vetor, gera apenas o delta chamando a API da OpenAI, salva no banco e reexporta o seed.
+5. Ao finalizar o ETL com sucesso, executa o serviço de **Embeddings** (`latteshub-embeddings`), que primeiro tenta importar o seed versionado `database/seed/vetores_seed.csv`. Se ainda houver produções elegíveis sem vetor, gera apenas o delta chamando a API da OpenAI, salva no banco e reexporta o seed.
+
+### Cobertura do ETL e embeddings
+
+O workflow Apache Hop importa produções bibliográficas de artigos publicados, trabalhos em eventos, livros publicados/organizados e capítulos de livro. Cada pipeline usa `pesquisador_id`, `tipo_producao` e `titulo` como chave de idempotência para evitar duplicar linhas entre execuções ou entre tipos diferentes.
+
+Por padrão, o serviço de embeddings processa os tipos `ARTIGO PUBLICADO`, `TRABALHO EM EVENTOS`, `LIVRO PUBLICADO` e `CAPITULO DE LIVRO`. O texto enviado ao modelo `text-embedding-3-small` combina título, título em inglês, tipo, natureza, ano, idioma, revista/veículo, evento, áreas do pesquisador e palavras-chave quando esses campos existem. Para restringir a cobertura, defina `EMBEDDING_PRODUCTION_TYPES` no `.env` com uma lista separada por vírgula.
 
 ### Passo 2: Desenvolvimento no dia a dia
 
@@ -237,7 +243,7 @@ A busca semantica depende da tabela `vetores`. Se `select count(*) from vetores;
 docker compose --profile etl run --rm embeddings
 ```
 
-Esse servico importa `database/seed/vetores_seed.csv` quando o arquivo existe. Assim, em outra maquina com o mesmo conjunto de XMLs, o banco pode ser populado com vetores sem gastar creditos da OpenAI novamente. A API da OpenAI so e chamada para artigos que ainda nao tenham vetor no seed ou no banco.
+Esse servico importa `database/seed/vetores_seed.csv` quando o arquivo existe. Assim, em outra maquina com o mesmo conjunto de XMLs, o banco pode ser populado com vetores sem gastar creditos da OpenAI novamente. A API da OpenAI so e chamada para producoes elegiveis que ainda nao tenham vetor no seed ou no banco.
 
 ---
 

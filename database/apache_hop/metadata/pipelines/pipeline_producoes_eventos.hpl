@@ -1,7 +1,7 @@
-<?xml version="1.0" encoding="UTF-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <pipeline>
   <info>
-    <name>pipeline_producoes_artigos</name>
+    <name>pipeline_producoes_eventos</name>
     <name_sync_with_filename>Y</name_sync_with_filename>
     <description />
     <extended_description />
@@ -106,14 +106,14 @@
       <field>
         <length>-1</length>
         <name>tipo_producao</name>
-        <nullif>ARTIGO PUBLICADO</nullif>
+        <nullif>TRABALHO EM EVENTOS</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
         <type>String</type>
       </field>
       <field>
         <length>-1</length>
-        <name>evento</name>
+        <name>revista</name>
         <nullif>NÃO SE APLICA</nullif>
         <precision>-1</precision>
         <set_empty_string>N</set_empty_string>
@@ -303,7 +303,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@TITULO-DO-ARTIGO</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@TITULO-DO-TRABALHO</xPath>
       </field>
       <field>
         <currency />
@@ -318,7 +318,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@ANO-DO-ARTIGO</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@ANO-DO-TRABALHO</xPath>
       </field>
       <field>
         <currency />
@@ -333,7 +333,7 @@
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@IDIOMA</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@IDIOMA</xPath>
       </field>
       <field>
         <currency />
@@ -348,7 +348,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@NATUREZA</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@NATUREZA</xPath>
       </field>
       <field>
         <currency />
@@ -363,7 +363,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@DOI</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@DOI</xPath>
       </field>
       <field>
         <currency />
@@ -372,13 +372,13 @@
         <format />
         <group />
         <length>-1</length>
-        <name>revista</name>
+        <name>evento</name>
         <precision>-1</precision>
         <repeat>N</repeat>
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@TITULO-DO-PERIODICO-OU-REVISTA</xPath>
+        <xPath>DETALHAMENTO-DO-TRABALHO/@NOME-DO-EVENTO</xPath>
       </field>
       <field>
         <currency />
@@ -393,7 +393,7 @@
         <result_type>valueof</result_type>
         <trim_type>none</trim_type>
         <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@ISSN</xPath>
+        <xPath>DETALHAMENTO-DO-TRABALHO/@ISSN</xPath>
       </field>
       <field>
         <currency />
@@ -408,7 +408,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@VOLUME</xPath>
+        <xPath>DETALHAMENTO-DO-TRABALHO/@VOLUME</xPath>
       </field>
       <field>
         <currency />
@@ -423,7 +423,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@FASCICULO</xPath>
+        <xPath>DETALHAMENTO-DO-TRABALHO/@FASCICULO</xPath>
       </field>
       <field>
         <currency />
@@ -438,7 +438,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@PAGINA-INICIAL</xPath>
+        <xPath>DETALHAMENTO-DO-TRABALHO/@PAGINA-INICIAL</xPath>
       </field>
       <field>
         <currency />
@@ -453,7 +453,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DETALHAMENTO-DO-ARTIGO/@PAGINA-FINAL</xPath>
+        <xPath>DETALHAMENTO-DO-TRABALHO/@PAGINA-FINAL</xPath>
       </field>
       <field>
         <currency />
@@ -468,7 +468,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@PAIS-DE-PUBLICACAO</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@PAIS-DO-EVENTO</xPath>
       </field>
       <field>
         <currency />
@@ -483,7 +483,7 @@
         <result_type>valueof</result_type>
         <trim_type>both</trim_type>
         <type>String</type>
-        <xPath>DADOS-BASICOS-DO-ARTIGO/@TITULO-DO-ARTIGO-INGLES</xPath>
+        <xPath>DADOS-BASICOS-DO-TRABALHO/@TITULO-DO-TRABALHO-INGLES</xPath>
       </field>
     </fields>
     <file>
@@ -493,7 +493,7 @@
     <ignorecomments>N</ignorecomments>
     <include>N</include>
     <limit>0</limit>
-    <loopxpath>/CURRICULO-VITAE/PRODUCAO-BIBLIOGRAFICA/ARTIGOS-PUBLICADOS/ARTIGO-PUBLICADO</loopxpath>
+    <loopxpath>/CURRICULO-VITAE/PRODUCAO-BIBLIOGRAFICA/TRABALHOS-EM-EVENTOS/TRABALHO-EM-EVENTOS</loopxpath>
     <namespaceaware>N</namespaceaware>
     <readurl>N</readurl>
     <rownum>N</rownum>

@@ -30,6 +30,12 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 EMBEDDING_MODEL = "text-embedding-3-small"
 BATCH_SIZE = int(os.getenv("EMBEDDING_BATCH_SIZE", "100"))
+DEFAULT_PRODUCTION_TYPES = (
+    "ARTIGO PUBLICADO",
+    "TRABALHO EM EVENTOS",
+    "LIVRO PUBLICADO",
+    "CAPITULO DE LIVRO",
+)
 DEFAULT_SEED_PATH = (
     Path(__file__).resolve().parents[3] / "database" / "seed" / "vetores_seed.csv"
 )
@@ -44,6 +50,97 @@ WRITE_SEED = os.getenv("EMBEDDING_WRITE_SEED", "true").lower() not in {
     "false",
     "no",
 }
+
+
+def tipos_producao_elegiveis() -> list[str]:
+    raw_types = os.getenv("EMBEDDING_PRODUCTION_TYPES")
+    if not raw_types:
+        return list(DEFAULT_PRODUCTION_TYPES)
+
+    return [tipo.strip() for tipo in raw_types.split(",") if tipo.strip()]
+
+
+def _valor_util(valor) -> str | None:
+    if valor is None:
+        return None
+
+    texto = str(valor).strip()
+    if not texto:
+        return None
+
+    if texto.upper() in {"NAO INFORMADO", "NÃO INFORMADO", "NAO SE APLICA", "NÃO SE APLICA"}:
+        return None
+
+    return texto
+
+
+def montar_texto_embedding(producao: dict) -> str:
+    campos = [
+        ("Titulo", producao.get("titulo")),
+        ("Titulo em ingles", producao.get("titulo_ingles")),
+        ("Tipo", producao.get("tipo_producao")),
+        ("Natureza", producao.get("natureza")),
+        ("Ano", producao.get("ano")),
+        ("Idioma", producao.get("idioma")),
+        ("Veiculo", producao.get("revista")),
+        ("Evento", producao.get("evento")),
+        ("Areas", producao.get("areas")),
+        ("Palavras-chave", producao.get("palavras_chave")),
+    ]
+    partes = [
+        f"{rotulo}: {texto}"
+        for rotulo, valor in campos
+        if (texto := _valor_util(valor)) is not None
+    ]
+
+    return ". ".join(partes) if partes else "Sem titulo"
+
+
+def buscar_producoes_pendentes(cursor, tipos_producao: list[str]) -> list[dict]:
+    cursor.execute(
+        """
+        SELECT
+            p.id,
+            p.tipo_producao,
+            p.titulo,
+            p.titulo_ingles,
+            p.ano,
+            p.idioma,
+            p.natureza,
+            p.revista,
+            p.evento,
+            p.palavras_chave,
+            string_agg(
+                DISTINCT NULLIF(
+                    concat_ws(
+                        ' / ',
+                        NULLIF(a.grande_area, ''),
+                        NULLIF(a.area, ''),
+                        NULLIF(a.sub_area, ''),
+                        NULLIF(a.especialidade, '')
+                    ),
+                    ''
+                ),
+                '; '
+            ) AS areas
+        FROM producoes p
+        LEFT JOIN pesquisador_areas pa
+          ON pa.pesquisador_id = p.pesquisador_id
+        LEFT JOIN areas_conhecimento a
+          ON a.id = pa.area_id
+        LEFT JOIN vetores v
+          ON v.producao_id = p.id
+        WHERE p.tipo_producao = ANY(%s)
+          AND p.titulo IS NOT NULL
+          AND btrim(p.titulo) <> ''
+          AND v.id IS NULL
+        GROUP BY p.id
+        ORDER BY p.id ASC;
+        """,
+        (tipos_producao,),
+    )
+    colunas = [desc[0] for desc in cursor.description]
+    return [dict(zip(colunas, row)) for row in cursor.fetchall()]
 
 
 def _openai_client() -> OpenAI:
@@ -164,7 +261,7 @@ def importar_seed(cursor) -> int:
     return importados
 
 
-def exportar_seed(cursor) -> int:
+def exportar_seed(cursor, tipos_producao: list[str]) -> int:
     if not WRITE_SEED:
         logger.info("Exportacao de seed de embeddings desabilitada.")
         return 0
@@ -183,9 +280,10 @@ def exportar_seed(cursor) -> int:
           ON p.id = v.producao_id
         JOIN pesquisadores pes
           ON pes.id = p.pesquisador_id
-        WHERE p.tipo_producao = 'ARTIGO PUBLICADO'
+        WHERE p.tipo_producao = ANY(%s)
         ORDER BY pes.lattes_id, p.tipo_producao, p.ano, p.titulo;
-        """
+        """,
+        (tipos_producao,),
     )
     linhas = cursor.fetchall()
 
@@ -216,27 +314,20 @@ def executar_carga_delta():
     cursor = conn.cursor()
 
     try:
+        tipos_producao = tipos_producao_elegiveis()
+        logger.info("Tipos de producao elegiveis: %s.", ", ".join(tipos_producao))
+
         importar_seed(cursor)
         conn.commit()
 
-        cursor.execute(
-            """
-            SELECT p.id, p.titulo
-            FROM producoes p
-            LEFT JOIN vetores v ON p.id = v.producao_id
-            WHERE p.tipo_producao = 'ARTIGO PUBLICADO'
-              AND v.id IS NULL
-            ORDER BY p.id ASC;
-            """
-        )
-        producoes = cursor.fetchall()
+        producoes = buscar_producoes_pendentes(cursor, tipos_producao)
 
         total_pendente = len(producoes)
-        logger.info("Encontrados %s artigos pendentes de processamento.", total_pendente)
+        logger.info("Encontradas %s producoes pendentes de processamento.", total_pendente)
 
         if total_pendente == 0:
             logger.info("Nenhuma producao pendente. Sistema atualizado.")
-            exportar_seed(cursor)
+            exportar_seed(cursor, tipos_producao)
             conn.commit()
             return
 
@@ -245,9 +336,9 @@ def executar_carga_delta():
             ids_lote = []
             textos_lote = []
 
-            for prod_id, titulo in lote:
-                ids_lote.append(prod_id)
-                textos_lote.append(titulo.strip() if titulo else "Sem Titulo")
+            for producao in lote:
+                ids_lote.append(producao["id"])
+                textos_lote.append(montar_texto_embedding(producao))
 
             logger.info(
                 "Processando lote %s (IDs %s ao %s)...",
@@ -275,7 +366,7 @@ def executar_carga_delta():
 
             logger.info("Lote %s gravado com sucesso (%s registros).", i // BATCH_SIZE + 1, len(lote))
 
-        exportar_seed(cursor)
+        exportar_seed(cursor, tipos_producao)
         conn.commit()
         logger.info("Carga delta finalizada com sucesso.")
 

@@ -6,169 +6,154 @@
       Visão analítica da produção científica, redes de colaboração e impacto acadêmico consolidados a partir da base Lattes.
     </p>
   </header>
-  
-  <!-- KPI Bento Grid -->
-  <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-    <!-- KPI 1 -->
-    <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-      <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-        <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">article</span>
-      </div>
-      <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Total de Artigos</span>
-      <span class="font-headline-md text-headline-md text-primary relative z-10">142.894</span>
-      <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-success-green relative z-10">
-        <span class="material-symbols-outlined text-[16px]">trending_up</span>
-        <span>+12.4% vs. ano passado</span>
-      </div>
-    </div>
-    
-    <!-- KPI 2 -->
-    <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-      <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-        <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">group</span>
-      </div>
-      <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Pesquisadores Ativos</span>
-      <span class="font-headline-md text-headline-md text-primary relative z-10">18.240</span>
-      <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-        <span class="material-symbols-outlined text-[16px]">sync</span>
-        <span>Atualizado há 2 dias</span>
-      </div>
-    </div>
-    
-    <!-- KPI 3 -->
-    <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-      <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-        <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">format_quote</span>
-      </div>
-      <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Citações Globais</span>
-      <span class="font-headline-md text-headline-md text-primary relative z-10">894.2k</span>
-      <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-success-green relative z-10">
-        <span class="material-symbols-outlined text-[16px]">trending_up</span>
-        <span>+8.2% vs. ano passado</span>
-      </div>
-    </div>
-  </section>
-  
-  <!-- Charts Section -->
-  <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-    <!-- Line Chart: Publicações ao longo do tempo -->
-    <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-      <header class="flex justify-between items-center border-b border-slate-100 pb-4">
-        <h2 class="font-headline-sm text-headline-sm text-primary">Publicações ao Longo do Tempo</h2>
-        <button
-          type="button"
-          (click)="exportCsv()"
-          [disabled]="exportingCsv()"
-          class="font-label-bold text-label-bold text-slate-800 border border-slate-200 rounded-sm px-3 py-1 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-wait">
-          {{ exportingCsv() ? 'Exportando...' : 'Exportar CSV' }}
-        </button>
-      </header>
-      @if (exportError()) {
-        <p class="font-body-sm text-body-sm text-red-700">{{ exportError() }}</p>
+
+  <!-- Loading state -->
+  @if (loading()) {
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      @for (_ of [1, 2, 3]; track $index) {
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2">
+          <div class="h-3 w-24 bg-slate-100 rounded animate-pulse"></div>
+          <div class="h-8 w-32 bg-slate-100 rounded animate-pulse mt-2"></div>
+          <div class="h-3 w-20 bg-slate-100 rounded animate-pulse mt-2"></div>
+        </div>
       }
-      <div class="relative h-64 w-full flex items-end justify-between px-4 pb-8 pt-4">
-        <!-- Faux Grid Lines -->
-        <div class="absolute inset-0 flex flex-col justify-between pb-8 pointer-events-none">
-          <div class="w-full h-px bg-slate-100"></div>
-          <div class="w-full h-px bg-slate-100"></div>
-          <div class="w-full h-px bg-slate-100"></div>
-          <div class="w-full h-px bg-slate-200"></div>
+    </section>
+  }
+
+  <!-- Error state -->
+  @if (loadError()) {
+    <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-sm text-red-700">
+      <span class="material-symbols-outlined text-[20px]">error</span>
+      <span class="font-body-md text-body-md">Não foi possível carregar os indicadores. Verifique a conexão com o backend.</span>
+    </div>
+  }
+
+  <!-- Real data -->
+  @if (!loading() && !loadError() && resumo()) {
+    <!-- KPI Bento Grid -->
+    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <!-- KPI: Total de Produções -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
+          <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">article</span>
         </div>
-        <!-- Faux Line Chart Shape -->
-        <svg class="absolute inset-0 w-full h-[calc(100%-2rem)] top-4" preserveAspectRatio="none" viewBox="0 0 100 100">
-          <path d="M0,90 Q10,85 20,70 T40,60 T60,30 T80,40 T100,10" fill="none" stroke="#7DA8A8" stroke-width="2" vector-effect="non-scaling-stroke"></path>
-          <path d="M0,90 Q10,85 20,70 T40,60 T60,30 T80,40 T100,10 L100,100 L0,100 Z" fill="rgba(125, 168, 168, 0.1)" stroke="none"></path>
-        </svg>
-        <!-- X Axis Labels -->
-        <div class="absolute bottom-0 w-full flex justify-between font-data-label text-data-label text-slate-500 px-4">
-          <span>2018</span>
-          <span>2019</span>
-          <span>2020</span>
-          <span>2021</span>
-          <span>2022</span>
-          <span>2023</span>
+        <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Total de Produções</span>
+        <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_producoes) }}</span>
+        <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
+          <span class="material-symbols-outlined text-[16px]">library_books</span>
+          <span>Artigos, eventos, livros e capítulos</span>
         </div>
       </div>
-    </div>
-    
-    <!-- Bar Chart: Top Áreas de Pesquisa -->
-    <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+
+      <!-- KPI: Pesquisadores -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
+          <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">group</span>
+        </div>
+        <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Pesquisadores</span>
+        <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_pesquisadores) }}</span>
+        <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
+          <span class="material-symbols-outlined text-[16px]">school</span>
+          <span>Com currículo Lattes importado</span>
+        </div>
+      </div>
+
+      <!-- KPI: Média por Pesquisador -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
+          <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
+        </div>
+        <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Produções / Pesquisador</span>
+        <span class="font-headline-md text-headline-md text-primary relative z-10">{{ mediaProducoes }}</span>
+        <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
+          <span class="material-symbols-outlined text-[16px]">functions</span>
+          <span>Média por pesquisador cadastrado</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Charts Section -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Bar Chart: Publicações ao longo do tempo -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <header class="flex justify-between items-center border-b border-slate-100 pb-4">
+          <h2 class="font-headline-sm text-headline-sm text-primary">Publicações ao Longo do Tempo</h2>
+          <button
+            type="button"
+            (click)="exportCsv()"
+            [disabled]="exportingCsv()"
+            class="font-label-bold text-label-bold text-slate-800 border border-slate-200 rounded-sm px-3 py-1 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-wait">
+            {{ exportingCsv() ? 'Exportando...' : 'Exportar CSV' }}
+          </button>
+        </header>
+        @if (exportError()) {
+          <p class="font-body-sm text-body-sm text-red-700">{{ exportError() }}</p>
+        }
+        @if (resumo()!.producoes_por_ano.length === 0) {
+          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+            Nenhum dado de produção por ano disponível.
+          </div>
+        } @else {
+          <div class="flex items-end gap-px h-52 pb-6 relative overflow-x-auto">
+            @for (ponto of resumo()!.producoes_por_ano; track ponto.ano) {
+              <div class="flex-1 min-w-[18px] flex flex-col items-center justify-end gap-1 h-full group/bar">
+                <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
+                  {{ formatCount(ponto.total) }}
+                </span>
+                <div
+                  class="w-full bg-data-teal rounded-t-sm transition-all group-hover/bar:bg-slate-700"
+                  [style.height]="chartBarHeightPct(ponto.total)"
+                  [title]="ponto.ano + ': ' + ponto.total">
+                </div>
+                <span class="font-data-label text-data-label text-slate-400 text-[9px]">{{ ponto.ano }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Bar Chart: Top Áreas de Pesquisa -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <header class="flex justify-between items-center border-b border-slate-100 pb-4">
+          <h2 class="font-headline-sm text-headline-sm text-primary">Top Áreas de Pesquisa</h2>
+          <span class="font-body-sm text-body-sm text-on-surface-variant">Top 5 (por produções)</span>
+        </header>
+        @if (resumo()!.top_areas.length === 0) {
+          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+            Nenhuma área de pesquisa encontrada.
+          </div>
+        } @else {
+          <div class="flex flex-col justify-around h-52 gap-2">
+            @for (area of resumo()!.top_areas; track area.area) {
+              <div class="flex items-center gap-4">
+                <span class="font-body-sm text-body-sm w-36 truncate" [title]="area.area">{{ area.area }}</span>
+                <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
+                  <div class="absolute top-0 left-0 h-full bg-slate-800 rounded-sm transition-all" [style.width]="areaBarWidthPct(area.total)"></div>
+                </div>
+                <span class="font-data-label text-data-label text-slate-500 w-12 text-right">{{ formatCount(area.total) }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- World Map Section (#53: no real data — clear empty state) -->
+    <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
       <header class="flex justify-between items-center border-b border-slate-100 pb-4">
-        <h2 class="font-headline-sm text-headline-sm text-primary">Top Áreas de Pesquisa</h2>
-        <span class="font-body-sm text-body-sm text-on-surface-variant">Top 5 (Volumetria)</span>
+        <div class="flex flex-col">
+          <h2 class="font-headline-sm text-headline-sm text-primary">Colaborações Internacionais</h2>
+          <p class="font-body-sm text-body-sm text-on-surface-variant">Coautorias mapeadas por país de afiliação.</p>
+        </div>
+        <span class="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 font-data-label text-data-label text-amber-700">Em desenvolvimento</span>
       </header>
-      <div class="flex flex-col justify-around h-64 gap-2">
-        <!-- Bar 1 -->
-        <div class="flex items-center gap-4">
-          <span class="font-body-sm text-body-sm w-32 truncate" title="Ciências Biológicas">Ciências Biológicas</span>
-          <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-            <div class="absolute top-0 left-0 h-full bg-slate-900 rounded-sm" style="width: 85%;"></div>
-          </div>
-          <span class="font-data-label text-data-label text-slate-500 w-12 text-right">42k</span>
-        </div>
-        <!-- Bar 2 -->
-        <div class="flex items-center gap-4">
-          <span class="font-body-sm text-body-sm w-32 truncate" title="Engenharias">Engenharias</span>
-          <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-            <div class="absolute top-0 left-0 h-full bg-slate-800 rounded-sm" style="width: 70%;"></div>
-          </div>
-          <span class="font-data-label text-data-label text-slate-500 w-12 text-right">34k</span>
-        </div>
-        <!-- Bar 3 -->
-        <div class="flex items-center gap-4">
-          <span class="font-body-sm text-body-sm w-32 truncate" title="Ciências Exatas">Ciências Exatas</span>
-          <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-            <div class="absolute top-0 left-0 h-full bg-slate-700 rounded-sm" style="width: 65%;"></div>
-          </div>
-          <span class="font-data-label text-data-label text-slate-500 w-12 text-right">32k</span>
-        </div>
-        <!-- Bar 4 -->
-        <div class="flex items-center gap-4">
-          <span class="font-body-sm text-body-sm w-32 truncate" title="Ciências Humanas">Ciências Humanas</span>
-          <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-            <div class="absolute top-0 left-0 h-full bg-slate-600 rounded-sm" style="width: 45%;"></div>
-          </div>
-          <span class="font-data-label text-data-label text-slate-500 w-12 text-right">22k</span>
-        </div>
-        <!-- Bar 5 -->
-        <div class="flex items-center gap-4">
-          <span class="font-body-sm text-body-sm w-32 truncate" title="Ciências Sociais">Ciências Sociais</span>
-          <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-            <div class="absolute top-0 left-0 h-full bg-data-teal rounded-sm" style="width: 30%;"></div>
-          </div>
-          <span class="font-data-label text-data-label text-slate-500 w-12 text-right">15k</span>
+      <div class="w-full h-64 bg-slate-50 border border-dashed border-slate-300 rounded-sm flex flex-col items-center justify-center gap-4 text-center px-8">
+        <span class="material-symbols-outlined text-[48px] text-slate-300">public</span>
+        <div class="flex flex-col gap-1">
+          <p class="font-body-md text-body-md text-on-surface-variant">Dados de colaboração internacional não disponíveis nesta versão.</p>
+          <p class="font-body-sm text-body-sm text-slate-400">A extração de coautorias por país de afiliação está planejada para uma versão futura. Use o CSV analítico para análise de coautorias disponíveis.</p>
         </div>
       </div>
-    </div>
-  </section>
-  
-  <!-- World Map Section -->
-  <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-    <header class="flex justify-between items-center border-b border-slate-100 pb-4">
-      <div class="flex flex-col">
-        <h2 class="font-headline-sm text-headline-sm text-primary">Colaborações Internacionais</h2>
-        <p class="font-body-sm text-body-sm text-on-surface-variant">Coautorias mapeadas por país de afiliação.</p>
-      </div>
-      <div class="flex gap-2">
-        <span class="px-3 py-1 rounded-full bg-slate-100 font-data-label text-data-label text-slate-700">Top: EUA</span>
-        <span class="px-3 py-1 rounded-full bg-slate-100 font-data-label text-data-label text-slate-700">Top: Portugal</span>
-      </div>
-    </header>
-    <div class="w-full h-96 bg-slate-50 border border-slate-100 relative rounded-sm flex items-center justify-center overflow-hidden">
-      <!-- Fallback image using unsplash as a placeholder for a map texture -->
-      <img alt="Map" class="absolute inset-0 w-full h-full object-cover opacity-30 mix-blend-multiply grayscale" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCr6jrnR9n4FHkq5Bbc1_En8rbbO9qDdVqocLmZBvXHrbkqbz8XfdLU9IQ_1FKnFW3Ys5IO-9o_qy5LUA5ctw8eKFCJtj4w5YoT92SjFfVU6FoJRA3rI148czCayM1vxAoicw_CNQrA8jazxGMtqRX8fDbJjiNCbBxTNSbb62lX1fy8bReiwmXZ4kDMw8fx6nxC8_QSDDpAhaY0D6-gzsjyDGijoj2wuq5iMagKiwvMt-7YO-TT4PWgnWQkyDOPYfvqnZUMNuXYe1s"/>
-      <!-- Overlay details to make it look like a data map -->
-      <div class="absolute inset-0 z-10 flex items-center justify-center pointer-events-none">
-        <!-- Faux Nodes -->
-        <div class="absolute top-[30%] left-[25%] w-3 h-3 bg-slate-900 rounded-full shadow-[0_0_0_4px_rgba(15,23,42,0.2)]"></div>
-        <div class="absolute top-[40%] left-[45%] w-2 h-2 bg-data-teal rounded-full shadow-[0_0_0_3px_rgba(125,168,168,0.2)]"></div>
-        <div class="absolute top-[25%] left-[55%] w-4 h-4 bg-slate-900 rounded-full shadow-[0_0_0_6px_rgba(15,23,42,0.2)]"></div>
-        <!-- Faux connecting line -->
-        <svg class="absolute inset-0 w-full h-full" pointer-events="none">
-          <path d="M 25% 30% Q 40% 20% 55% 25%" fill="none" opacity="0.6" stroke="#7DA8A8" stroke-dasharray="4 4" stroke-width="1.5"></path>
-          <path d="M 45% 40% Q 50% 35% 55% 25%" fill="none" opacity="0.4" stroke="#1E293B" stroke-width="1"></path>
-        </svg>
-      </div>
-    </div>
-  </section>
+    </section>
+  }
 </div>

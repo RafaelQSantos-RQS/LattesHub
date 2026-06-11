@@ -281,20 +281,23 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Verification: result cards render source/venue metadata separately from true summaries.
     - Batch: search & browse quality PR (with #66, #56, #68).
 21. #49 enhancement(frontend): abrir detalhes ao clicar no titulo de uma producao.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium-high; urgency: after result-card metadata cleanup if possible.
     - Rationale: titles look clickable but do not open the existing production detail endpoint.
     - Verification: production titles navigate to a detail route/panel backed by `GET /api/v1/producoes/{id}`.
+    - Batch: frontend UX fixes (with #71, #70).
 22. #71 bug(frontend): botao Voltar aos resultados deve ter fallback.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: soon.
     - Rationale: direct visits to researcher detail can make the back button leave the app.
     - Verification: direct `/pesquisadores/:id` access falls back to `/explorar`.
+    - Batch: frontend UX fixes (with #49, #70).
 23. #70 bug(frontend): implementar ou remover acoes Cite e Share.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: later unless demo focuses on result cards.
     - Rationale: visible buttons currently have no behavior.
     - Verification: Cite/Share either work accessibly or are removed.
+    - Batch: frontend UX fixes (with #49, #71).
 24. #51 bug(frontend): corrigir navegacao por ancoras na pagina Sobre.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: medium; urgency: later.

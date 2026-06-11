@@ -157,6 +157,8 @@ Ordering rule: security, data integrity, deploy blockers, and API/runtime reliab
 
 Execution batching rule: do not default to one PR per issue. When several pending issues are closely related, implement them together on one branch and open one PR after the grouped work is complete and verified. Good batches are same-layer/same-surface changes, such as API reliability fixes, search/filter contract changes, result-card UX fixes, export/BI work, or final documentation/demo tasks. Keep a PR separate when the issue is security-sensitive, risky, likely to require rollback, changes deployment/infrastructure broadly, or would make the PR too large to review cleanly. When batching, list every covered issue in the PR body and update this queue's status notes for each issue.
 
+Assignee reservation rule: before starting any batch, identify the issues that belong to it and assign `brugabi` as the GitHub assignee for each one via `gh issue edit <number> --repo RafaelQSantos-RQS/LattesHub --add-assignee brugabi`. Do this only for the immediate next batch, not all pending issues. This prevents teammates from picking up work that is already in progress.
+
 ### Current Next-Issue Queue
 
 1. #42 Adicionar busca por Qualis na busca semantica.

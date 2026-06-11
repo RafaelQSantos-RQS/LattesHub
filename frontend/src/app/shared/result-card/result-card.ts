@@ -13,6 +13,8 @@ export interface SearchResult {
   doi?: string | null;
   tag?: string;
   abstract?: string;
+  venue?: string;
+  natureza?: string;
   citations?: number;
   relevance?: 'Alta' | 'Media' | 'Baixa';
   highRelevance?: boolean;

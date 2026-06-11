@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Sidebar } from './sidebar';
@@ -69,6 +69,14 @@ describe('Sidebar', () => {
     expect(component.selectedAreas()).toEqual([5]);
   });
 
+  it('sets institutionsState to success when institutions load', () => {
+    expect(component.institutionsState()).toBe('success');
+  });
+
+  it('sets areasState to success when areas load', () => {
+    expect(component.areasState()).toBe('success');
+  });
+
   it('updates area query params when an area is toggled', () => {
     component.onAreaToggle(35, true);
 
@@ -77,5 +85,42 @@ describe('Sidebar', () => {
       queryParams: { areas: [5, 35] },
       queryParamsHandling: 'merge',
     });
+  });
+});
+
+describe('Sidebar — filter load states', () => {
+  const router = { navigate: vi.fn() };
+  const route = { queryParamMap: of(convertToParamMap({})) };
+
+  async function createWith(serviceOverrides: Partial<{ getInstitutions: () => unknown; getAreaOptions: () => unknown }>) {
+    await TestBed.configureTestingModule({
+      imports: [Sidebar],
+      providers: [
+        { provide: Router, useValue: router },
+        { provide: ActivatedRoute, useValue: route },
+        { provide: SearchService, useValue: { getInstitutions: () => of([]), getAreaOptions: () => of([]), ...serviceOverrides } },
+      ],
+    }).compileComponents();
+
+    const f = TestBed.createComponent(Sidebar);
+    await f.whenStable();
+    return f.componentInstance;
+  }
+
+  afterEach(() => TestBed.resetTestingModule());
+
+  it('sets institutionsState to empty when institutions list is empty', async () => {
+    const c = await createWith({});
+    expect(c.institutionsState()).toBe('empty');
+  });
+
+  it('sets institutionsState to error when institutions request fails', async () => {
+    const c = await createWith({ getInstitutions: () => throwError(() => new Error('fail')) });
+    expect(c.institutionsState()).toBe('error');
+  });
+
+  it('sets areasState to error when areas request fails', async () => {
+    const c = await createWith({ getAreaOptions: () => throwError(() => new Error('fail')) });
+    expect(c.areasState()).toBe('error');
   });
 });

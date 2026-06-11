@@ -46,10 +46,10 @@ def listar_todas_producoes(
             valores.append(tipo_producao)
 
         if termo:
-            filtros.append("p.titulo_tsv @@ plainto_tsquery('portuguese', %s)")
+            filtros.append("p.titulo_tsv @@ plainto_tsquery('portuguese_unaccent', %s)")
             valores.append(termo)
             order_by = (
-                "ts_rank(p.titulo_tsv, plainto_tsquery('portuguese', %s)) DESC, "
+                "ts_rank(p.titulo_tsv, plainto_tsquery('portuguese_unaccent', %s)) DESC, "
                 "p.ano DESC NULLS LAST, p.titulo ASC"
             )
 

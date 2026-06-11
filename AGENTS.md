@@ -159,6 +159,8 @@ Execution batching rule: do not default to one PR per issue. When several pendin
 
 Assignee and in_progress rule: at the start of each session or before starting a new PR batch, identify all issues that will be covered by that PR together and perform all three steps for each issue in the batch: (1) assign `brugabi` via `gh issue edit <number> --repo RafaelQSantos-RQS/LattesHub --add-assignee brugabi`; (2) update their status to `in_progress` in this queue; (3) update their status to "In Progress" in the GitHub Project board via `gh project item-edit --project-id PVT_kwHOBwOR284BW4pa --id <item-id> --field-id PVTSSF_lAHOBwOR284BW4pazhSJbE4 --single-select-option-id 47fc9ee4` — if an issue is not yet in the project, add it first with `gh project item-add 6 --owner RafaelQSantos-RQS --url https://github.com/RafaelQSantos-RQS/LattesHub/issues/<number>`. All three steps are mandatory for every batch. A batch is always multiple issues that form a coherent PR theme (e.g. "search quality", "frontend UX bugs", "ETL + embeddings"). Do not assign or mark `in_progress` for future batches — only the current one. A single-issue batch is only acceptable when that issue is explicitly isolated, security-sensitive, or risky enough to warrant a solo PR.
 
+Before finalizing a batch, check each candidate issue for existing assignees via `gh issue view <number> --repo RafaelQSantos-RQS/LattesHub --json assignees`. If an issue already has any assignee other than `brugabi`, skip it entirely — do not include it in the batch, do not assign `brugabi`, and do not mark it `in_progress`. Mention the skipped issue to the user so they are aware a teammate has claimed it.
+
 Batch completion handoff rule: when the last issue of the current batch is implemented and verified, explicitly tell the user that the batch is complete and suggest running `/gh-create-pr` (or the PR skill) to open the pull request. After the PR is created or the user confirms the batch is done, immediately identify the next batch from the queue, perform all three steps above for each issue in that next batch, and inform the user which issues were picked and why.
 
 ### Current Next-Issue Queue
@@ -379,6 +381,10 @@ Frontend tests are colocated as `*.spec.ts` under `frontend/src/app/`. Add or up
 Backend tests use `pytest` under `backend/tests/`. When changing backend behavior, add or update focused tests for endpoint behavior, filters, error handling, and database edge cases.
 
 When integrating frontend search with backend semantic search, verify the browser flow with a real query such as `dengue`. The semantic endpoint depends on `OPENAI_API_KEY`; if the key is invalid or unavailable, the frontend must still degrade gracefully to a real backend textual search (`/api/v1/producoes/?termo=...`) instead of showing a generic failure state.
+
+## Branch protection rule
+
+Never commit directly to `main`. Every change — including docs, AGENTS.md updates, and configuration — must be made on a dedicated feature branch and reach `main` only via a pull request. Create the branch before making any local commit. If an accidental commit lands on `main`, move it to a branch immediately via `git checkout -b <branch>` (the commit moves with the branch checkout, so `main` can be reset with `git reset --hard HEAD~1`).
 
 ## Commit, PR, and Wiki Workflow
 

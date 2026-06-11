@@ -15,6 +15,7 @@ describe('Results', () => {
     total: () => 0,
     lastQuery: () => '',
     search: () => undefined,
+    loadPage: () => undefined,
     getInstitutions: () => of([]),
     getAreaOptions: () => of([]),
   };

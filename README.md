@@ -146,7 +146,17 @@ npm start
 
 ```
 
-A aplicacao ficara disponivel em `http://localhost:4200/` e consumira a API em `http://localhost:8000/api/v1`.
+A aplicacao ficara disponivel em `http://localhost:4200/` e consumira a API pelo caminho relativo `/api/v1`, usando o proxy do Angular para `http://localhost:8000` por padrao.
+
+Se o backend local estiver em outro host ou porta, defina `LATTESHUB_API_PROXY_TARGET` antes do `npm start`:
+
+```bash
+LATTESHUB_API_PROXY_TARGET=http://localhost:9000 npm start
+```
+
+No Docker Compose, o Nginx do frontend encaminha `/api/` diretamente para o servico `backend:8000` na rede interna. Em deploy, publique backend e frontend sob o mesmo dominio ou configure o proxy externo para encaminhar `/api/` ao backend.
+
+Para preparar um deploy reproduzivel em VM/VPS/servidor com Docker Compose, use o guia [docs/deploy.md](docs/deploy.md). Ele cobre `.env.production`, `docker-compose.prod.yml`, carga inicial, ETL, embeddings e validacao pos-deploy.
 
 Quando alterar codigo do backend usando Docker Compose, reconstrua a imagem para refletir as mudancas no container:
 
@@ -154,6 +164,19 @@ Quando alterar codigo do backend usando Docker Compose, reconstrua a imagem para
 docker compose up -d --build backend
 
 ```
+
+### Configuracao de CORS do backend
+
+O backend aceita por padrao as origens locais `http://localhost:4200` e `http://127.0.0.1:4200`. Para deploy, configure `BACKEND_CORS_ORIGINS` no `.env` com a lista de origens permitidas, separadas por virgula, e use `APP_ENV=production`.
+
+Exemplo:
+
+```bash
+APP_ENV=production
+BACKEND_CORS_ORIGINS=https://seu-frontend.example.com
+```
+
+Nao use `*` em `BACKEND_CORS_ORIGINS` em producao, porque o backend habilita credenciais no CORS.
 
 ### Testes automatizados do backend
 

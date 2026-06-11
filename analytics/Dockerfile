@@ -13,6 +13,7 @@ CMD ["jupyter", "lab", \
      "--ip=0.0.0.0", \
      "--port=8888", \
      "--no-browser", \
-     "--NotebookApp.token=", \
-     "--NotebookApp.password=", \
+     "--allow-root", \
+     "--ServerApp.token=", \
+     "--ServerApp.password=", \
      "--notebook-dir=/analytics"]

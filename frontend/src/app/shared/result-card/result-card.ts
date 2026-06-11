@@ -4,6 +4,7 @@ import { RouterLink } from '@angular/router';
 
 export interface SearchResult {
   id: string;
+  resourceType?: 'production' | 'researcher';
   title: string;
   author: string;
   researcherId?: number;
@@ -45,11 +46,23 @@ export class ResultCard {
   }
 
   share() {
-    const url = `${window.location.origin}/producoes/${this.result().id}`;
+    const url = `${window.location.origin}${this.resultPath()}`;
     navigator.clipboard?.writeText(url).then(() => {
       this.copiedField.set('share');
       setTimeout(() => this.copiedField.set(null), 2000);
     });
+  }
+
+  resultLink() {
+    return this.result().resourceType === 'researcher'
+      ? ['/pesquisadores', this.result().id]
+      : ['/producoes', this.result().id];
+  }
+
+  private resultPath() {
+    return this.result().resourceType === 'researcher'
+      ? `/pesquisadores/${this.result().id}`
+      : `/producoes/${this.result().id}`;
   }
 
   qualisBadgeClass(): string {

@@ -21,6 +21,35 @@ def test_listar_producoes_com_filtros(client, issue30_data):
     )
 
 
+def test_listar_producoes_filtra_por_intervalo_de_anos(client, issue30_data):
+    response = client.get(
+        "/api/v1/producoes/",
+        params={
+            "ano_inicio": 2023,
+            "ano_fim": 2023,
+            "instituicao_id": issue30_data["instituicao"]["id"],
+            "tamanho_pagina": 10,
+        },
+    )
+
+    assert response.status_code == 200
+    ids = {item["id"] for item in response.json()["resultados"]}
+    assert issue30_data["producao_semantica"]["id"] in ids
+    assert issue30_data["producao_textual"]["id"] not in ids
+
+
+def test_listar_tipos_producao_retorna_tipos_reais(client, issue30_data):
+    response = client.get("/api/v1/producoes/tipos")
+
+    assert response.status_code == 200
+    tipos = {
+        item["tipo_producao"]: item["total"]
+        for item in response.json()["resultados"]
+    }
+    assert tipos["ARTIGO PUBLICADO"] >= 1
+    assert tipos["TRABALHO EM EVENTOS"] >= 1
+
+
 def test_busca_textual_por_fts_sucesso(client, issue30_data):
     response = client.get("/api/v1/producoes/", params={"termo": "pytermbusca"})
 

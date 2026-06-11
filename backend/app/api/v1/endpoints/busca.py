@@ -37,9 +37,17 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
             filtros.append("p.tipo_producao = %s")
             valores_filtros.append(payload.tipo_producao)
 
-        if payload.ano:
+        if payload.ano is not None:
             filtros.append("p.ano = %s")
             valores_filtros.append(payload.ano)
+
+        if payload.ano_inicio is not None:
+            filtros.append("p.ano >= %s")
+            valores_filtros.append(payload.ano_inicio)
+
+        if payload.ano_fim is not None:
+            filtros.append("p.ano <= %s")
+            valores_filtros.append(payload.ano_fim)
 
         if payload.instituicao_id:
             filtros.append("pes.instituicao_id = %s")

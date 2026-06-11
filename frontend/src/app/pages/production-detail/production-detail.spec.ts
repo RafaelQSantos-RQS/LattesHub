@@ -13,6 +13,7 @@ describe('ProductionDetail', () => {
   const searchServiceStub = {
     getInstitutions: () => of([]),
     getAreaOptions: () => of([]),
+    getProductionTypes: () => of([]),
     getProduction: () => of({
       id: 10,
       tipo_producao: 'ARTIGO PUBLICADO',

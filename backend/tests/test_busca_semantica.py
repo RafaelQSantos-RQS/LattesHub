@@ -34,6 +34,30 @@ def test_busca_semantica_com_openai_mockado(client, issue30_data, monkeypatch):
     assert resultados[0]["qualis_estrato"] is None
 
 
+def test_busca_semantica_filtra_por_intervalo_de_anos(client, issue30_data, monkeypatch):
+    from app.api.v1.endpoints import busca
+
+    monkeypatch.setattr(
+        busca.client.embeddings,
+        "create",
+        lambda input, model: _EmbeddingResponse(),
+    )
+
+    response = client.post(
+        "/api/v1/busca/semantica",
+        json={
+            "pergunta": "consulta semantica de teste",
+            "ano_inicio": 2023,
+            "ano_fim": 2023,
+            "instituicao_id": issue30_data["instituicao"]["id"],
+        },
+    )
+
+    assert response.status_code == 200
+    resultados = response.json()["resultados"]
+    assert resultados[0]["id"] == issue30_data["producao_semantica"]["id"]
+
+
 def test_busca_semantica_sem_resultado(client, issue30_data, monkeypatch):
     from app.api.v1.endpoints import busca
 

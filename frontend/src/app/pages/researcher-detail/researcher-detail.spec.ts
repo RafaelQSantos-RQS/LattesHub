@@ -13,6 +13,7 @@ describe('ResearcherDetail', () => {
   const searchServiceStub = {
     getInstitutions: () => of([]),
     getAreaOptions: () => of([]),
+    getProductionTypes: () => of([]),
     getResearcherProfile: () => of({
       pesquisador: {
         id: 7,

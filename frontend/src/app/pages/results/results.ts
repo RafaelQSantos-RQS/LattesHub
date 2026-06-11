@@ -1,9 +1,9 @@
 import { Component, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, ParamMap } from '@angular/router';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResultCard } from '../../shared/result-card/result-card';
-import { SearchFilters, SearchService } from '../../services/search';
+import { SearchCategory, SearchFilters, SearchService } from '../../services/search';
 
 @Component({
   selector: 'app-results',
@@ -14,6 +14,7 @@ import { SearchFilters, SearchService } from '../../services/search';
 export class Results {
   private searchService = inject(SearchService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   results = this.searchService.results;
   loading = this.searchService.loading;
@@ -23,8 +24,15 @@ export class Results {
 
   readonly pageSize = 20;
   currentPage = signal(1);
+  activeCategory = signal<SearchCategory>('tudo');
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
   pageNumbers = computed(() => this.buildPageNumbers(this.currentPage(), this.totalPages()));
+  readonly categoryTabs: { label: string; value: SearchCategory }[] = [
+    { label: 'Tudo', value: 'tudo' },
+    { label: 'Pesquisadores', value: 'pesquisadores' },
+    { label: 'Artigos', value: 'artigos' },
+    { label: 'Eventos', value: 'eventos' },
+  ];
 
   private lastFilters: SearchFilters = { pergunta: '', areas: [] };
 
@@ -46,8 +54,24 @@ export class Results {
       .subscribe(params => {
         this.currentPage.set(1);
         this.lastFilters = this.buildFilters(params);
+        this.activeCategory.set(this.lastFilters.categoria ?? 'tudo');
         this.searchService.search(this.lastFilters);
       });
+  }
+
+  changeCategory(category: SearchCategory) {
+    if (category === this.activeCategory()) {
+      return;
+    }
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {
+        categoria: category === 'tudo' ? null : category,
+        tipo_producao: null,
+      },
+      queryParamsHandling: 'merge',
+    });
   }
 
   goToPage(page: number) {
@@ -88,9 +112,18 @@ export class Results {
       pergunta: params.get('q') ?? '',
       tipoProducao: params.get('tipo_producao') ?? undefined,
       ano: this.toNumber(params.get('ano')),
+      anoInicio: this.toNumber(params.get('ano_inicio')),
+      anoFim: this.toNumber(params.get('ano_fim')),
       instituicaoId: this.toNumber(params.get('instituicao_id')),
       areas: params.getAll('areas').map(Number).filter(Number.isFinite),
+      categoria: this.toCategory(params.get('categoria')),
     };
+  }
+
+  private toCategory(value: string | null): SearchCategory {
+    return this.categoryTabs.some(tab => tab.value === value)
+      ? value as SearchCategory
+      : 'tudo';
   }
 
   private toNumber(value: string | null) {

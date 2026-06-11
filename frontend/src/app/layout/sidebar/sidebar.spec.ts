@@ -17,6 +17,8 @@ describe('Sidebar', () => {
       instituicao_id: '2',
       tipo_producao: 'ARTIGO PUBLICADO',
       ano: '2025',
+      ano_inicio: '2020',
+      ano_fim: '2025',
       areas: ['5'],
     })),
   };
@@ -35,6 +37,12 @@ describe('Sidebar', () => {
         id: 5,
         label: 'EPIDEMIOLOGIA',
         group: 'CIENCIAS DA SAUDE / SAÚDE COLETIVA',
+      },
+    ]),
+    getProductionTypes: () => of([
+      {
+        tipo_producao: 'ARTIGO PUBLICADO',
+        total: 12,
       },
     ]),
   };
@@ -63,9 +71,12 @@ describe('Sidebar', () => {
   it('loads active filters and filter options', () => {
     expect(component.institutions().length).toBe(1);
     expect(component.areaOptions().length).toBe(1);
+    expect(component.productionTypes().length).toBe(1);
     expect(component.selectedInstitutionId()).toBe(2);
     expect(component.selectedType()).toBe('ARTIGO PUBLICADO');
     expect(component.selectedYear()).toBe(2025);
+    expect(component.selectedYearStart()).toBe(2020);
+    expect(component.selectedYearEnd()).toBe(2025);
     expect(component.selectedAreas()).toEqual([5]);
   });
 
@@ -86,19 +97,35 @@ describe('Sidebar', () => {
       queryParamsHandling: 'merge',
     });
   });
+
+  it('updates year range query params and clears exact year', () => {
+    component.onYearStartInput({ target: { value: '2021' } } as unknown as Event);
+    component.onYearEndInput({ target: { value: '2024' } } as unknown as Event);
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { ano_inicio: '2021', ano: null },
+      queryParamsHandling: 'merge',
+    });
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { ano_fim: '2024', ano: null },
+      queryParamsHandling: 'merge',
+    });
+  });
 });
 
 describe('Sidebar — filter load states', () => {
   const router = { navigate: vi.fn() };
   const route = { queryParamMap: of(convertToParamMap({})) };
 
-  async function createWith(serviceOverrides: Partial<{ getInstitutions: () => unknown; getAreaOptions: () => unknown }>) {
+  async function createWith(serviceOverrides: Partial<{ getInstitutions: () => unknown; getAreaOptions: () => unknown; getProductionTypes: () => unknown }>) {
     await TestBed.configureTestingModule({
       imports: [Sidebar],
       providers: [
         { provide: Router, useValue: router },
         { provide: ActivatedRoute, useValue: route },
-        { provide: SearchService, useValue: { getInstitutions: () => of([]), getAreaOptions: () => of([]), ...serviceOverrides } },
+        { provide: SearchService, useValue: { getInstitutions: () => of([]), getAreaOptions: () => of([]), getProductionTypes: () => of([]), ...serviceOverrides } },
       ],
     }).compileComponents();
 

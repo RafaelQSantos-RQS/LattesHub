@@ -10,7 +10,7 @@
   
   <div class="max-w-[85%]">
     <h3 class="font-headline-sm text-slate-800 mb-2">
-      <a [routerLink]="['/producoes', result().id]" class="hover:underline">{{ result().title }}</a>
+      <a [routerLink]="resultLink()" class="hover:underline">{{ result().title }}</a>
     </h3>
     <div class="flex items-center gap-2 mb-4">
       @if (result().researcherId) {

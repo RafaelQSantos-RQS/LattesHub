@@ -1,6 +1,10 @@
 import logging
 from fastapi import APIRouter, Depends, Query, HTTPException
-from app.schemas.producao import ProducaoListResponse, ProducaoDetalhe
+from app.schemas.producao import (
+    ProducaoListResponse,
+    ProducaoDetalhe,
+    ProducaoTiposResponse,
+)
 from app.core.database import get_db_connection
 from psycopg2.extras import RealDictCursor
 from typing import Optional
@@ -22,6 +26,8 @@ def listar_todas_producoes(
         None, min_length=2, description="Busca textual por título da produção"
     ),
     ano: Optional[int] = Query(None, description="Filtrar por ano específico"),
+    ano_inicio: Optional[int] = Query(None, description="Filtrar a partir deste ano"),
+    ano_fim: Optional[int] = Query(None, description="Filtrar até este ano"),
     areas: Optional[list[int]] = Query(
         None, description="Filtra produções por áreas de conhecimento do autor"
     ),
@@ -53,9 +59,17 @@ def listar_todas_producoes(
                 "p.ano DESC NULLS LAST, p.titulo ASC"
             )
 
-        if ano:
+        if ano is not None:
             filtros.append("p.ano = %s")
             valores.append(ano)
+
+        if ano_inicio is not None:
+            filtros.append("p.ano >= %s")
+            valores.append(ano_inicio)
+
+        if ano_fim is not None:
+            filtros.append("p.ano <= %s")
+            valores.append(ano_fim)
 
         if instituicao_id:
             # NOVO: Filtra usando o relacionamento já existente com o pesquisador autor
@@ -127,6 +141,33 @@ def listar_todas_producoes(
         db.rollback()
         raise HTTPException(
             status_code=500, detail=f"Erro ao listar produções: {str(e)}"
+        )
+
+
+@router.get("/tipos", response_model=ProducaoTiposResponse)
+def listar_tipos_producao(db=Depends(get_db_connection)):
+    try:
+        cursor = db.cursor(cursor_factory=RealDictCursor)
+        cursor.execute(
+            """
+            SELECT
+                tipo_producao,
+                COUNT(*) AS total
+            FROM producoes
+            WHERE tipo_producao IS NOT NULL
+            GROUP BY tipo_producao
+            ORDER BY total DESC, tipo_producao ASC;
+            """
+        )
+        resultados = cursor.fetchall()
+        cursor.close()
+
+        return {"resultados": resultados}
+
+    except Exception as e:
+        db.rollback()
+        raise HTTPException(
+            status_code=500, detail=f"Erro ao listar tipos de produção: {str(e)}"
         )
 
 

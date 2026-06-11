@@ -2,7 +2,7 @@ import { TestBed } from '@angular/core/testing';
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 
-import { API_BASE_URL, SearchService } from './search';
+import { API_BASE_URL, ProductionTypeOption, SearchService } from './search';
 
 describe('API_BASE_URL', () => {
   it('uses a relative API path by default', () => {
@@ -83,6 +83,8 @@ describe('SearchService', () => {
       pergunta: '',
       tipoProducao: 'ARTIGO PUBLICADO',
       ano: 2025,
+      anoInicio: 2020,
+      anoFim: 2025,
       instituicaoId: 2,
       areas: [5, 35],
     });
@@ -93,6 +95,8 @@ describe('SearchService', () => {
       && req.params.get('tamanho_pagina') === '20'
       && req.params.get('tipo_producao') === 'ARTIGO PUBLICADO'
       && req.params.get('ano') === '2025'
+      && req.params.get('ano_inicio') === '2020'
+      && req.params.get('ano_fim') === '2025'
       && req.params.get('instituicao_id') === '2'
       && (req.params.getAll('areas') ?? []).join(',') === '5,35'
     );
@@ -245,6 +249,103 @@ describe('SearchService', () => {
       qualisEstrato: 'A1',
       qualisAreaAvaliacao: 'Ciencia da Computacao',
       tag: 'Qualis A1',
+    });
+  });
+
+  it('sends year ranges to semantic search', () => {
+    service.search({
+      pergunta: 'inteligencia artificial na saude',
+      anoInicio: 2020,
+      anoFim: 2024,
+      areas: [],
+    });
+
+    const request = http.expectOne('http://api.test/api/v1/busca/semantica');
+    expect(request.request.method).toBe('POST');
+    expect(request.request.body).toEqual({
+      pergunta: 'inteligencia artificial na saude',
+      ano_inicio: 2020,
+      ano_fim: 2024,
+    });
+
+    request.flush({ resultados: [] });
+
+    const fallbackRequest = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('termo') === 'inteligencia artificial na saude'
+      && req.params.get('ano_inicio') === '2020'
+      && req.params.get('ano_fim') === '2024'
+    );
+    fallbackRequest.flush({ total: 0, pagina: 1, tamanho_pagina: 20, resultados: [] });
+  });
+
+  it('uses category tabs as production type filters', () => {
+    service.search({
+      pergunta: '',
+      categoria: 'eventos',
+      areas: [],
+    });
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('tipo_producao') === 'TRABALHO EM EVENTOS'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({ total: 0, pagina: 1, tamanho_pagina: 20, resultados: [] });
+  });
+
+  it('loads researchers for the researchers category', () => {
+    service.search({
+      pergunta: 'ana',
+      categoria: 'pesquisadores',
+      instituicaoId: 2,
+      areas: [5],
+    });
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/pesquisadores/'
+      && req.params.get('pagina') === '1'
+      && req.params.get('tamanho_pagina') === '20'
+      && req.params.get('instituicao_id') === '2'
+      && (req.params.getAll('areas') ?? []).join(',') === '5'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      total: 1,
+      pagina: 1,
+      tamanho_pagina: 20,
+      resultados: [
+        {
+          id: 7,
+          lattes_id: '123',
+          nome: 'Ana Souza',
+          resumo: 'Pesquisa dengue',
+          instituicao_nome: 'UNEB',
+          areas: [
+            {
+              id: 5,
+              grande_area: 'Ciencias da Saude',
+              area: 'Saude Coletiva',
+              sub_area: 'Epidemiologia',
+              especialidade: null,
+            },
+          ],
+        },
+      ],
+    });
+
+    expect(service.total()).toBe(1);
+    expect(service.results()[0]).toEqual({
+      id: '7',
+      resourceType: 'researcher',
+      title: 'Ana Souza',
+      author: 'Pesquisador',
+      researcherId: 7,
+      institution: 'UNEB',
+      abstract: 'Pesquisa dengue',
+      tag: 'Epidemiologia',
     });
   });
 
@@ -433,6 +534,29 @@ describe('SearchService', () => {
     request.flush({ total: 60, pagina: 3, tamanho_pagina: 20, resultados: [] });
 
     expect(service.total()).toBe(60);
+  });
+
+  it('loads dynamic production types from the API', () => {
+    let types: ProductionTypeOption[] = [];
+
+    service.getProductionTypes().subscribe(response => {
+      types = response;
+    });
+
+    const request = http.expectOne('http://api.test/api/v1/producoes/tipos');
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      resultados: [
+        { tipo_producao: 'ARTIGO PUBLICADO', total: 10 },
+        { tipo_producao: 'TRABALHO EM EVENTOS', total: 5 },
+      ],
+    });
+
+    expect(types).toEqual([
+      { tipo_producao: 'ARTIGO PUBLICADO', total: 10 },
+      { tipo_producao: 'TRABALHO EM EVENTOS', total: 5 },
+    ]);
   });
 
   it('loads a researcher profile with productions', () => {

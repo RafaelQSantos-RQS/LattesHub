@@ -169,6 +169,10 @@ const CATEGORY_PRODUCTION_TYPES: Partial<Record<SearchCategory, string>> = {
   eventos: 'TRABALHO EM EVENTOS',
 };
 
+export function getProductionTypeFilter(filters: SearchFilters) {
+  return CATEGORY_PRODUCTION_TYPES[filters.categoria ?? 'tudo'] ?? filters.tipoProducao;
+}
+
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
   providedIn: 'root',
   factory: () => '/api/v1',
@@ -329,7 +333,7 @@ export class SearchService {
       params = params.set('termo', termo);
     }
 
-    const tipoProducao = this.getProductionTypeFilter(filters);
+    const tipoProducao = getProductionTypeFilter(filters);
     if (tipoProducao) {
       params = params.set('tipo_producao', tipoProducao);
     }
@@ -485,13 +489,9 @@ export class SearchService {
     };
   }
 
-  private getProductionTypeFilter(filters: SearchFilters) {
-    return CATEGORY_PRODUCTION_TYPES[filters.categoria ?? 'tudo'] ?? filters.tipoProducao;
-  }
-
   private buildSemanticPayload(pergunta: string, filters: SearchFilters) {
     const payload: Record<string, string | number | number[]> = { pergunta };
-    const tipoProducao = this.getProductionTypeFilter(filters);
+    const tipoProducao = getProductionTypeFilter(filters);
 
     if (tipoProducao) {
       payload['tipo_producao'] = tipoProducao;

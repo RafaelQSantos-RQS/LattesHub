@@ -60,9 +60,9 @@ def client():
     with TestClient(app) as test_client:
         yield test_client
 
-    from app.core.database import db_pool
+    from app.core.database import close_db_pool
 
-    db_pool.closeall()
+    close_db_pool()
 
 
 @pytest.fixture(scope="session")

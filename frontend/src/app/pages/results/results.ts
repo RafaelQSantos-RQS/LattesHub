@@ -3,6 +3,7 @@ import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResultCard } from '../../shared/result-card/result-card';
+import { ExportService } from '../../services/export';
 import { SearchCategory, SearchFilters, SearchService } from '../../services/search';
 
 @Component({
@@ -13,6 +14,7 @@ import { SearchCategory, SearchFilters, SearchService } from '../../services/sea
 })
 export class Results {
   private searchService = inject(SearchService);
+  private exportService = inject(ExportService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
@@ -25,6 +27,8 @@ export class Results {
   readonly pageSize = 20;
   currentPage = signal(1);
   activeCategory = signal<SearchCategory>('tudo');
+  exportingCsv = signal(false);
+  exportError = signal<string | null>(null);
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
   pageNumbers = computed(() => this.buildPageNumbers(this.currentPage(), this.totalPages()));
   readonly categoryTabs: { label: string; value: SearchCategory }[] = [
@@ -80,6 +84,25 @@ export class Results {
     }
     this.currentPage.set(page);
     this.searchService.loadPage(page, this.lastFilters);
+  }
+
+  exportCsv() {
+    if (this.exportingCsv()) {
+      return;
+    }
+
+    this.exportingCsv.set(true);
+    this.exportError.set(null);
+    this.exportService.downloadProductionsCsv(
+      this.lastFilters,
+      'latteshub_producoes_resultados.csv',
+    ).subscribe({
+      next: () => this.exportingCsv.set(false),
+      error: () => {
+        this.exportingCsv.set(false);
+        this.exportError.set('Nao foi possivel exportar os dados.');
+      },
+    });
   }
 
   private buildPageNumbers(current: number, total: number): (number | null)[] {

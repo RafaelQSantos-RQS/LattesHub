@@ -85,20 +85,23 @@ def listar_todas_producoes(
 
         # 2. Busca as produções paginadas
         sql_producoes = f"""
-            SELECT 
-                p.id, 
-                p.tipo_producao, 
-                p.titulo, 
-                p.ano, 
-                p.idioma, 
-                p.natureza, 
-                p.doi, 
-                p.revista, 
+            SELECT
+                p.id,
+                p.tipo_producao,
+                p.titulo,
+                p.ano,
+                p.idioma,
+                p.natureza,
+                p.doi,
+                p.revista,
                 p.evento,
                 p.pesquisador_id,
-                pes.nome AS pesquisador_nome
+                pes.nome AS pesquisador_nome,
+                q.estrato AS qualis_estrato,
+                q.area_avaliacao AS qualis_area_avaliacao
             FROM producoes p
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+            LEFT JOIN qualis_periodicos q ON p.issn = q.issn
             {where_clause}
             ORDER BY {order_by}
             LIMIT %s OFFSET %s;
@@ -154,9 +157,12 @@ def obter_producao_por_id(producao_id: int, db=Depends(get_db_connection)):
                 p.palavras_chave,
                 p.coautores,
                 p.pesquisador_id,
-                pes.nome AS pesquisador_nome
+                pes.nome AS pesquisador_nome,
+                q.estrato AS qualis_estrato,
+                q.area_avaliacao AS qualis_area_avaliacao
             FROM producoes p
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+            LEFT JOIN qualis_periodicos q ON p.issn = q.issn
             WHERE p.id = %s;
         """
         cursor.execute(sql, (producao_id,))

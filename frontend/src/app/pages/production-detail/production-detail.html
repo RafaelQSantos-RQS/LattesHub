@@ -50,6 +50,9 @@
           @if (p.pais_publicacao) {
             <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ p.pais_publicacao }}</span>
           }
+          @if (p.qualis_estrato) {
+            <span [class]="'px-2.5 py-1 rounded-sm font-data-label text-data-label ' + qualisBadgeClass()">Qualis {{ p.qualis_estrato }}</span>
+          }
         </div>
       </section>
 

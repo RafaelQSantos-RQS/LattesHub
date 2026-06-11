@@ -157,7 +157,7 @@ Ordering rule: security, data integrity, deploy blockers, and API/runtime reliab
 
 Execution batching rule: do not default to one PR per issue. When several pending issues are closely related, implement them together on one branch and open one PR after the grouped work is complete and verified. Good batches are same-layer/same-surface changes, such as API reliability fixes, search/filter contract changes, result-card UX fixes, export/BI work, or final documentation/demo tasks. Keep a PR separate when the issue is security-sensitive, risky, likely to require rollback, changes deployment/infrastructure broadly, or would make the PR too large to review cleanly. When batching, list every covered issue in the PR body and update this queue's status notes for each issue.
 
-Assignee reservation rule: before starting any batch, identify the issues that belong to it and assign `brugabi` as the GitHub assignee for each one via `gh issue edit <number> --repo RafaelQSantos-RQS/LattesHub --add-assignee brugabi`. Do this only for the immediate next batch, not all pending issues. This prevents teammates from picking up work that is already in progress.
+Assignee and in_progress rule: at the start of each session or before starting a new PR batch, identify all issues that will be covered by that PR together and perform all three steps for each issue in the batch: (1) assign `brugabi` via `gh issue edit <number> --repo RafaelQSantos-RQS/LattesHub --add-assignee brugabi`; (2) update their status to `in_progress` in this queue; (3) update their status to "In Progress" in the GitHub Project board via `gh project item-edit --project-id PVT_kwHOBwOR284BW4pa --id <item-id> --field-id PVTSSF_lAHOBwOR284BW4pazhSJbE4 --single-select-option-id 47fc9ee4` — if an issue is not yet in the project, add it first with `gh project item-add 6 --owner RafaelQSantos-RQS --url https://github.com/RafaelQSantos-RQS/LattesHub/issues/<number>`. All three steps are mandatory for every batch. A batch is always multiple issues that form a coherent PR theme (e.g. "search quality", "frontend UX bugs", "ETL + embeddings"). Do not assign or mark `in_progress` for future batches — only the current one. A single-issue batch is only acceptable when that issue is explicitly isolated, security-sensitive, or risky enough to warrant a solo PR.
 
 ### Current Next-Issue Queue
 
@@ -228,10 +228,11 @@ Assignee reservation rule: before starting any batch, identify the issues that b
     - Status note: implemented on 2026-06-11; awaiting PR/merge.
     - Verification: home search button and submit accept terms from two characters, one-character terms remain blocked in the UI, 2-4 character queries use textual `/producoes?termo=...`, semantic search is reserved for 5+ character queries, and frontend tests/build passed.
 12. #66 enhancement(search): melhorar busca textual com unaccent e multiplos campos.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: high; urgency: soon.
     - Rationale: improves literal search quality across title, researcher, venue, DOI, and accent variants.
     - Verification: backend tests cover accented/unaccented terms and non-title fields.
+    - Batch: search & browse quality PR (with #56, #68, #69).
 13. #63 enhancement(semantic): gerar embeddings para mais tipos e texto mais rico.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: high; urgency: soon.
@@ -253,25 +254,28 @@ Assignee reservation rule: before starting any batch, identify the issues that b
     - Rationale: visible tabs currently imply behavior that does not exist.
     - Verification: category tabs update query params and filter/render Tudo, Pesquisadores, Artigos, and Eventos correctly.
 17. #56 bug(frontend): implementar paginacao real em Explorar.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: high; urgency: soon.
     - Rationale: current pagination controls are placeholders while backend already returns pagination metadata.
     - Verification: page controls use `pagina`, `tamanho_pagina`, and `total`, preserving search and filters.
+    - Batch: search & browse quality PR (with #66, #68, #69).
 18. #55 enhancement(search): permitir busca por area e instituicao.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: medium-high; urgency: after core search/filter fixes.
     - Rationale: typeahead avoids unwieldy full lists and improves filter discovery.
     - Verification: users can search/select area and institution by text while query params keep stable IDs.
 19. #68 bug(frontend): tratar falha ao carregar filtros da sidebar.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium-high; urgency: soon.
     - Rationale: filter load failures currently look like empty data.
     - Verification: sidebar distinguishes loading, error, empty, and success states for areas/institutions.
+    - Batch: search & browse quality PR (with #66, #56, #69).
 20. #69 bug(frontend): nao exibir revista evento natureza como abstract.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: soon.
     - Rationale: metadata is currently rendered as if it were an abstract/summary.
     - Verification: result cards render source/venue metadata separately from true summaries.
+    - Batch: search & browse quality PR (with #66, #56, #68).
 21. #49 enhancement(frontend): abrir detalhes ao clicar no titulo de uma producao.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: medium-high; urgency: after result-card metadata cleanup if possible.

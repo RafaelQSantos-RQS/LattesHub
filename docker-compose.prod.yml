@@ -1,23 +1,28 @@
 x-app-env: &app-env
-  DB_USER: ${DB_USER:?DB_USER is required}
-  DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-  DB_NAME: ${DB_NAME:?DB_NAME is required}
+  # DATABASE_URL tem precedência no backend. Variáveis individuais são usadas pelo Hop (ETL).
+  DATABASE_URL: ${DATABASE_URL:-}
+  DB_SSLMODE: ${DB_SSLMODE:-require}
+  DB_USER: ${DB_USER:-}
+  DB_PASSWORD: ${DB_PASSWORD:-}
+  DB_NAME: ${DB_NAME:-}
   DB_HOST: ${DB_HOST:-db}
   DB_PORT: ${DB_PORT:-5432}
-  DATABASE_URL: ${DATABASE_URL:-}
-  DB_SSLMODE: ${DB_SSLMODE:-}
   EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-100}
   OPENAI_API_KEY: ${OPENAI_API_KEY:-}
 
 services:
+  # Banco local — apenas com profile "local-db". Para Supabase, não suba este serviço.
+  # docker compose -f docker-compose.prod.yml --profile local-db up db
   db:
     build:
       context: ./database
     restart: unless-stopped
+    profiles:
+      - local-db
     environment:
-      POSTGRES_USER: ${DB_USER:?DB_USER is required}
-      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
-      POSTGRES_DB: ${DB_NAME:?DB_NAME is required}
+      POSTGRES_USER: ${DB_USER:?DB_USER is required for local-db}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required for local-db}
+      POSTGRES_DB: ${DB_NAME:?DB_NAME is required for local-db}
     volumes:
       - latteshub_prod_pg_data:/var/lib/postgresql/data
     healthcheck:

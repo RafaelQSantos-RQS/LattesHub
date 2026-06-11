@@ -326,40 +326,43 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Status note: implemented on 2026-06-11; awaiting PR/merge.
     - Verification: no footer link uses `href="#"`; GitHub opens with `target="_blank"` and `rel="noopener noreferrer"`.
 26. #52 bug(frontend): conectar botao Exportar CSV em Indicadores.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: merged/done.
     - Impact: medium-high; urgency: before BI/demo.
     - Rationale: backend CSV exists but the indicators button is visual only.
-    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Status note: implemented in PR #79 and merged on 2026-06-11; GitHub issue is closed and project item is Done.
     - Verification: Indicators export button downloads `/api/v1/exportacoes/producoes.csv`, shows loading/error states, and frontend tests/build passed.
     - Batch: export/BI CSV PR (with #57, #36).
 27. #57 enhancement(frontend): conectar Exportar Dados Analiticos nos resultados.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: merged/done.
     - Impact: medium-high; urgency: before BI/demo.
     - Rationale: results export button is visual only and should use real CSV data.
-    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Status note: implemented in PR #79 and merged on 2026-06-11; GitHub issue is closed and project item is Done.
     - Verification: Explore export button downloads real CSV using current URL filters, handles failures, documents semantic-query export behavior, and frontend tests/build passed.
     - Batch: export/BI CSV PR (with #52, #36).
 28. #36 Completar exportacao CSV dimensional para Power BI.
-    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: implemented.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: merged/done.
     - Impact: high; urgency: before #34.
     - Rationale: Power BI dashboard depends on stable dimensional CSVs.
-    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Status note: implemented in PR #79 and merged on 2026-06-11; GitHub issue is closed and project item is Done.
     - Verification: `GET /api/v1/exportacoes/producoes.csv` accepts production filters, includes production/year/quadrienio-pesquisador-institution-area-Qualis dimensions plus `fato_quantidade_producoes`, backend pytest passed, and Docker smoke returned 51 filtered 2024 rows with dimensional fields.
     - Batch: export/BI CSV PR (with #52, #57).
 29. #34 Criar dashboard Power BI com KPIs e segmentacoes.
-    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: in_progress.
     - Impact: high; urgency: after #36.
     - Rationale: final BI deliverable depends on exported dimensional data.
+    - Status note: selected for the next indicators/BI batch on 2026-06-11 with #58 and #53; assigned to `brugabi` and moved to In Progress in the GitHub Project.
     - Verification: KPIs, slicers, and relationships work using the exported CSV data.
 30. #58 enhancement(indicators): substituir KPIs e graficos mockados por dados reais.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium-high; urgency: before final demo if web indicators are shown.
     - Rationale: web indicators currently show fixed/mock values.
+    - Status note: selected for the next indicators/BI batch on 2026-06-11 with #34 and #53; assigned to `brugabi` and moved to In Progress in the GitHub Project.
     - Verification: KPIs and charts use backend data or explicit no-data states.
 31. #53 enhancement(frontend): melhorar UI do mapa de colaboracoes internacionais.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: in_progress.
     - Impact: medium; urgency: after #58 or if indicators are part of demo.
     - Rationale: map currently looks like static/demo data and should clarify real data availability.
+    - Status note: selected for the next indicators/BI batch on 2026-06-11 with #34 and #58; assigned to `brugabi` and moved to In Progress in the GitHub Project.
     - Verification: map section has clear no-data/demo state, legend, and robust visuals without pretending backend integration exists.
 32. #72 enhancement(infra): avaliar deploy gerenciado com Supabase/Vercel.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.

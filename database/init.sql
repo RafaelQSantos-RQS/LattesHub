@@ -3,6 +3,12 @@
 -- =====================================================
 
 CREATE EXTENSION IF NOT EXISTS vector;
+CREATE EXTENSION IF NOT EXISTS unaccent;
+
+CREATE TEXT SEARCH CONFIGURATION portuguese_unaccent (COPY = portuguese);
+ALTER TEXT SEARCH CONFIGURATION portuguese_unaccent
+    ALTER MAPPING FOR hword, hword_part, word
+    WITH unaccent, portuguese_stem;
 
 -- =====================================================
 -- TABELA: INSTITUICOES
@@ -258,8 +264,12 @@ USING (true);
 
 CREATE OR REPLACE FUNCTION atualiza_titulo_tsv() RETURNS trigger AS $$
 BEGIN
-  NEW.titulo_tsv := to_tsvector('portuguese', coalesce(NEW.titulo, ''));
-  RETURN NEW;
+    NEW.titulo_tsv := to_tsvector('portuguese_unaccent',
+        coalesce(NEW.titulo, '') || ' ' ||
+        coalesce(NEW.revista, '') || ' ' ||
+        coalesce(NEW.evento, '')
+    );
+    RETURN NEW;
 END
 $$ LANGUAGE plpgsql;
 

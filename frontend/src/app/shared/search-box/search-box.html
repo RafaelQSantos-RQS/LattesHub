@@ -12,8 +12,8 @@
            (blur)="isFocused.set(false)"
            (keyup.enter)="onSearch()"/>
     <button class="bg-slate-900 text-white px-8 py-3 rounded-lg font-label-bold text-label-bold hover:bg-primary transition-colors active:scale-95 duration-100"
-            [class.opacity-50]="query().trim().length < 5"
-            [disabled]="query().trim().length < 5"
+            [class.opacity-50]="query().trim().length < minSearchLength"
+            [disabled]="query().trim().length < minSearchLength"
             (click)="onSearch()">
       Buscar
     </button>

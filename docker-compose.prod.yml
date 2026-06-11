@@ -1,0 +1,121 @@
+x-app-env: &app-env
+  DB_USER: ${DB_USER:?DB_USER is required}
+  DB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+  DB_NAME: ${DB_NAME:?DB_NAME is required}
+  DB_HOST: ${DB_HOST:-db}
+  DB_PORT: ${DB_PORT:-5432}
+  DATABASE_URL: ${DATABASE_URL:-}
+  DB_SSLMODE: ${DB_SSLMODE:-}
+  EMBEDDING_BATCH_SIZE: ${EMBEDDING_BATCH_SIZE:-100}
+  OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+
+services:
+  db:
+    build:
+      context: ./database
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:?DB_USER is required}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD is required}
+      POSTGRES_DB: ${DB_NAME:?DB_NAME is required}
+    volumes:
+      - latteshub_prod_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER} -d ${DB_NAME}"]
+      interval: 10s
+      retries: 5
+      start_period: 30s
+      timeout: 5s
+    networks:
+      - latteshub_prod_network
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      <<: *app-env
+      APP_ENV: ${APP_ENV:-production}
+      BACKEND_CORS_ORIGINS: ${BACKEND_CORS_ORIGINS:?BACKEND_CORS_ORIGINS is required}
+    expose:
+      - "8000"
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:8000/health-check', timeout=5)",
+        ]
+      interval: 30s
+      retries: 3
+      start_period: 30s
+      timeout: 10s
+    networks:
+      - latteshub_prod_network
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "${FRONTEND_PORT:-8080}:8080"
+    networks:
+      - latteshub_prod_network
+
+  hop:
+    image: apache/hop:2.17.0
+    depends_on:
+      db:
+        condition: service_healthy
+    profiles:
+      - etl
+    restart: "no"
+    volumes:
+      - ./database/apache_hop:/project
+      - ./database/data:/project/data
+    environment:
+      <<: *app-env
+      HOP_PROJECT_FOLDER: /project
+      HOP_PROJECT_NAME: LattesHub
+      HOP_FILE_PATH: /project/metadata/workflows/workflow_master.hwf
+      HOP_RUN_CONFIG: local
+      HOP_LOG_LEVEL: Basic
+      HOP_CUSTOM_ENTRYPOINT_EXTENSION_SHELL_FILE_PATH: /project/docker/create-hop-env.sh
+      HOP_ENVIRONMENT_CONFIG_FILE_NAME_PATHS: /tmp/latteshub-hop-env.json
+    networks:
+      - latteshub_prod_network
+
+  embeddings:
+    build:
+      context: ./backend
+    profiles:
+      - etl
+    restart: "no"
+    depends_on:
+      db:
+        condition: service_healthy
+      hop:
+        condition: service_completed_successfully
+    environment:
+      <<: *app-env
+      EMBEDDING_SEED_PATH: /seed/vetores_seed.csv
+      EMBEDDING_USE_SEED: "true"
+      EMBEDDING_WRITE_SEED: "true"
+    volumes:
+      - ./database/seed:/seed
+    command: ["python", "app/scripts/gerar_embeddings.py"]
+    networks:
+      - latteshub_prod_network
+
+volumes:
+  latteshub_prod_pg_data:
+
+networks:
+  latteshub_prod_network:

@@ -29,4 +29,39 @@ describe('ResultCard', () => {
   it('should create', () => {
     expect(component).toBeTruthy();
   });
+
+  it('title links to /producoes/:id', async () => {
+    fixture.detectChanges();
+    await fixture.whenStable();
+    const compiled = fixture.nativeElement as HTMLElement;
+    const link = compiled.querySelector('h3 a') as HTMLAnchorElement;
+    expect(link).toBeTruthy();
+    expect(link.getAttribute('href')).toContain('/producoes/1');
+  });
+
+  describe('cite', () => {
+    it('copies citation text to clipboard and sets copiedField', async () => {
+      const writeTextMock = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: writeTextMock }, configurable: true });
+
+      component.cite();
+      await Promise.resolve();
+
+      expect(writeTextMock).toHaveBeenCalledWith('Pesquisador Teste. Resultado de teste. 2024.');
+      expect(component.copiedField()).toBe('cite');
+    });
+  });
+
+  describe('share', () => {
+    it('copies production URL to clipboard and sets copiedField', async () => {
+      const writeTextMock = vi.fn().mockResolvedValue(undefined);
+      Object.defineProperty(navigator, 'clipboard', { value: { writeText: writeTextMock }, configurable: true });
+
+      component.share();
+      await Promise.resolve();
+
+      expect(writeTextMock).toHaveBeenCalledWith(expect.stringContaining('/producoes/1'));
+      expect(component.copiedField()).toBe('share');
+    });
+  });
 });

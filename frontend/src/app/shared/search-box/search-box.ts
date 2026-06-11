@@ -8,6 +8,7 @@ import { Router } from '@angular/router';
   styleUrl: './search-box.scss',
 })
 export class SearchBox {
+  readonly minSearchLength = 2;
   isFocused = signal(false);
   query = signal('');
   private router = inject(Router);
@@ -19,7 +20,7 @@ export class SearchBox {
   onSearch() {
     const query = this.query().trim();
 
-    if (query.length < 5) {
+    if (query.length < this.minSearchLength) {
       return;
     }
 

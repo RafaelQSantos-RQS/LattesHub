@@ -4,6 +4,14 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 
 import { API_BASE_URL, SearchService } from './search';
 
+describe('API_BASE_URL', () => {
+  it('uses a relative API path by default', () => {
+    TestBed.configureTestingModule({});
+
+    expect(TestBed.inject(API_BASE_URL)).toBe('/api/v1');
+  });
+});
+
 describe('SearchService', () => {
   let service: SearchService;
   let http: HttpTestingController;
@@ -66,7 +74,7 @@ describe('SearchService', () => {
       language: 'pt',
       doi: '10.0000/teste',
       productionType: 'ARTIGO PUBLICADO',
-      abstract: 'Revista Brasileira de IA',
+      venue: 'Revista Brasileira de IA',
     });
   });
 
@@ -99,6 +107,92 @@ describe('SearchService', () => {
 
     expect(service.total()).toBe(0);
     expect(service.results()).toEqual([]);
+  });
+
+  it('uses textual production search for two-character queries', () => {
+    service.search('ia');
+
+    http.expectNone('http://api.test/api/v1/busca/semantica');
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '1'
+      && req.params.get('tamanho_pagina') === '20'
+      && req.params.get('termo') === 'ia'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      total: 1,
+      pagina: 1,
+      tamanho_pagina: 20,
+      resultados: [
+        {
+          id: 11,
+          tipo_producao: 'ARTIGO PUBLICADO',
+          titulo: 'IA aplicada ao ensino',
+          ano: 2024,
+          idioma: 'pt',
+          natureza: null,
+          doi: null,
+          revista: 'Revista de Educacao',
+          evento: null,
+          pesquisador_id: 6,
+          pesquisador_nome: 'Lia Costa',
+        },
+      ],
+    });
+
+    expect(service.error()).toBeNull();
+    expect(service.total()).toBe(1);
+    expect(service.lastQuery()).toBe('ia');
+    expect(service.results()[0].title).toBe('IA aplicada ao ensino');
+  });
+
+  it('uses textual production search for four-character queries', () => {
+    service.search('uxci');
+
+    http.expectNone('http://api.test/api/v1/busca/semantica');
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('termo') === 'uxci'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      total: 0,
+      pagina: 1,
+      tamanho_pagina: 20,
+      resultados: [],
+    });
+
+    expect(service.error()).toBeNull();
+    expect(service.total()).toBe(0);
+    expect(service.lastQuery()).toBe('uxci');
+  });
+
+  it('does not send one-character queries as textual terms', () => {
+    service.search('i');
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '1'
+      && req.params.get('tamanho_pagina') === '20'
+      && !req.params.has('termo')
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({
+      total: 0,
+      pagina: 1,
+      tamanho_pagina: 20,
+      resultados: [],
+    });
+
+    http.expectNone('http://api.test/api/v1/busca/semantica');
+    expect(service.total()).toBe(0);
+    expect(service.lastQuery()).toBe('i');
   });
 
   it('runs semantic search against the API for valid queries', () => {
@@ -154,6 +248,43 @@ describe('SearchService', () => {
     });
   });
 
+  it('cancels older semantic searches when a newer search starts', () => {
+    service.search('primeira busca longa');
+
+    const firstRequest = http.expectOne('http://api.test/api/v1/busca/semantica');
+    expect(firstRequest.request.body.pergunta).toBe('primeira busca longa');
+
+    service.search('segunda busca longa');
+
+    expect(firstRequest.cancelled).toBe(true);
+
+    const secondRequest = http.expectOne('http://api.test/api/v1/busca/semantica');
+    expect(secondRequest.request.body.pergunta).toBe('segunda busca longa');
+
+    secondRequest.flush({
+      resultados: [
+        {
+          id: 33,
+          titulo: 'Resultado mais recente',
+          tipo_producao: 'ARTIGO PUBLICADO',
+          ano: 2024,
+          pesquisador_id: 4,
+          pesquisador_nome: 'Carla Rocha',
+          score: 91,
+          qualis_estrato: null,
+          qualis_area_avaliacao: null,
+          qualis_titulo: null,
+        },
+      ],
+    });
+
+    expect(service.loading()).toBe(false);
+    expect(service.error()).toBeNull();
+    expect(service.total()).toBe(1);
+    expect(service.lastQuery()).toBe('segunda busca longa');
+    expect(service.results()[0].title).toBe('Resultado mais recente');
+  });
+
   it('falls back to textual production search when semantic search fails', () => {
     service.search({
       pergunta: 'dengue',
@@ -206,6 +337,48 @@ describe('SearchService', () => {
     expect(service.results()[0].researcherId).toBe(2);
   });
 
+  it('cancels an older textual fallback when a newer search starts', () => {
+    service.search('dengue');
+
+    const semanticRequest = http.expectOne('http://api.test/api/v1/busca/semantica');
+    semanticRequest.flush({ detail: 'Erro na busca semantica' }, { status: 500, statusText: 'Server Error' });
+
+    const fallbackRequest = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('termo') === 'dengue'
+    );
+
+    service.search('malaria');
+
+    expect(fallbackRequest.cancelled).toBe(true);
+
+    const latestRequest = http.expectOne('http://api.test/api/v1/busca/semantica');
+    expect(latestRequest.request.body.pergunta).toBe('malaria');
+
+    latestRequest.flush({
+      resultados: [
+        {
+          id: 44,
+          titulo: 'Pesquisa sobre malaria',
+          tipo_producao: 'ARTIGO PUBLICADO',
+          ano: 2025,
+          pesquisador_id: 8,
+          pesquisador_nome: 'Diego Torres',
+          score: 84,
+          qualis_estrato: 'A2',
+          qualis_area_avaliacao: 'Saude Coletiva',
+          qualis_titulo: 'Revista B',
+        },
+      ],
+    });
+
+    expect(service.loading()).toBe(false);
+    expect(service.error()).toBeNull();
+    expect(service.total()).toBe(1);
+    expect(service.lastQuery()).toBe('malaria');
+    expect(service.results()[0].title).toBe('Pesquisa sobre malaria');
+  });
+
   it('falls back to textual production search when semantic search returns no results', () => {
     service.search('dengue');
 
@@ -245,6 +418,21 @@ describe('SearchService', () => {
     expect(service.error()).toBeNull();
     expect(service.total()).toBe(1);
     expect(service.results()[0].title).toContain('Dengue');
+  });
+
+  it('loadPage sends the correct page number to the productions endpoint', () => {
+    service.loadPage(3, { pergunta: '', areas: [] });
+
+    const request = http.expectOne(req =>
+      req.url === 'http://api.test/api/v1/producoes/'
+      && req.params.get('pagina') === '3'
+      && req.params.get('tamanho_pagina') === '20'
+    );
+    expect(request.request.method).toBe('GET');
+
+    request.flush({ total: 60, pagina: 3, tamanho_pagina: 20, resultados: [] });
+
+    expect(service.total()).toBe(60);
   });
 
   it('loads a researcher profile with productions', () => {

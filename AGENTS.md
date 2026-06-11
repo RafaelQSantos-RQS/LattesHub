@@ -238,15 +238,19 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Verification: backend tests cover accented/unaccented terms and non-title fields.
     - Batch: search & browse quality PR (with #56, #68, #69).
 13. #63 enhancement(semantic): gerar embeddings para mais tipos e texto mais rico.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: high; urgency: soon.
     - Rationale: semantic quality and coverage depend on embedding more than article titles.
-    - Verification: embedding script processes eligible production types with richer text while preserving seed behavior.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: embedding script processes configurable eligible production types with text composed from title, English title, type, nature, year, language, venue/event, researcher areas, and keywords while preserving the seed CSV format; backend pytest passed.
+    - Batch: ETL + embeddings coverage PR (with #67).
 14. #67 enhancement(etl): importar outros tipos de producao alem de artigos.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: high; urgency: soon.
     - Rationale: enables event/book/category filters and richer analytics beyond articles.
-    - Verification: ETL populates multiple `tipo_producao` values from available XMLs without duplicating existing article rows.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: Hop pipelines import event papers, books, and book chapters; local smoke populated `TRABALHO EM EVENTOS` (321), `LIVRO PUBLICADO` (26), and `CAPITULO DE LIVRO` (80), then a second run kept counts stable; backend pytest passed.
+    - Batch: ETL + embeddings coverage PR (with #63).
 15. #54 enhancement(filters): tornar tipos de producao dinamicos e adicionar intervalo de anos.
     - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
     - Impact: high; urgency: after #67 unless implemented with current data fallback.
@@ -361,8 +365,10 @@ Batch completion handoff rule: when the last issue of the current batch is imple
 - `docker compose up -d --build backend`: rebuild and restart the FastAPI backend after code changes when using Docker Compose. The backend service copies source files into the image and does not mount the local `backend/` directory as a live volume, so Swagger/OpenAPI at `http://localhost:8000/docs` keeps showing the old contract until the backend image/container is rebuilt.
 - `docker compose --env-file .env.production -f docker-compose.prod.yml config`: validate the self-hosted production Compose configuration before deploy. Production deploy details live in `docs/deploy.md`.
 - `docker compose --profile etl up hop`: run the Apache Hop ETL job.
+- On an already-populated local volume, the full Hop workflow can fail in `pipeline_qualis` with duplicate `qualis_periodicos` keys before reaching production pipelines. For production-type smoke checks without discarding data, run the target pipeline directly with `docker compose --profile etl run --rm -e HOP_FILE_PATH=/project/metadata/pipelines/<pipeline>.hpl hop` and then verify `select tipo_producao, count(*) from producoes group by tipo_producao`.
 - If frontend filters and production search are empty, first verify database counts; an empty `producoes` or `instituicoes` table means the Hop ETL did not populate the database. The Hop container fails on Windows CRLF shell scripts, so keep `database/apache_hop/docker/*.sh` as LF; `.gitattributes` enforces this for `*.sh`.
 - Semantic search requires rows in `vetores`. If `vetores` is empty, the backend returns semantic search as unavailable and the frontend should fall back to textual `/producoes` search until embeddings are generated. Use `docker compose --profile etl run --rm embeddings`; the script imports `database/seed/vetores_seed.csv` first and only calls OpenAI for missing vectors, then rewrites the seed for future machines.
+- Production ETL now loads articles, event papers, books, and book chapters through separate Hop pipelines. Embeddings process `ARTIGO PUBLICADO`, `TRABALHO EM EVENTOS`, `LIVRO PUBLICADO`, and `CAPITULO DE LIVRO` by default; override with `EMBEDDING_PRODUCTION_TYPES` as a comma-separated list when a narrower seed is needed.
 - `cd backend && pip install -r requirements.txt`: install backend dependencies.
 - `cd backend && uvicorn app.main:app --reload`: run the FastAPI app in development.
 - `cd frontend && npm install`: install frontend dependencies.

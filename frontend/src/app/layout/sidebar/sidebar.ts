@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+type FilterState = 'loading' | 'error' | 'empty' | 'success';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FilterAreaOption, FilterInstitution, SearchService } from '../../services/search';
@@ -28,7 +29,9 @@ export class Sidebar {
     yearRange: true
   });
   institutions = signal<FilterInstitution[]>([]);
+  institutionsState = signal<FilterState>('loading');
   areaOptions = signal<FilterAreaOption[]>([]);
+  areasState = signal<FilterState>('loading');
   selectedInstitutionId = signal<number | undefined>(undefined);
   selectedType = signal<string | undefined>(undefined);
   selectedYear = signal<number | undefined>(undefined);
@@ -45,11 +48,23 @@ export class Sidebar {
   constructor() {
     this.searchService.getInstitutions()
       .pipe(takeUntilDestroyed())
-      .subscribe(institutions => this.institutions.set(institutions));
+      .subscribe({
+        next: institutions => {
+          this.institutions.set(institutions);
+          this.institutionsState.set(institutions.length === 0 ? 'empty' : 'success');
+        },
+        error: () => this.institutionsState.set('error'),
+      });
 
     this.searchService.getAreaOptions()
       .pipe(takeUntilDestroyed())
-      .subscribe(areas => this.areaOptions.set(areas));
+      .subscribe({
+        next: areas => {
+          this.areaOptions.set(areas);
+          this.areasState.set(areas.length === 0 ? 'empty' : 'success');
+        },
+        error: () => this.areasState.set('error'),
+      });
 
     this.route.queryParamMap
       .pipe(takeUntilDestroyed())

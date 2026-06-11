@@ -92,6 +92,16 @@ Os tipos de producao exibidos no frontend sao carregados dinamicamente de `GET /
 
 ---
 
+# Exportacoes CSV e Power BI
+
+O endpoint `GET /api/v1/exportacoes/producoes.csv` gera um CSV analitico para Power BI, Python ou planilhas. O arquivo inclui campos de fato e dimensoes como producao, ano, quadrienio-ano, pesquisador, instituicao, areas, Qualis e metadados bibliograficos enriquecidos.
+
+A exportacao aceita os filtros `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`, os mesmos filtros principais usados na listagem de producoes. Na pagina Explorar, o botao "Exportar Dados Analiticos (CSV)" baixa o CSV respeitando os filtros atuais da URL. Quando a busca visual vem de consulta semantica, o CSV usa o texto da busca como filtro textual (`termo`) e nao reproduz a ordenacao vetorial por similaridade.
+
+Na pagina Indicadores, o botao "Exportar CSV" baixa o dataset completo de producoes.
+
+---
+
 # Getting Started (Como rodar o projeto)
 
 A infraestrutura do LattesHub é totalmente orquestrada via Docker. Siga os passos abaixo para inicializar o ambiente com a carga de dados completa.
@@ -179,6 +189,14 @@ docker compose up -d --build backend
 
 ```
 
+Quando alterar codigo do frontend usando Docker Compose, reconstrua a imagem do frontend:
+
+```bash
+docker compose up -d --build frontend
+```
+
+O Nginx do container frontend serve `index.html` e rotas da SPA sem cache para que novas builds aparecam com refresh normal da pagina. Arquivos estaticos versionados (`.js`, `.css`, imagens e fontes) continuam com cache longo porque o build Angular gera nomes com hash.
+
 ### Configuracao de CORS do backend
 
 O backend aceita por padrao as origens locais `http://localhost:4200` e `http://127.0.0.1:4200`. Para deploy, configure `BACKEND_CORS_ORIGINS` no `.env` com a lista de origens permitidas, separadas por virgula, e use `APP_ENV=production`.
@@ -233,7 +251,21 @@ No Windows PowerShell, se `npm` for bloqueado por politica de execucao do `npm.p
 
 ### Solucao de problemas: busca ou filtros vazios
 
-Se o frontend abrir, mas a busca mostrar "Nenhum resultado encontrado" e os filtros estiverem vazios, verifique primeiro se o ETL populou o banco:
+Se o frontend abrir, mas a busca mostrar "Nenhum resultado encontrado" e os filtros estiverem vazios, diferencie primeiro falha de API/proxy de banco sem dados:
+
+```bash
+curl http://localhost:8000/api/v1/producoes/?pagina=1\&tamanho_pagina=1
+curl http://localhost:4200/api/v1/producoes/?pagina=1\&tamanho_pagina=1
+docker compose logs --tail=120 backend
+```
+
+Se a API direta falhar ou o frontend retornar `502 Bad Gateway`, o problema esta no backend/proxy, nao nos dados. Reinicie ou reconstrua o backend depois de alteracoes:
+
+```bash
+docker compose up -d --build backend
+```
+
+Se a API responder, verifique se o ETL populou o banco:
 
 ```bash
 docker compose exec db psql -U postgres -d lattes_hub -c "select count(*) from producoes;"

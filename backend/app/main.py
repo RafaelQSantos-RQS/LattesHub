@@ -1,10 +1,12 @@
 import os
 import logging
+from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException, Request
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 from app.api.v1.api_router import api_router
+from app.core.database import close_db_pool
 from app.core.errors import INTERNAL_SERVER_ERROR_DETAIL
 
 logger = logging.getLogger(__name__)
@@ -15,6 +17,12 @@ DEFAULT_CORS_ORIGINS = [
 ]
 
 PRODUCTION_ENV_NAMES = {"prod", "production"}
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    yield
+    close_db_pool()
 
 
 def get_cors_origins() -> list[str]:
@@ -37,6 +45,7 @@ def create_app(cors_origins: list[str] | None = None) -> FastAPI:
         title="LattesHub API",
         version="1.0",
         description="API publica de dados abertos e descoberta cientifica apoiada por Inteligencia Artificial.",
+        lifespan=lifespan,
     )
 
     app.add_middleware(

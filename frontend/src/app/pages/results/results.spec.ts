@@ -1,9 +1,10 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { convertToParamMap, ActivatedRoute, Router } from '@angular/router';
-import { of } from 'rxjs';
+import { of, throwError } from 'rxjs';
 import { vi } from 'vitest';
 
 import { Results } from './results';
+import { ExportService } from '../../services/export';
 import { SearchService } from '../../services/search';
 
 describe('Results', () => {
@@ -21,11 +22,16 @@ describe('Results', () => {
     getAreaOptions: () => of([]),
     getProductionTypes: () => of([]),
   };
+  const exportServiceStub = {
+    downloadProductionsCsv: vi.fn(() => of(undefined)),
+  };
   const router = { navigate: vi.fn() };
 
   beforeEach(async () => {
     searchServiceStub.search.mockReset();
     searchServiceStub.loadPage.mockReset();
+    exportServiceStub.downloadProductionsCsv.mockReset();
+    exportServiceStub.downloadProductionsCsv.mockReturnValue(of(undefined));
     router.navigate.mockReset();
 
     await TestBed.configureTestingModule({
@@ -39,6 +45,7 @@ describe('Results', () => {
         },
         { provide: Router, useValue: router },
         { provide: SearchService, useValue: searchServiceStub },
+        { provide: ExportService, useValue: exportServiceStub },
       ],
     }).compileComponents();
 
@@ -62,5 +69,27 @@ describe('Results', () => {
       },
       queryParamsHandling: 'merge',
     });
+  });
+
+  it('exports current result filters as CSV', () => {
+    component.exportCsv();
+
+    expect(exportServiceStub.downloadProductionsCsv).toHaveBeenCalledWith(
+      expect.objectContaining({ pergunta: '', areas: [] }),
+      'latteshub_producoes_resultados.csv',
+    );
+    expect(component.exportError()).toBeNull();
+    expect(component.exportingCsv()).toBe(false);
+  });
+
+  it('shows an export error when CSV download fails', () => {
+    exportServiceStub.downloadProductionsCsv.mockReturnValue(
+      throwError(() => new Error('download failed')),
+    );
+
+    component.exportCsv();
+
+    expect(component.exportingCsv()).toBe(false);
+    expect(component.exportError()).toBe('Nao foi possivel exportar os dados.');
   });
 });

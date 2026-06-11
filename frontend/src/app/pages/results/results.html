@@ -25,11 +25,21 @@
         </div>
       </div>
       <div class="flex flex-col items-end gap-1">
-        <button class="bg-white border border-slate-200 text-slate-800 px-6 py-2 rounded-sm flex items-center gap-2 hover:bg-slate-50 hover:shadow-sm transition-all group">
+        <button
+          type="button"
+          (click)="exportCsv()"
+          [disabled]="exportingCsv()"
+          class="bg-white border border-slate-200 text-slate-800 px-6 py-2 rounded-sm flex items-center gap-2 hover:bg-slate-50 hover:shadow-sm transition-all group disabled:opacity-60 disabled:cursor-wait">
           <span class="material-symbols-outlined text-on-secondary-container">download</span>
           <span class="font-label-bold text-label-bold">Exportar Dados Analíticos (CSV)</span>
         </button>
         <p class="font-data-label text-[10px] text-outline text-right">Formato tabular flat otimizado para Power BI / Python</p>
+        @if (exportingCsv()) {
+          <p class="font-body-sm text-body-sm text-on-surface-variant text-right">Gerando arquivo...</p>
+        }
+        @if (exportError()) {
+          <p class="font-body-sm text-body-sm text-red-700 text-right">{{ exportError() }}</p>
+        }
       </div>
     </div>
     

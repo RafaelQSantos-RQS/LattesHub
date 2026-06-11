@@ -145,7 +145,7 @@ These items were found while comparing the wiki with the current code. Do not fi
 
 - The wiki mentions Next.js in several places, but `frontend/package.json`, `frontend/README.md`, and the root `README.md` show the current frontend is Angular 21.
 - The semantic architecture wiki describes an HNSW vector index, while `database/init.sql` currently creates an `ivfflat` index on `vetores.embedding`.
-- The root `README.md` presents the Power BI dashboard and multidimensional CSV export as project capabilities, but issues #34 and #36 are still pending for those deliverables.
+- The root `README.md` presents the Power BI dashboard as a project capability, but issue #34 is still pending for that deliverable.
 
 ## Open Issue Execution Queue
 
@@ -326,20 +326,26 @@ Batch completion handoff rule: when the last issue of the current batch is imple
     - Status note: implemented on 2026-06-11; awaiting PR/merge.
     - Verification: no footer link uses `href="#"`; GitHub opens with `target="_blank"` and `rel="noopener noreferrer"`.
 26. #52 bug(frontend): conectar botao Exportar CSV em Indicadores.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: medium-high; urgency: before BI/demo.
     - Rationale: backend CSV exists but the indicators button is visual only.
-    - Verification: button downloads `/api/v1/exportacoes/producoes.csv` and handles download failures.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: Indicators export button downloads `/api/v1/exportacoes/producoes.csv`, shows loading/error states, and frontend tests/build passed.
+    - Batch: export/BI CSV PR (with #57, #36).
 27. #57 enhancement(frontend): conectar Exportar Dados Analiticos nos resultados.
-    - Milestone: Sprint 5 - BI e Fechamento. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Status: implemented.
     - Impact: medium-high; urgency: before BI/demo.
     - Rationale: results export button is visual only and should use real CSV data.
-    - Verification: button downloads real CSV and documents whether current filters are respected.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: Explore export button downloads real CSV using current URL filters, handles failures, documents semantic-query export behavior, and frontend tests/build passed.
+    - Batch: export/BI CSV PR (with #52, #36).
 28. #36 Completar exportacao CSV dimensional para Power BI.
-    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
+    - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: implemented.
     - Impact: high; urgency: before #34.
     - Rationale: Power BI dashboard depends on stable dimensional CSVs.
-    - Verification: generated CSVs include the dimensional fields expected by the Power BI dashboard.
+    - Status note: implemented on 2026-06-11; awaiting PR/merge.
+    - Verification: `GET /api/v1/exportacoes/producoes.csv` accepts production filters, includes production/year/quadrienio-pesquisador-institution-area-Qualis dimensions plus `fato_quantidade_producoes`, backend pytest passed, and Docker smoke returned 51 filtered 2024 rows with dimensional fields.
+    - Batch: export/BI CSV PR (with #52, #57).
 29. #34 Criar dashboard Power BI com KPIs e segmentacoes.
     - Milestone: Sprint 5 - BI e Fechamento. Original due date: 2026-06-09. Status: pending/open.
     - Impact: high; urgency: after #36.
@@ -375,7 +381,9 @@ Batch completion handoff rule: when the last issue of the current batch is imple
 
 - `docker compose up -d`: start database, API, and frontend locally. The frontend container serves the production Angular build through Nginx at `http://localhost:4200/` by default.
 - `docker compose up -d --build frontend`: rebuild and restart the frontend container after frontend changes when using Docker Compose.
+- The frontend Nginx config must keep `index.html`, SPA routes, and proxied `/api/` responses non-cacheable; otherwise browser cache can make new Docker frontend builds appear only after a hard refresh. Keep long immutable cache only for hashed static assets.
 - `docker compose up -d --build backend`: rebuild and restart the FastAPI backend after code changes when using Docker Compose. The backend service copies source files into the image and does not mount the local `backend/` directory as a live volume, so Swagger/OpenAPI at `http://localhost:8000/docs` keeps showing the old contract until the backend image/container is rebuilt.
+- If `/explorar` looks empty, check the API/proxy before assuming the database lost data: `curl http://localhost:8000/api/v1/producoes/?pagina=1\&tamanho_pagina=1`, `curl http://localhost:4200/api/v1/producoes/?pagina=1\&tamanho_pagina=1`, and `docker compose logs --tail=120 backend`. With Uvicorn reload, `docker compose ps` can show the backend container as `Up` even after the child server process died during startup.
 - `docker compose --env-file .env.production -f docker-compose.prod.yml config`: validate the self-hosted production Compose configuration before deploy. Production deploy details live in `docs/deploy.md`.
 - `docker compose --profile etl up hop`: run the Apache Hop ETL job.
 - On an already-populated local volume, the full Hop workflow can fail in `pipeline_qualis` with duplicate `qualis_periodicos` keys before reaching production pipelines. For production-type smoke checks without discarding data, run the target pipeline directly with `docker compose --profile etl run --rm -e HOP_FILE_PATH=/project/metadata/pipelines/<pipeline>.hpl hop` and then verify `select tipo_producao, count(*) from producoes group by tipo_producao`.

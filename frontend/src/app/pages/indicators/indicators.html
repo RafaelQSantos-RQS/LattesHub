@@ -55,10 +55,17 @@
     <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
       <header class="flex justify-between items-center border-b border-slate-100 pb-4">
         <h2 class="font-headline-sm text-headline-sm text-primary">Publicações ao Longo do Tempo</h2>
-        <button class="font-label-bold text-label-bold text-slate-800 border border-slate-200 rounded-sm px-3 py-1 hover:bg-slate-50">
-          Exportar CSV
+        <button
+          type="button"
+          (click)="exportCsv()"
+          [disabled]="exportingCsv()"
+          class="font-label-bold text-label-bold text-slate-800 border border-slate-200 rounded-sm px-3 py-1 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-wait">
+          {{ exportingCsv() ? 'Exportando...' : 'Exportar CSV' }}
         </button>
       </header>
+      @if (exportError()) {
+        <p class="font-body-sm text-body-sm text-red-700">{{ exportError() }}</p>
+      }
       <div class="relative h-64 w-full flex items-end justify-between px-4 pb-8 pt-4">
         <!-- Faux Grid Lines -->
         <div class="absolute inset-0 flex flex-col justify-between pb-8 pointer-events-none">

@@ -1,5 +1,5 @@
 import { DecimalPipe } from '@angular/common';
-import { Component, input } from '@angular/core';
+import { Component, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 export interface SearchResult {
@@ -33,4 +33,22 @@ export interface SearchResult {
 })
 export class ResultCard {
   result = input.required<SearchResult>();
+  readonly copiedField = signal<'cite' | 'share' | null>(null);
+
+  cite() {
+    const r = this.result();
+    const text = `${r.author}. ${r.title}. ${r.year ?? 'S.d.'}.`;
+    navigator.clipboard?.writeText(text).then(() => {
+      this.copiedField.set('cite');
+      setTimeout(() => this.copiedField.set(null), 2000);
+    });
+  }
+
+  share() {
+    const url = `${window.location.origin}/producoes/${this.result().id}`;
+    navigator.clipboard?.writeText(url).then(() => {
+      this.copiedField.set('share');
+      setTimeout(() => this.copiedField.set(null), 2000);
+    });
+  }
 }

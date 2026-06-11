@@ -79,4 +79,24 @@ describe('ResearcherDetail', () => {
     expect(compiled.textContent).toContain('UNEB');
     expect(compiled.textContent).toContain('Redes neurais aplicadas a saude');
   });
+
+  it('goBack navigates to /explorar when there is no in-app navigation history', () => {
+    const router = TestBed.inject(Router);
+    const navigateSpy = vi.spyOn(router, 'navigate').mockImplementation(() => Promise.resolve(true));
+    vi.spyOn(window.history, 'state', 'get').mockReturnValue({ navigationId: 1 });
+
+    component.goBack();
+
+    expect(navigateSpy).toHaveBeenCalledWith(['/explorar']);
+  });
+
+  it('goBack calls location.back when in-app navigation exists', () => {
+    const location = TestBed.inject(Location);
+    const backSpy = vi.spyOn(location, 'back').mockImplementation(() => undefined);
+    vi.spyOn(window.history, 'state', 'get').mockReturnValue({ navigationId: 3 });
+
+    component.goBack();
+
+    expect(backSpy).toHaveBeenCalled();
+  });
 });

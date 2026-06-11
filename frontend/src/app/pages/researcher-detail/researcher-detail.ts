@@ -1,6 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResearcherArea, ResearcherProduction, ResearcherProfile, SearchService } from '../../services/search';
@@ -14,6 +14,7 @@ import { ResearcherArea, ResearcherProduction, ResearcherProfile, SearchService 
 export class ResearcherDetail {
   private readonly route = inject(ActivatedRoute);
   private readonly location = inject(Location);
+  private readonly router = inject(Router);
   private readonly searchService = inject(SearchService);
 
   readonly profile = signal<ResearcherProfile | null>(null);
@@ -48,7 +49,11 @@ export class ResearcherDetail {
   }
 
   goBack() {
-    this.location.back();
+    if (((window.history.state as { navigationId?: number })?.navigationId ?? 0) > 1) {
+      this.location.back();
+    } else {
+      this.router.navigate(['/explorar']);
+    }
   }
 
   areaLabel(area: ResearcherArea) {

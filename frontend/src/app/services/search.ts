@@ -114,6 +114,21 @@ export interface ResearcherProfile {
   producoes: ResearcherProduction[];
 }
 
+export interface ProductionDetail {
+  id: number;
+  tipo_producao: string;
+  titulo: string;
+  ano: number | null;
+  idioma: string | null;
+  natureza: string | null;
+  doi: string | null;
+  revista: string | null;
+  evento: string | null;
+  issn: string | null;
+  pesquisador_id: number;
+  pesquisador_nome: string;
+}
+
 const MIN_TEXTUAL_SEARCH_LENGTH = 2;
 const MIN_SEMANTIC_SEARCH_LENGTH = 5;
 
@@ -228,6 +243,10 @@ export class SearchService {
 
   getResearcherProfile(pesquisadorId: number) {
     return this.http.get<ResearcherProfile>(`${this.apiBaseUrl}/pesquisadores/${pesquisadorId}/producoes`);
+  }
+
+  getProduction(id: number) {
+    return this.http.get<ProductionDetail>(`${this.apiBaseUrl}/producoes/${id}`);
   }
 
   private buildFilters(pergunta: string): SearchFilters {

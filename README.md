@@ -77,9 +77,10 @@ Depois de iniciar os serviços locais, use os endereços abaixo:
 | ReDoc | `http://localhost:8000/redoc` | Documentação alternativa gerada pelo OpenAPI. |
 | API v1 | `http://localhost:8000/api/v1` | Prefixo base dos endpoints REST. |
 | Health check | `http://localhost:8000/health-check` | Verificação simples de disponibilidade da API. |
+| Dashboard BI (JupyterLab) | `http://localhost:8888/lab` | Sobe com `docker compose --profile analytics up analytics`. |
 | Banco de dados | Painel do Supabase | Acesse via dashboard em supabase.com para inspecionar tabelas. |
 
-Se `FRONTEND_PORT` ou `BACKEND_PORT` forem alterados no `.env`, ajuste as URLs acima para as portas configuradas.
+Se `FRONTEND_PORT`, `BACKEND_PORT` ou `ANALYTICS_PORT` forem alterados no `.env`, ajuste as URLs acima para as portas configuradas.
 
 ---
 
@@ -98,6 +99,30 @@ O endpoint `GET /api/v1/exportacoes/producoes.csv` gera um CSV analítico para P
 A exportação aceita os filtros `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`, os mesmos filtros principais usados na listagem de produções. Na página Explorar, o botão "Exportar Dados Analíticos (CSV)" baixa o CSV respeitando os filtros atuais da URL. Quando a busca visual vem de consulta semântica, o CSV usa o texto da busca como filtro textual (`termo`) e não reproduz a ordenação vetorial por similaridade.
 
 Na página Indicadores, o botão "Exportar CSV" baixa o dataset completo de produções.
+
+---
+
+# Dashboard BI (JupyterLab)
+
+O projeto inclui um dashboard analítico interativo em `analytics/dashboard_bi.ipynb`, disponível como serviço Docker via profile `analytics`. Ele consome o CSV gerado pelo backend e exibe KPIs, gráficos e tabelas de segmentação.
+
+**Gráficos disponíveis:** KPI cards, produções ao longo do tempo, por tipo de produção, top 10 áreas de pesquisa, distribuição Qualis (A1–C), top 10 instituições, evolução por tipo (séries temporais).
+
+**Segmentações:** configure as variáveis `FILTRO_ANO_INICIO`, `FILTRO_ANO_FIM`, `FILTRO_TIPO`, `FILTRO_PESQUISADOR`, `FILTRO_AREA` e `FILTRO_INSTITUICAO` na primeira célula do notebook e re-execute.
+
+Para subir o serviço:
+
+```bash
+docker compose --profile analytics up analytics
+```
+
+Acesse em `http://localhost:8888/lab`, abra `dashboard_bi.ipynb` e clique em **Run → Run All Cells**.
+
+Para usar com Power BI Desktop ou outra ferramenta de BI, baixe o CSV diretamente:
+
+```
+http://localhost:8000/api/v1/exportacoes/producoes.csv
+```
 
 ---
 
@@ -184,13 +209,19 @@ No Docker Compose, o Nginx do frontend encaminha `/api/` diretamente para o serv
 
 Para preparar um deploy reproduzível em VM/VPS/servidor com Docker Compose, use o guia [docs/deploy.md](docs/deploy.md). Ele cobre `.env.production`, `docker-compose.prod.yml`, carga inicial, ETL, embeddings e validação pós-deploy.
 
-Quando alterar código do backend usando Docker Compose, reconstrua a imagem para refletir as mudanças no container:
+Quando alterar código do backend e do frontend ao mesmo tempo, reconstrua ambos com um único comando:
+
+```bash
+docker compose up -d --build frontend backend
+```
+
+Para reconstruir apenas o backend:
 
 ```bash
 docker compose up -d --build backend
 ```
 
-Quando alterar código do frontend usando Docker Compose, reconstrua a imagem do frontend:
+Para reconstruir apenas o frontend:
 
 ```bash
 docker compose up -d --build frontend

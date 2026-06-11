@@ -139,6 +139,23 @@ services:
     networks:
       - latteshub_network
 
+  # Analytics - JupyterLab dashboard (profile: analytics)
+  # Acesso: http://localhost:8888
+  # Uso: docker compose --profile analytics up analytics
+  analytics:
+    build:
+      context: ./analytics
+      network: host
+    container_name: latteshub-analytics
+    profiles:
+      - analytics
+    depends_on:
+      - backend
+    ports:
+      - "${ANALYTICS_PORT:-8888}:8888"
+    networks:
+      - latteshub_network
+
 volumes:
   latteshub_pg_data:
     name: latteshub_pg_data

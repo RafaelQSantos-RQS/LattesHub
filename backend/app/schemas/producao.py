@@ -13,6 +13,16 @@ class ProducaoDetalhe(BaseModel):
     revista: Optional[str] = None
     evento: Optional[str] = None
     issn: Optional[str] = None
+    volume: Optional[str] = None
+    fasciculo: Optional[str] = None
+    pagina_inicial: Optional[str] = None
+    pagina_final: Optional[str] = None
+    pais_publicacao: Optional[str] = None
+    titulo_ingles: Optional[str] = None
+    palavras_chave: Optional[str] = None
+    coautores: Optional[str] = None
+    qualis_estrato: Optional[str] = None
+    qualis_area_avaliacao: Optional[str] = None
     pesquisador_id: int
     pesquisador_nome: str
 

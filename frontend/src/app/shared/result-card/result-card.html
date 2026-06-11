@@ -40,12 +40,6 @@
       @if (result().natureza) {
         <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ result().natureza }}</span>
       }
-      @if (result().tag) {
-        <span class="bg-teal-50 text-teal-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ result().tag }}</span>
-      }
-      @if (result().qualisAreaAvaliacao) {
-        <span class="bg-teal-50 text-teal-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ result().qualisAreaAvaliacao }}</span>
-      }
     </div>
     
     @if (result().venue) {
@@ -69,7 +63,7 @@
         {{ copiedField() === 'share' ? 'Copiado!' : 'Share' }}
       </button>
     </div>
-    <div class="text-right">
+    <div class="flex items-center gap-3">
       @if (result().citations !== undefined) {
         <span class="font-data-label text-data-label text-on-surface-variant">Citações: <span class="font-bold">{{ result().citations }}</span></span>
       }
@@ -77,9 +71,13 @@
         <span class="font-data-label text-data-label text-on-surface-variant">Similaridade: <span class="font-bold">{{ result().score | number:'1.0-1' }}%</span></span>
       }
       @if (result().relevance) {
-        <span class="mx-2 text-outline">|</span>
-        <span class="font-data-label text-data-label text-on-surface-variant">Relevância: 
+        <span class="font-data-label text-data-label text-on-surface-variant">Relevância:
           <span class="font-bold" [class.text-success-green]="result().relevance === 'Alta'" [class.text-on-tertiary-container]="result().relevance === 'Media'">{{ result().relevance }}</span>
+        </span>
+      }
+      @if (result().qualisEstrato) {
+        <span [class]="'px-2.5 py-0.5 rounded font-label-bold text-label-bold ' + qualisBadgeClass()">
+          Qualis {{ result().qualisEstrato }}
         </span>
       }
     </div>

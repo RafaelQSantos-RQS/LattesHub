@@ -16,14 +16,27 @@
         {{ error() }}
       </div>
     } @else if (production(); as p) {
-      <section class="bg-white border border-slate-200 rounded-sm p-6">
-        <p class="font-data-label text-data-label text-on-surface-variant uppercase">{{ p.tipo_producao }}</p>
-        <h1 class="font-headline-md text-headline-md text-slate-800 mt-1">{{ p.titulo }}</h1>
+      <section class="bg-white border border-slate-200 rounded-sm p-6 mb-4">
 
+        <!-- Type + Title -->
+        <p class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wide">{{ p.tipo_producao }}</p>
+        <h1 class="font-headline-md text-headline-md text-slate-800 mt-1 leading-snug">{{ p.titulo }}</h1>
+
+        @if (p.titulo_ingles) {
+          <p class="mt-1 text-body-sm text-on-surface-variant italic">{{ p.titulo_ingles }}</p>
+        }
+
+        <!-- Primary author -->
         <p class="mt-3 font-body-sm">
           <a class="text-primary font-semibold hover:underline" [routerLink]="['/pesquisadores', p.pesquisador_id]">{{ p.pesquisador_nome }}</a>
         </p>
 
+        <!-- Co-authors -->
+        @if (p.coautores) {
+          <p class="mt-1 text-body-sm text-on-surface-variant">{{ p.coautores }}</p>
+        }
+
+        <!-- Metadata chips -->
         <div class="flex flex-wrap gap-2 mt-4">
           @if (p.ano) {
             <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ p.ano }}</span>
@@ -34,20 +47,80 @@
           @if (p.natureza) {
             <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ p.natureza }}</span>
           }
-          @if (p.doi) {
-            <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">DOI: {{ p.doi }}</span>
+          @if (p.pais_publicacao) {
+            <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">{{ p.pais_publicacao }}</span>
           }
-          @if (p.issn) {
-            <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label">ISSN: {{ p.issn }}</span>
+          @if (p.qualis_estrato) {
+            <span [class]="'px-2.5 py-1 rounded-sm font-data-label text-data-label ' + qualisBadgeClass()">Qualis {{ p.qualis_estrato }}</span>
           }
         </div>
-
-        @if (venue()) {
-          <p class="mt-4 text-body-sm text-on-surface-variant">
-            <span class="font-semibold">Fonte:</span> {{ venue() }}
-          </p>
-        }
       </section>
+
+      <!-- Publication details -->
+      @if (venue() || p.volume || p.fasciculo || p.pagina_inicial || p.issn || p.doi) {
+        <section class="bg-white border border-slate-200 rounded-sm p-6 mb-4">
+          <h2 class="font-label-bold text-label-bold text-slate-800 mb-3">Detalhes da publicacao</h2>
+
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-x-8 gap-y-2 text-body-sm">
+            @if (venue()) {
+              <div>
+                <dt class="text-on-surface-variant font-semibold">Fonte</dt>
+                <dd class="text-slate-800">{{ venue() }}</dd>
+              </div>
+            }
+            @if (p.issn) {
+              <div>
+                <dt class="text-on-surface-variant font-semibold">ISSN</dt>
+                <dd class="text-slate-800">{{ p.issn }}</dd>
+              </div>
+            }
+            @if (p.volume) {
+              <div>
+                <dt class="text-on-surface-variant font-semibold">Volume</dt>
+                <dd class="text-slate-800">{{ p.volume }}</dd>
+              </div>
+            }
+            @if (p.fasciculo) {
+              <div>
+                <dt class="text-on-surface-variant font-semibold">Fascículo</dt>
+                <dd class="text-slate-800">{{ p.fasciculo }}</dd>
+              </div>
+            }
+            @if (p.pagina_inicial || p.pagina_final) {
+              <div>
+                <dt class="text-on-surface-variant font-semibold">Páginas</dt>
+                <dd class="text-slate-800">
+                  @if (p.pagina_inicial && p.pagina_final) {
+                    {{ p.pagina_inicial }}–{{ p.pagina_final }}
+                  } @else {
+                    {{ p.pagina_inicial || p.pagina_final }}
+                  }
+                </dd>
+              </div>
+            }
+            @if (p.doi && p.doi !== 'NÃO INFORMADO') {
+              <div class="sm:col-span-2">
+                <dt class="text-on-surface-variant font-semibold">DOI</dt>
+                <dd class="text-slate-800 break-all">
+                  <a class="text-primary hover:underline" href="https://doi.org/{{ p.doi }}" target="_blank" rel="noopener noreferrer">{{ p.doi }}</a>
+                </dd>
+              </div>
+            }
+          </dl>
+        </section>
+      }
+
+      <!-- Keywords -->
+      @if (keywords().length > 0) {
+        <section class="bg-white border border-slate-200 rounded-sm p-6">
+          <h2 class="font-label-bold text-label-bold text-slate-800 mb-3">Palavras-chave</h2>
+          <div class="flex flex-wrap gap-2">
+            @for (kw of keywords(); track kw) {
+              <span class="bg-teal-50 text-teal-800 px-3 py-1 rounded-full font-data-label text-data-label">{{ kw }}</span>
+            }
+          </div>
+        </section>
+      }
     }
   </main>
 </div>

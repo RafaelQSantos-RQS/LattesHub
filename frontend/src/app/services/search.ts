@@ -54,6 +54,8 @@ interface ProducaoApiResult {
   evento: string | null;
   pesquisador_id: number;
   pesquisador_nome: string;
+  qualis_estrato: string | null;
+  qualis_area_avaliacao: string | null;
 }
 
 interface ProducaoListApiResponse {
@@ -125,6 +127,16 @@ export interface ProductionDetail {
   revista: string | null;
   evento: string | null;
   issn: string | null;
+  volume: string | null;
+  fasciculo: string | null;
+  pagina_inicial: string | null;
+  pagina_final: string | null;
+  pais_publicacao: string | null;
+  titulo_ingles: string | null;
+  palavras_chave: string | null;
+  coautores: string | null;
+  qualis_estrato: string | null;
+  qualis_area_avaliacao: string | null;
   pesquisador_id: number;
   pesquisador_nome: string;
 }
@@ -348,6 +360,9 @@ export class SearchService {
       productionType: result.tipo_producao,
       venue: result.revista || result.evento || undefined,
       natureza: result.natureza || undefined,
+      qualisEstrato: result.qualis_estrato ?? null,
+      qualisAreaAvaliacao: result.qualis_area_avaliacao ?? null,
+      tag: result.qualis_estrato ? `Qualis ${result.qualis_estrato}` : undefined,
     };
   }
 

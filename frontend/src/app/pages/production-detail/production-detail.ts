@@ -23,7 +23,15 @@ export class ProductionDetail {
 
   readonly venue = computed(() => {
     const p = this.production();
-    return p?.revista || p?.evento || null;
+    if (!p) return null;
+    const v = p.revista || p.evento || null;
+    return v === 'NÃO INFORMADO' ? null : v;
+  });
+
+  readonly keywords = computed(() => {
+    const pk = this.production()?.palavras_chave;
+    if (!pk) return [];
+    return pk.split(';').map(k => k.trim()).filter(Boolean);
   });
 
   constructor() {

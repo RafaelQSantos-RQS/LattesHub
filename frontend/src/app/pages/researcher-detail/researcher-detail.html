@@ -69,14 +69,17 @@
         } @else {
           <div class="flex flex-col gap-2">
             @for (production of productions(); track production.id) {
-              <article class="bg-white border border-slate-200 rounded-sm p-5">
+              <article class="bg-white border border-slate-200 rounded-sm p-5 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
                 <div class="flex flex-col md:flex-row md:items-start md:justify-between gap-3">
                   <div>
-                    <h3 class="font-headline-sm text-slate-800">{{ production.titulo }}</h3>
+                    <a [routerLink]="['/producoes', production.id]"
+                       class="font-headline-sm text-slate-800 hover:text-primary hover:underline transition-colors">
+                      {{ production.titulo }}
+                    </a>
                     <p class="text-body-sm text-on-surface-variant mt-2">{{ productionSource(production) }}</p>
                   </div>
                   @if (production.ano) {
-                    <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label self-start">{{ production.ano }}</span>
+                    <span class="bg-slate-100 text-slate-800 px-2 py-1 rounded-sm font-data-label text-data-label self-start shrink-0">{{ production.ano }}</span>
                   }
                 </div>
 

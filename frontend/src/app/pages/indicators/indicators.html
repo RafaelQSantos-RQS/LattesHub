@@ -138,22 +138,84 @@
       </div>
     </section>
 
-    <!-- World Map Section (#53: no real data — clear empty state) -->
-    <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-      <header class="flex justify-between items-center border-b border-slate-100 pb-4">
-        <div class="flex flex-col">
-          <h2 class="font-headline-sm text-headline-sm text-primary">Colaborações Internacionais</h2>
-          <p class="font-body-sm text-body-sm text-on-surface-variant">Coautorias mapeadas por país de afiliação.</p>
-        </div>
-        <span class="px-3 py-1 rounded-full bg-amber-50 border border-amber-200 font-data-label text-data-label text-amber-700">Em desenvolvimento</span>
-      </header>
-      <div class="w-full h-64 bg-slate-50 border border-dashed border-slate-300 rounded-sm flex flex-col items-center justify-center gap-4 text-center px-8">
-        <span class="material-symbols-outlined text-[48px] text-slate-300">public</span>
-        <div class="flex flex-col gap-1">
-          <p class="font-body-md text-body-md text-on-surface-variant">Dados de colaboração internacional não disponíveis nesta versão.</p>
-          <p class="font-body-sm text-body-sm text-slate-400">A extração de coautorias por país de afiliação está planejada para uma versão futura. Use o CSV analítico para análise de coautorias disponíveis.</p>
-        </div>
+    <!-- Charts Section 2: Tipo + Qualis -->
+    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <!-- Bar Chart: Produções por Tipo -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <header class="border-b border-slate-100 pb-4">
+          <h2 class="font-headline-sm text-headline-sm text-primary">Produções por Tipo</h2>
+        </header>
+        @if (resumo()!.por_tipo.length === 0) {
+          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+            Nenhum dado de tipo disponível.
+          </div>
+        } @else {
+          <div class="flex flex-col justify-around h-52 gap-2">
+            @for (item of resumo()!.por_tipo; track item.tipo) {
+              <div class="flex items-center gap-4">
+                <span class="font-body-sm text-body-sm w-40 truncate shrink-0" [title]="item.tipo">{{ item.tipo }}</span>
+                <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
+                  <div class="absolute top-0 left-0 h-full bg-slate-800 rounded-sm transition-all" [style.width]="tipoBarWidthPct(item.total)"></div>
+                </div>
+                <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">{{ formatCount(item.total) }}</span>
+              </div>
+            }
+          </div>
+        }
       </div>
+
+      <!-- Bar Chart: Distribuição Qualis -->
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <header class="border-b border-slate-100 pb-4">
+          <h2 class="font-headline-sm text-headline-sm text-primary">Distribuição Qualis</h2>
+        </header>
+        @if (resumo()!.qualis_distribuicao.length === 0) {
+          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+            Nenhum dado Qualis disponível.
+          </div>
+        } @else {
+          <div class="flex items-end gap-2 h-52 pb-6 relative">
+            @for (item of resumo()!.qualis_distribuicao; track item.estrato) {
+              <div class="flex-1 flex flex-col items-center justify-end gap-1 h-full group/bar">
+                <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
+                  {{ formatCount(item.total) }}
+                </span>
+                <div
+                  class="w-full rounded-t-sm transition-all"
+                  [style.height]="qualisBarHeightPct(item.total)"
+                  [style.background-color]="qualisColor(item.estrato)"
+                  [title]="item.estrato + ': ' + item.total">
+                </div>
+                <span class="font-data-label text-data-label text-slate-400 text-[10px]">{{ item.estrato }}</span>
+              </div>
+            }
+          </div>
+        }
+      </div>
+    </section>
+
+    <!-- Chart: Top Instituições (full width) -->
+    <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+      <header class="border-b border-slate-100 pb-4">
+        <h2 class="font-headline-sm text-headline-sm text-primary">Top Instituições</h2>
+      </header>
+      @if (resumo()!.top_instituicoes.length === 0) {
+        <div class="flex items-center justify-center h-24 text-on-surface-variant font-body-sm text-body-sm">
+          Nenhuma instituição encontrada.
+        </div>
+      } @else {
+        <div class="flex flex-col gap-3">
+          @for (inst of resumo()!.top_instituicoes; track inst.instituicao) {
+            <div class="flex items-center gap-4">
+              <span class="font-body-sm text-body-sm w-64 truncate shrink-0" [title]="inst.instituicao">{{ inst.instituicao }}</span>
+              <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
+                <div class="absolute top-0 left-0 h-full bg-data-teal rounded-sm transition-all" [style.width]="instBarWidthPct(inst.total)"></div>
+              </div>
+              <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">{{ formatCount(inst.total) }}</span>
+            </div>
+          }
+        </div>
+      }
     </section>
   }
 </div>

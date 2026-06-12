@@ -18,6 +18,19 @@ const MOCK_RESUMO: IndicadoresResumo = {
     { area: 'Ciências Exatas', total: 80 },
     { area: 'Engenharias', total: 50 },
   ],
+  por_tipo: [
+    { tipo: 'ARTIGO PUBLICADO', total: 100 },
+    { tipo: 'TRABALHO EM EVENTOS', total: 50 },
+  ],
+  qualis_distribuicao: [
+    { estrato: 'A1', total: 20 },
+    { estrato: 'B1', total: 40 },
+    { estrato: 'Sem Qualis', total: 90 },
+  ],
+  top_instituicoes: [
+    { instituicao: 'UFBA', total: 120 },
+    { instituicao: 'UFRJ', total: 30 },
+  ],
 };
 
 describe('Indicators', () => {
@@ -98,6 +111,28 @@ describe('Indicators', () => {
     expect(component.formatCount(500)).toBe('500');
     expect(component.formatCount(1500)).toBe('1.5k');
     expect(component.formatCount(2_000_000)).toBe('2.0M');
+  });
+
+  it('computes tipoBarWidthPct relative to max type total', () => {
+    expect(component.tipoBarWidthPct(100)).toBe('100%');
+    expect(component.tipoBarWidthPct(50)).toBe('50%');
+  });
+
+  it('computes qualisBarHeightPct relative to max qualis total', () => {
+    expect(component.qualisBarHeightPct(90)).toBe('100%');
+    expect(component.qualisBarHeightPct(45)).toBe('50%');
+  });
+
+  it('qualisColor returns correct color for known strata and fallback for unknown', () => {
+    expect(component.qualisColor('A1')).toBe('#065f46');
+    expect(component.qualisColor('B1')).toBe('#1e3a8a');
+    expect(component.qualisColor('C')).toBe('#d97706');
+    expect(component.qualisColor('Sem Qualis')).toBe('#cbd5e1');
+  });
+
+  it('computes instBarWidthPct relative to max institution total', () => {
+    expect(component.instBarWidthPct(120)).toBe('100%');
+    expect(component.instBarWidthPct(60)).toBe('50%');
   });
 
   it('shortYear returns last 2 digits zero-padded', () => {

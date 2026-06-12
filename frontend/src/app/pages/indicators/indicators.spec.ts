@@ -154,11 +154,13 @@ describe('Indicators', () => {
     expect(component.instBarWidthPct(60)).toBe('50%');
   });
 
-  it('shortYear returns last 2 digits zero-padded', () => {
-    expect(component.shortYear(1999)).toBe('99');
-    expect(component.shortYear(2000)).toBe('00');
-    expect(component.shortYear(2024)).toBe('24');
-    expect(component.shortYear(2005)).toBe('05');
+  it('limits dense year labels while preserving first and last years', () => {
+    expect(component.shouldShowYearLabel(0, 8)).toBe(true);
+    expect(component.shouldShowYearLabel(7, 8)).toBe(true);
+    expect(component.shouldShowYearLabel(0, 24)).toBe(true);
+    expect(component.shouldShowYearLabel(1, 24)).toBe(false);
+    expect(component.shouldShowYearLabel(2, 24)).toBe(true);
+    expect(component.shouldShowYearLabel(23, 24)).toBe(true);
   });
 
   // ── Cross-filter toggles ────────────────────────────────────────────────

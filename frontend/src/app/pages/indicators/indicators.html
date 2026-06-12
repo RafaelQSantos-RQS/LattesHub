@@ -252,7 +252,7 @@
 
     <!-- Skeleton: charts -->
     @if (loading()) {
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
         @for (_ of [1,2,3,4]; track $index) {
           <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-4">
             <div class="h-4 w-40 bg-slate-100 rounded animate-pulse"></div>
@@ -270,10 +270,10 @@
     @if (!loading() && !loadError() && resumo()) {
 
       <!-- Row 1: Tempo + Áreas -->
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
 
         <!-- Publicações ao Longo do Tempo -->
-        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
           <header class="flex justify-between items-center border-b border-slate-100 pb-4">
             <h2 class="font-headline-sm text-headline-sm text-primary">Publicações ao Longo do Tempo</h2>
             <button
@@ -292,37 +292,43 @@
               Nenhum dado de produção por ano disponível.
             </div>
           } @else {
-            <div class="flex items-end gap-px h-60 pb-6 relative overflow-x-auto">
-              @for (ponto of resumo()!.producoes_por_ano; track ponto.ano) {
-                <div
-                  class="flex-1 min-w-[20px] flex flex-col items-center justify-end gap-1 h-full group/bar cursor-pointer"
-                  (click)="toggleAno(ponto.ano)"
-                  [title]="ponto.ano + ': ' + ponto.total + ' – clique para filtrar'">
-                  <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
-                    {{ formatCount(ponto.total) }}
-                  </span>
+            <div class="overflow-x-auto pb-2">
+              <div class="flex items-stretch gap-1 h-60 min-w-full w-max px-2">
+                @for (ponto of resumo()!.producoes_por_ano; track ponto.ano; let i = $index) {
                   <div
-                    class="w-full rounded-t-sm transition-all"
-                    [class.bg-data-teal]="!isAnoActive(ponto.ano)"
-                    [class.bg-slate-700]="isAnoActive(ponto.ano)"
-                    [class.ring-2]="isAnoActive(ponto.ano)"
-                    [class.ring-secondary]="isAnoActive(ponto.ano)"
-                    [class.group-hover\/bar:bg-slate-700]="!isAnoActive(ponto.ano)"
-                    [style.height]="chartBarHeightPct(ponto.total)">
+                    class="flex-1 min-w-[36px] flex flex-col items-center h-full group/bar cursor-pointer"
+                    (click)="toggleAno(ponto.ano)"
+                    [title]="ponto.ano + ': ' + ponto.total + ' – clique para filtrar'">
+                    <span class="h-5 font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
+                      {{ formatCount(ponto.total) }}
+                    </span>
+                    <div class="flex-1 w-full flex items-end">
+                      <div
+                        class="w-full rounded-t-sm transition-all"
+                        [class.bg-data-teal]="!isAnoActive(ponto.ano)"
+                        [class.bg-slate-700]="isAnoActive(ponto.ano)"
+                        [class.ring-2]="isAnoActive(ponto.ano)"
+                        [class.ring-secondary]="isAnoActive(ponto.ano)"
+                        [class.group-hover\/bar:bg-slate-700]="!isAnoActive(ponto.ano)"
+                        [style.height]="chartBarHeightPct(ponto.total)">
+                      </div>
+                    </div>
+                    <span class="h-5 font-data-label text-data-label text-[10px] flex items-end"
+                      [class.text-slate-400]="!isAnoActive(ponto.ano)"
+                      [class.text-secondary]="isAnoActive(ponto.ano)">
+                      @if (shouldShowYearLabel(i, resumo()!.producoes_por_ano.length)) {
+                        {{ ponto.ano }}
+                      }
+                    </span>
                   </div>
-                  <span class="font-data-label text-data-label text-[10px]"
-                    [class.text-slate-400]="!isAnoActive(ponto.ano)"
-                    [class.text-secondary]="isAnoActive(ponto.ano)">
-                    {{ shortYear(ponto.ano) }}
-                  </span>
-                </div>
-              }
+                }
+              </div>
             </div>
           }
         </div>
 
         <!-- Top Áreas de Pesquisa -->
-        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
           <header class="flex justify-between items-center border-b border-slate-100 pb-4">
             <h2 class="font-headline-sm text-headline-sm text-primary">Top Áreas de Pesquisa</h2>
             <span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Top 5</span>
@@ -364,10 +370,10 @@
       </section>
 
       <!-- Row 2: Tipo + Qualis -->
-      <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
 
         <!-- Produções por Tipo -->
-        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
           <header class="border-b border-slate-100 pb-4">
             <h2 class="font-headline-sm text-headline-sm text-primary">Produções por Tipo</h2>
           </header>
@@ -407,7 +413,7 @@
         </div>
 
         <!-- Distribuição Qualis -->
-        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
           <header class="border-b border-slate-100 pb-4">
             <h2 class="font-headline-sm text-headline-sm text-primary">Distribuição Qualis</h2>
           </header>

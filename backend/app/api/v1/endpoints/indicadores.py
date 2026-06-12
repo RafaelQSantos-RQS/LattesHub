@@ -166,6 +166,8 @@ def obter_resumo_indicadores(
 
         # ── Top áreas ───────────────────────────────────────────────────────
         if has_filters:
+            area_filter_sql = "AND ac.grande_area = %s" if grande_area else ""
+            area_params = ids_params + ([grande_area] if grande_area else [])
             cursor.execute(
                 f"""
                 SELECT ac.grande_area AS area, COUNT(DISTINCT p.id) AS total
@@ -174,11 +176,12 @@ def obter_resumo_indicadores(
                 JOIN pesquisador_areas pa ON pa.pesquisador_id = pes.id
                 JOIN areas_conhecimento ac ON ac.id = pa.area_id
                 WHERE ac.grande_area IS NOT NULL AND {in_filter}
+                {area_filter_sql}
                 GROUP BY ac.grande_area
                 ORDER BY total DESC
                 LIMIT 5;
                 """,
-                ids_params,
+                area_params,
             )
         else:
             cursor.execute("""

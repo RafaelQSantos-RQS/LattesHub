@@ -328,7 +328,9 @@ export class Indicators implements OnInit, OnDestroy {
     return String(n);
   }
 
-  shortYear(ano: number): string {
-    return String(ano % 100).padStart(2, '0');
+  shouldShowYearLabel(index: number, total: number): boolean {
+    if (total <= 12) return true;
+    const step = Math.ceil(total / 12);
+    return index === 0 || index === total - 1 || index % step === 0;
   }
 }

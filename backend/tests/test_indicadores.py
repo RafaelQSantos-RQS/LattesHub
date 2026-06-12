@@ -39,3 +39,53 @@ def test_resumo_indicadores_top_areas_tem_area_e_total(client, issue30_data):
         assert "total" in item
         assert isinstance(item["total"], int)
         assert item["total"] > 0
+
+
+def test_resumo_indicadores_top_areas_respeita_filtro_grande_area(
+    client,
+    db_conn,
+    issue30_data,
+):
+    outra_area = f"{issue30_data['prefix']} Ciencias Humanas"
+
+    with db_conn.cursor() as cursor:
+        cursor.execute(
+            """
+            INSERT INTO areas_conhecimento (grande_area, area, sub_area, especialidade)
+            VALUES (%s, 'Educacao', 'Avaliacao', NULL)
+            RETURNING id;
+            """,
+            (outra_area,),
+        )
+        outra_area_id = cursor.fetchone()[0]
+        cursor.execute(
+            """
+            INSERT INTO pesquisador_areas (pesquisador_id, area_id)
+            VALUES (%s, %s);
+            """,
+            (issue30_data["pesquisador"]["id"], outra_area_id),
+        )
+    db_conn.commit()
+
+    try:
+        response = client.get(
+            "/api/v1/indicadores/resumo",
+            params={"grande_area": issue30_data["area"]["grande_area"]},
+        )
+
+        assert response.status_code == 200
+        body = response.json()
+        assert body["top_areas"] == [
+            {"area": issue30_data["area"]["grande_area"], "total": 2}
+        ]
+    finally:
+        with db_conn.cursor() as cursor:
+            cursor.execute(
+                "DELETE FROM pesquisador_areas WHERE area_id = %s;",
+                (outra_area_id,),
+            )
+            cursor.execute(
+                "DELETE FROM areas_conhecimento WHERE id = %s;",
+                (outra_area_id,),
+            )
+        db_conn.commit()

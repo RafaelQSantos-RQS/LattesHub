@@ -16,8 +16,9 @@ O projeto realiza:
 * Busca textual com PostgreSQL Full-Text Search;
 * Busca semântica com pgvector + embeddings;
 * API REST com FastAPI;
-* Interface web em Angular;
-* Exportação CSV para Power BI.
+* Interface web em Angular com múltiplas páginas (explorar, indicadores, agente, sobre);
+* Agente de IA conversacional baseado na base de dados;
+* Exportação CSV para Power BI e ferramentas analíticas.
 
 ---
 
@@ -32,9 +33,9 @@ Supabase (PostgreSQL + pgvector)
     ↓
 FastAPI + OpenAI embeddings
     ↓
-Angular Front-end
+Angular Front-end (SPA)
     ↓
-Power BI
+Power BI / CSV export
 ```
 
 ---
@@ -48,21 +49,37 @@ Power BI
 | Banco Vetorial   | pgvector (via Supabase) |
 | Back-end         | Python + FastAPI        |
 | IA / Embeddings  | OpenAI + pgvector       |
-| Front-end        | Angular + TailwindCSS   |
+| Front-end        | Angular + SCSS          |
 | ETL              | Apache Hop              |
-| BI               | Power BI                |
+| BI               | Power BI / CSV          |
 
 ---
 
 # Funcionalidades
 
-* Busca textual por títulos científicos;
-* Busca semântica utilizando IA;
+* Busca textual por títulos científicos (Full-Text Search);
+* Busca semântica utilizando IA (pgvector + OpenAI);
+* Agente conversacional de IA para perguntas sobre a base de dados (`/agente`);
+* Painel de indicadores interativo com filtros por período, tipo, grande área, instituição e Qualis (`/indicadores`);
+* Página de exploração de produções e pesquisadores com filtros facetados (`/explorar`);
+* Páginas de detalhe de produção (`/producoes/:id`) e pesquisador (`/pesquisadores/:id`);
 * Indexação vetorial de produções elegíveis com título, tipo, natureza, veículo/evento, áreas e palavras-chave;
-* API REST desacoplada;
-* Dashboard analítico via Power BI;
-* Pipeline ETL automatizado;
-* Exportação CSV multidimensional.
+* API REST desacoplada e documentada via Swagger/ReDoc;
+* Exportação CSV multidimensional para Power BI.
+
+---
+
+# Páginas do Frontend
+
+| Rota                   | Descrição                                                                      |
+| ---------------------- | ------------------------------------------------------------------------------ |
+| `/`                    | Home com estatísticas reais do banco e barra de busca.                         |
+| `/explorar`            | Busca avançada com filtros, abas (tudo/pesquisadores/artigos/eventos) e paginação. |
+| `/producoes/:id`       | Detalhe completo de uma produção científica.                                   |
+| `/pesquisadores/:id`   | Perfil do pesquisador com suas produções.                                      |
+| `/indicadores`         | Painel analítico com KPIs, gráficos e filtros combinados.                      |
+| `/agente`              | Agente de IA conversacional para consultas em linguagem natural.               |
+| `/sobre`               | Informações sobre o projeto e a equipe.                                        |
 
 ---
 
@@ -84,13 +101,60 @@ Se `FRONTEND_PORT`, `BACKEND_PORT` ou `ANALYTICS_PORT` forem alterados no `.env`
 
 ---
 
+# Deploy em Produção (Render + Supabase)
+
+O projeto está implantado publicamente na plataforma **Render** (frontend + backend) com banco de dados gerenciado no **Supabase**.
+
+| Serviço | URL pública |
+| ------- | ----------- |
+| **Frontend** | https://latteshub-frontend.onrender.com |
+| **Backend (API)** | Servido internamente — acessado pelo frontend via `/api/v1` |
+| **Banco de dados** | Supabase (PostgreSQL + pgvector) |
+
+**Páginas disponíveis em produção:**
+
+| Página | URL |
+| ------ | --- |
+| Home | https://latteshub-frontend.onrender.com/ |
+| Explorar | https://latteshub-frontend.onrender.com/explorar |
+| Indicadores | https://latteshub-frontend.onrender.com/indicadores |
+| Agente IA | https://latteshub-frontend.onrender.com/agente |
+| Sobre | https://latteshub-frontend.onrender.com/sobre |
+
+> [!NOTE]
+> O Render utiliza serviços gratuitos ("Free tier") que entram em modo de hibernação após inatividade. A primeira requisição pode levar até 60 segundos para o serviço acordar.
+
+### Variáveis de ambiente necessárias no Render
+
+Configure as seguintes variáveis de ambiente nos serviços do Render:
+
+**Backend (Web Service):**
+
+| Variável | Descrição |
+| --- | --- |
+| `DATABASE_URL` | Connection string do Supabase (Session Pooler, porta 5432) |
+| `DB_SSLMODE` | `require` |
+| `OPENAI_API_KEY` | Chave válida da OpenAI |
+| `APP_ENV` | `production` |
+| `BACKEND_CORS_ORIGINS` | `https://latteshub-frontend.onrender.com` |
+
+**Frontend (Static Site ou Web Service com Nginx):**
+
+| Variável | Descrição |
+| --- | --- |
+| `BACKEND_URL` | URL interna do backend no Render (ex: `http://latteshub-backend:8000`) |
+
+Para instruções detalhadas de deploy com Docker Compose em servidor próprio (VM/VPS), consulte [docs/deploy.md](docs/deploy.md).
+
+---
+
 # Busca e filtros
 
 Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v1/producoes` aceita filtros combinados por `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id`, `areas` e `qualis_estrato`. O endpoint `POST /api/v1/busca/semantica` preserva `ano` como filtro exato, também aceita `ano_inicio`/`ano_fim` para intervalo e aplica `qualis_estrato`, incluindo `Sem Qualis` para publicações sem correspondência Qualis.
 
 Os tipos de produção exibidos no frontend são carregados dinamicamente de `GET /api/v1/producoes/tipos`, refletindo os tipos reais presentes no banco. As abas da página Explorar usam `categoria` na URL: `tudo` lista produções, `pesquisadores` lista pesquisadores, `artigos` filtra `ARTIGO PUBLICADO` e `eventos` filtra `TRABALHO EM EVENTOS`.
 
-O Painel de Indicadores consome `GET /api/v1/indicadores/resumo` e permite combinar filtros por período, tipo de produção e múltiplas seleções de grande área, instituição e Qualis; esses filtros são enviados como parâmetros repetidos na query e recalculam KPIs e gráficos.
+O Painel de Indicadores (`/indicadores`) consome `GET /api/v1/indicadores/resumo` e permite combinar filtros por período, tipo de produção e múltiplas seleções de grande área, instituição e Qualis; esses filtros são enviados como parâmetros repetidos na query e recalculam KPIs e gráficos dinamicamente.
 
 ---
 

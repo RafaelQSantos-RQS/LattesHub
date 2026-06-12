@@ -1,10 +1,54 @@
 # Deploy do LattesHub
 
-Este guia prepara um deploy reproduzivel do LattesHub usando Docker Compose em uma VM, VPS ou servidor institucional. Ele cobre frontend Angular, backend FastAPI, PostgreSQL com pgvector, ETL Apache Hop e embeddings.
+Este guia documenta as estratégias de deploy do LattesHub: a atual (Render + Supabase) e a alternativa self-hosted com Docker Compose.
 
-## Estrategia escolhida
+---
 
-A estrategia principal desta etapa e um deploy self-hosted com Docker Compose:
+## Estratégia atual: Render + Supabase (recomendada)
+
+O deploy em produção utiliza serviços gerenciados:
+
+```text
+Internet
+  -> Frontend (Render Web Service / Static Site)
+  -> /api/ encaminhado para Backend (Render Web Service)
+  -> Supabase (PostgreSQL + pgvector — banco gerenciado)
+```
+
+**URLs públicas:**
+
+| Serviço | URL |
+| ------- | --- |
+| Frontend | https://latteshub-frontend.onrender.com |
+| Indicadores | https://latteshub-frontend.onrender.com/indicadores |
+| Agente IA | https://latteshub-frontend.onrender.com/agente |
+| Explorar | https://latteshub-frontend.onrender.com/explorar |
+
+> **Nota:** O plano gratuito do Render hiberna após inatividade. A primeira requisição pode levar ~60s.
+
+### Variáveis de ambiente no Render
+
+**Backend (Web Service):**
+
+| Variável | Valor |
+| --- | --- |
+| `DATABASE_URL` | Connection string do Supabase (Session Pooler, porta 5432) |
+| `DB_SSLMODE` | `require` |
+| `OPENAI_API_KEY` | Chave válida da OpenAI |
+| `APP_ENV` | `production` |
+| `BACKEND_CORS_ORIGINS` | `https://latteshub-frontend.onrender.com` |
+
+**Frontend (Web Service com Nginx):**
+
+| Variável | Valor |
+| --- | --- |
+| `BACKEND_URL` | URL interna do backend no Render |
+
+---
+
+## Estratégia alternativa: Self-hosted com Docker Compose
+
+Esta estratégia mantém o deploy em uma VM, VPS ou servidor institucional com Docker Compose.
 
 ```text
 Internet
@@ -20,7 +64,7 @@ Tradeoffs:
 * Evita expor o banco de dados publicamente por padrao.
 * Permite rodar ETL e embeddings no mesmo host quando necessario.
 * Exige que a equipe cuide de backup, TLS, firewall, atualizacao do host e observabilidade.
-* Nao substitui uma arquitetura gerenciada em Supabase/Vercel/servicos equivalentes, que sera avaliada na issue #72.
+
 
 ## Pre-requisitos
 

@@ -28,9 +28,9 @@
   
   <!-- Bento-style Quick Access -->
   <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-24 w-full">
-    <app-stats-card icon="dataset" title="Grandes Números" value="7.2M+" description="Produções e perfis globais indexados."></app-stats-card>
-    <app-stats-card icon="hub" title="Conexões" value="245k" description="Conexões internacionais mapeadas."></app-stats-card>
-    <app-stats-card icon="account_balance" title="Instituições" value="1.8k" description="Centros de excelência em todo o mundo."></app-stats-card>
+    <app-stats-card icon="dataset" title="Produções Científicas" [value]="totalProducoes()" description="Artigos, eventos, livros e capítulos indexados."></app-stats-card>
+    <app-stats-card icon="group" title="Pesquisadores" [value]="totalPesquisadores()" description="Cientistas com currículo Lattes integrado."></app-stats-card>
+    <app-stats-card icon="account_balance" title="Instituições" [value]="totalInstituicoes()" description="Centros de ensino e pesquisa mapeados."></app-stats-card>
   </div>
 </div>
 </div>

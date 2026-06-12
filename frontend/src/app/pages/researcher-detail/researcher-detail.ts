@@ -1,14 +1,12 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { RouterLink } from '@angular/router';
-import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResearcherArea, ResearcherProduction, ResearcherProfile, SearchService } from '../../services/search';
 
 @Component({
   selector: 'app-researcher-detail',
-  imports: [Sidebar, RouterLink],
+  imports: [RouterLink],
   templateUrl: './researcher-detail.html',
   styleUrl: './researcher-detail.scss',
 })

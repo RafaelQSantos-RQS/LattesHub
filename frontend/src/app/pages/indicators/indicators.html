@@ -71,14 +71,26 @@
         <div class="h-8 bg-slate-100 rounded-sm animate-pulse"></div>
       } @else {
         <select
-          [value]="grandeArea() ?? ''"
-          (change)="setGrandeArea($any($event.target).value)"
+          value=""
+          (change)="addGrandeArea($any($event.target).value); $any($event.target).value = ''"
           class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
-          <option value="">Todas as áreas</option>
+          <option value="">Adicionar área</option>
           @for (area of filtroOpcoes()?.grandes_areas ?? []; track area) {
-            <option [value]="area">{{ area }}</option>
+            <option [value]="area" [disabled]="grandeArea().includes(area)">{{ area }}</option>
           }
         </select>
+        @if (grandeArea().length > 0) {
+          <div class="flex flex-wrap gap-1.5">
+            @for (area of grandeArea(); track area) {
+              <span class="bg-slate-100 px-2.5 py-1 rounded-sm text-slate-800 flex items-center gap-1.5 font-data-label text-data-label">
+                <span class="truncate max-w-[190px]" [title]="area">{{ area }}</span>
+                <button type="button" (click)="removeGrandeArea(area)" class="text-slate-500 hover:text-slate-900 leading-none">
+                  x
+                </button>
+              </span>
+            }
+          </div>
+        }
       }
     </section>
 
@@ -108,14 +120,26 @@
         Qualis
       </span>
       <select
-        [value]="qualis() ?? ''"
-        (change)="setQualis($any($event.target).value)"
+        value=""
+        (change)="addQualis($any($event.target).value); $any($event.target).value = ''"
         class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
-        <option value="">Todos os estratos</option>
+        <option value="">Adicionar estrato</option>
         @for (e of ['A1','A2','A3','A4','B1','B2','B3','B4','C','Sem Qualis']; track e) {
-          <option [value]="e">{{ e }}</option>
+          <option [value]="e" [disabled]="qualis().includes(e)">{{ e }}</option>
         }
       </select>
+      @if (qualis().length > 0) {
+        <div class="flex flex-wrap gap-1.5">
+          @for (estrato of qualis(); track estrato) {
+            <span class="bg-slate-100 px-2.5 py-1 rounded-sm text-slate-800 flex items-center gap-1.5 font-data-label text-data-label">
+              {{ estrato }}
+              <button type="button" (click)="removeQualis(estrato)" class="text-slate-500 hover:text-slate-900 leading-none">
+                x
+              </button>
+            </span>
+          }
+        </div>
+      }
     </section>
 
     <!-- Instituição -->
@@ -127,14 +151,26 @@
         <div class="h-8 bg-slate-100 rounded-sm animate-pulse"></div>
       } @else {
         <select
-          [value]="instituicao() ?? ''"
-          (change)="setInstituicao($any($event.target).value)"
+          value=""
+          (change)="addInstituicao($any($event.target).value); $any($event.target).value = ''"
           class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
-          <option value="">Todas as instituições</option>
+          <option value="">Adicionar instituição</option>
           @for (inst of filtroOpcoes()?.instituicoes ?? []; track inst) {
-            <option [value]="inst">{{ inst }}</option>
+            <option [value]="inst" [disabled]="instituicao().includes(inst)">{{ inst }}</option>
           }
         </select>
+        @if (instituicao().length > 0) {
+          <div class="flex flex-wrap gap-1.5">
+            @for (inst of instituicao(); track inst) {
+              <span class="bg-slate-100 px-2.5 py-1 rounded-sm text-slate-800 flex items-center gap-1.5 font-data-label text-data-label">
+                <span class="truncate max-w-[190px]" [title]="inst">{{ inst }}</span>
+                <button type="button" (click)="removeInstituicao(inst)" class="text-slate-500 hover:text-slate-900 leading-none">
+                  x
+                </button>
+              </span>
+            }
+          </div>
+        }
       }
     </section>
   </aside>
@@ -157,7 +193,6 @@
         type="button"
         (click)="sidebarOpen.set(true)"
         class="md:hidden flex items-center gap-2 border border-slate-200 rounded-sm px-3 py-2 font-label-bold text-label-bold text-slate-800 shrink-0 hover:bg-slate-50">
-        <span class="material-symbols-outlined text-[18px]">filter_list</span>
         Filtros
         @if (hasActiveFilters()) {
           <span class="bg-secondary text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
@@ -170,7 +205,6 @@
     <!-- Error state -->
     @if (loadError()) {
       <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-sm text-red-700">
-        <span class="material-symbols-outlined text-[20px]">error</span>
         <span class="font-body-md text-body-md">Não foi possível carregar os indicadores. Verifique a conexão com o backend.</span>
       </div>
     }
@@ -191,39 +225,27 @@
       <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <!-- KPI: Total Produções -->
         <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-          <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-            <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">article</span>
-          </div>
           <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Total de Produções</span>
           <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_producoes) }}</span>
           <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-            <span class="material-symbols-outlined text-[16px]">library_books</span>
             <span>Artigos, eventos, livros e capítulos</span>
           </div>
         </div>
 
         <!-- KPI: Pesquisadores -->
         <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-          <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-            <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">group</span>
-          </div>
           <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Pesquisadores</span>
           <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_pesquisadores) }}</span>
           <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-            <span class="material-symbols-outlined text-[16px]">school</span>
             <span>Com currículo Lattes importado</span>
           </div>
         </div>
 
         <!-- KPI: Média -->
         <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-          <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-            <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
-          </div>
           <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Produções / Pesquisador</span>
           <span class="font-headline-md text-headline-md text-primary relative z-10">{{ mediaProducoes }}</span>
           <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-            <span class="material-symbols-outlined text-[16px]">functions</span>
             <span>Média por pesquisador cadastrado</span>
           </div>
         </div>
@@ -233,11 +255,11 @@
     <!-- Active filter chips -->
     @if (hasActiveFilters()) {
       <div class="flex flex-wrap items-center gap-2 -mt-2">
-        @for (chip of activeChips(); track chip.key) {
+        @for (chip of activeChips(); track chip.key + ':' + (chip.value ?? '')) {
           <span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-full px-3 py-1 font-label-bold text-label-bold">
             {{ chip.label }}
             <button type="button" (click)="removeChip(chip)" class="hover:text-primary transition-colors leading-none">
-              <span class="material-symbols-outlined text-[14px]">close</span>
+              x
             </button>
           </span>
         }
@@ -346,16 +368,16 @@
                   [title]="area.area + ' – clique para filtrar'">
                   <span
                     class="font-body-sm text-body-sm w-36 truncate transition-colors"
-                    [class.text-secondary]="grandeArea() === area.area"
-                    [class.font-bold]="grandeArea() === area.area"
+                    [class.text-secondary]="grandeArea().includes(area.area)"
+                    [class.font-bold]="grandeArea().includes(area.area)"
                     [title]="area.area">
                     {{ area.area }}
                   </span>
                   <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
                     <div
                       class="absolute top-0 left-0 h-full rounded-sm transition-all"
-                      [class.bg-slate-800]="grandeArea() !== area.area"
-                      [class.bg-secondary]="grandeArea() === area.area"
+                      [class.bg-slate-800]="!grandeArea().includes(area.area)"
+                      [class.bg-secondary]="grandeArea().includes(area.area)"
                       [style.width]="areaBarWidthPct(area.total)">
                     </div>
                   </div>
@@ -433,18 +455,18 @@
                   </span>
                   <div
                     class="w-full rounded-t-sm transition-all"
-                    [class.opacity-40]="qualis() !== null && qualis() !== item.estrato"
-                    [class.ring-2]="qualis() === item.estrato"
-                    [class.ring-offset-1]="qualis() === item.estrato"
+                    [class.opacity-40]="qualis().length > 0 && !qualis().includes(item.estrato)"
+                    [class.ring-2]="qualis().includes(item.estrato)"
+                    [class.ring-offset-1]="qualis().includes(item.estrato)"
                     [style.height]="qualisBarHeightPct(item.total)"
                     [style.background-color]="qualisColor(item.estrato)"
                     [style.ring-color]="qualisColor(item.estrato)">
                   </div>
                   <span
                     class="font-data-label text-data-label text-[10px] transition-colors"
-                    [class.text-slate-400]="qualis() !== item.estrato"
-                    [class.font-bold]="qualis() === item.estrato"
-                    [class.text-slate-800]="qualis() === item.estrato">
+                    [class.text-slate-400]="!qualis().includes(item.estrato)"
+                    [class.font-bold]="qualis().includes(item.estrato)"
+                    [class.text-slate-800]="qualis().includes(item.estrato)">
                     {{ item.estrato }}
                   </span>
                 </div>
@@ -472,16 +494,16 @@
                 [title]="inst.instituicao + ' – clique para filtrar'">
                 <span
                   class="font-body-sm text-body-sm w-64 truncate shrink-0 transition-colors"
-                  [class.text-secondary]="instituicao() === inst.instituicao"
-                  [class.font-bold]="instituicao() === inst.instituicao"
+                  [class.text-secondary]="instituicao().includes(inst.instituicao)"
+                  [class.font-bold]="instituicao().includes(inst.instituicao)"
                   [title]="inst.instituicao">
                   {{ inst.instituicao }}
                 </span>
                 <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
                   <div
                     class="absolute top-0 left-0 h-full rounded-sm transition-all"
-                    [class.bg-data-teal]="instituicao() !== inst.instituicao"
-                    [class.bg-secondary]="instituicao() === inst.instituicao"
+                    [class.bg-data-teal]="!instituicao().includes(inst.instituicao)"
+                    [class.bg-secondary]="instituicao().includes(inst.instituicao)"
                     [style.width]="instBarWidthPct(inst.total)">
                   </div>
                 </div>

@@ -41,10 +41,10 @@ export interface IndicadoresResumo {
 export interface IndicadoresFiltros {
   anoInicio?: number;
   anoFim?: number;
-  grandeArea?: string;
-  instituicao?: string;
+  grandeArea?: string[];
+  instituicao?: string[];
   tipoProducao?: string;
-  qualis?: string;
+  qualis?: string[];
 }
 
 export interface FiltroOpcoes {
@@ -65,10 +65,10 @@ export class IndicatorsService {
     let params = new HttpParams();
     if (filtros?.anoInicio != null) params = params.set('ano_inicio', filtros.anoInicio);
     if (filtros?.anoFim != null) params = params.set('ano_fim', filtros.anoFim);
-    if (filtros?.grandeArea) params = params.set('grande_area', filtros.grandeArea);
-    if (filtros?.instituicao) params = params.set('instituicao', filtros.instituicao);
+    for (const area of filtros?.grandeArea ?? []) params = params.append('grande_area', area);
+    for (const instituicao of filtros?.instituicao ?? []) params = params.append('instituicao', instituicao);
     if (filtros?.tipoProducao) params = params.set('tipo_producao', filtros.tipoProducao);
-    if (filtros?.qualis) params = params.set('qualis', filtros.qualis);
+    for (const estrato of filtros?.qualis ?? []) params = params.append('qualis', estrato);
     return this.http.get<IndicadoresResumo>(`${this.apiBaseUrl}/indicadores/resumo`, { params });
   }
 

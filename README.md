@@ -90,6 +90,8 @@ Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v
 
 Os tipos de produção exibidos no frontend são carregados dinamicamente de `GET /api/v1/producoes/tipos`, refletindo os tipos reais presentes no banco. As abas da página Explorar usam `categoria` na URL: `tudo` lista produções, `pesquisadores` lista pesquisadores, `artigos` filtra `ARTIGO PUBLICADO` e `eventos` filtra `TRABALHO EM EVENTOS`.
 
+O Painel de Indicadores consome `GET /api/v1/indicadores/resumo` e permite combinar filtros por período, tipo de produção e múltiplas seleções de grande área, instituição e Qualis; esses filtros são enviados como parâmetros repetidos na query e recalculam KPIs e gráficos.
+
 ---
 
 # Exportações CSV e Power BI

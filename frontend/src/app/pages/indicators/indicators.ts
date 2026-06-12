@@ -12,6 +12,7 @@ import {
 interface ActiveChip {
   key: keyof IndicadoresFiltros;
   label: string;
+  value?: string;
 }
 
 @Component({
@@ -40,10 +41,10 @@ export class Indicators implements OnInit, OnDestroy {
   // ── Active filter signals ────────────────────────────────────────────────
   anoInicio = signal<number | null>(null);
   anoFim = signal<number | null>(null);
-  grandeArea = signal<string | null>(null);
-  instituicao = signal<string | null>(null);
+  grandeArea = signal<string[]>([]);
+  instituicao = signal<string[]>([]);
   tipoProducao = signal<string | null>(null);
-  qualis = signal<string | null>(null);
+  qualis = signal<string[]>([]);
 
   // ── Mobile sidebar ──────────────────────────────────────────────────────
   sidebarOpen = signal(false);
@@ -56,10 +57,16 @@ export class Indicators implements OnInit, OnDestroy {
       const to = this.anoFim() ?? '—';
       chips.push({ key: 'anoInicio', label: `Ano: ${from}–${to}` });
     }
-    if (this.grandeArea()) chips.push({ key: 'grandeArea', label: `Área: ${this.grandeArea()}` });
-    if (this.instituicao()) chips.push({ key: 'instituicao', label: `Inst.: ${this.instituicao()}` });
+    for (const area of this.grandeArea()) {
+      chips.push({ key: 'grandeArea', label: `Área: ${area}`, value: area });
+    }
+    for (const inst of this.instituicao()) {
+      chips.push({ key: 'instituicao', label: `Inst.: ${inst}`, value: inst });
+    }
     if (this.tipoProducao()) chips.push({ key: 'tipoProducao', label: `Tipo: ${this.tipoProducao()}` });
-    if (this.qualis()) chips.push({ key: 'qualis', label: `Qualis: ${this.qualis()}` });
+    for (const estrato of this.qualis()) {
+      chips.push({ key: 'qualis', label: `Qualis: ${estrato}`, value: estrato });
+    }
     return chips;
   });
 
@@ -121,10 +128,10 @@ export class Indicators implements OnInit, OnDestroy {
     const filtros: IndicadoresFiltros = {};
     if (this.anoInicio() != null) filtros.anoInicio = this.anoInicio()!;
     if (this.anoFim() != null) filtros.anoFim = this.anoFim()!;
-    if (this.grandeArea()) filtros.grandeArea = this.grandeArea()!;
-    if (this.instituicao()) filtros.instituicao = this.instituicao()!;
+    if (this.grandeArea().length) filtros.grandeArea = this.grandeArea();
+    if (this.instituicao().length) filtros.instituicao = this.instituicao();
     if (this.tipoProducao()) filtros.tipoProducao = this.tipoProducao()!;
-    if (this.qualis()) filtros.qualis = this.qualis()!;
+    if (this.qualis().length) filtros.qualis = this.qualis();
     return filtros;
   }
 
@@ -157,24 +164,63 @@ export class Indicators implements OnInit, OnDestroy {
     this.triggerReload();
   }
 
-  setGrandeArea(value: string) {
-    this.grandeArea.set(value || null);
-    this.triggerReload();
-  }
-
-  setInstituicao(value: string) {
-    this.instituicao.set(value || null);
-    this.triggerReload();
-  }
-
   setTipoProducao(value: string) {
     this.tipoProducao.set(value || null);
     this.triggerReload();
   }
 
-  setQualis(value: string) {
-    this.qualis.set(value || null);
+  addGrandeArea(value: string) {
+    const area = value.trim();
+    if (!area || this.grandeArea().includes(area)) return;
+    this.grandeArea.update((values) => [...values, area]);
     this.triggerReload();
+  }
+
+  removeGrandeArea(value: string) {
+    const next = this.grandeArea().filter((area) => area !== value);
+    if (next.length === this.grandeArea().length) return;
+    this.grandeArea.set(next);
+    this.triggerReload();
+  }
+
+  setGrandeArea(value: string) {
+    this.addGrandeArea(value);
+  }
+
+  addInstituicao(value: string) {
+    const instituicao = value.trim();
+    if (!instituicao || this.instituicao().includes(instituicao)) return;
+    this.instituicao.update((values) => [...values, instituicao]);
+    this.triggerReload();
+  }
+
+  removeInstituicao(value: string) {
+    const next = this.instituicao().filter((instituicao) => instituicao !== value);
+    if (next.length === this.instituicao().length) return;
+    this.instituicao.set(next);
+    this.triggerReload();
+  }
+
+  setInstituicao(value: string) {
+    this.addInstituicao(value);
+  }
+
+  addQualis(value: string) {
+    const estrato = value.trim();
+    if (!estrato || this.qualis().includes(estrato)) return;
+    this.qualis.update((values) => [...values, estrato]);
+    this.triggerReload();
+  }
+
+  removeQualis(value: string) {
+    const next = this.qualis().filter((estrato) => estrato !== value);
+    if (next.length === this.qualis().length) return;
+    this.qualis.set(next);
+    this.triggerReload();
+  }
+
+  setQualis(value: string) {
+    this.addQualis(value);
   }
 
   /** Cross-filter: clicking a year bar toggles that single year. */
@@ -197,20 +243,29 @@ export class Indicators implements OnInit, OnDestroy {
 
   /** Cross-filter: clicking a Qualis bar toggles that estrato. */
   toggleQualis(estrato: string) {
-    this.qualis.set(this.qualis() === estrato ? null : estrato);
-    this.triggerReload();
+    if (this.qualis().includes(estrato)) {
+      this.removeQualis(estrato);
+    } else {
+      this.addQualis(estrato);
+    }
   }
 
   /** Cross-filter: clicking a Top Área bar toggles that área. */
   toggleArea(area: string) {
-    this.grandeArea.set(this.grandeArea() === area ? null : area);
-    this.triggerReload();
+    if (this.grandeArea().includes(area)) {
+      this.removeGrandeArea(area);
+    } else {
+      this.addGrandeArea(area);
+    }
   }
 
   /** Cross-filter: clicking a Top Inst bar toggles that instituição. */
   toggleInstituicao(nome: string) {
-    this.instituicao.set(this.instituicao() === nome ? null : nome);
-    this.triggerReload();
+    if (this.instituicao().includes(nome)) {
+      this.removeInstituicao(nome);
+    } else {
+      this.addInstituicao(nome);
+    }
   }
 
   removeChip(chip: ActiveChip) {
@@ -218,13 +273,16 @@ export class Indicators implements OnInit, OnDestroy {
       this.anoInicio.set(null);
       this.anoFim.set(null);
     } else if (chip.key === 'grandeArea') {
-      this.grandeArea.set(null);
+      if (chip.value) this.removeGrandeArea(chip.value);
+      return;
     } else if (chip.key === 'instituicao') {
-      this.instituicao.set(null);
+      if (chip.value) this.removeInstituicao(chip.value);
+      return;
     } else if (chip.key === 'tipoProducao') {
       this.tipoProducao.set(null);
     } else if (chip.key === 'qualis') {
-      this.qualis.set(null);
+      if (chip.value) this.removeQualis(chip.value);
+      return;
     }
     this.triggerReload();
   }
@@ -232,10 +290,10 @@ export class Indicators implements OnInit, OnDestroy {
   clearAllFilters() {
     this.anoInicio.set(null);
     this.anoFim.set(null);
-    this.grandeArea.set(null);
-    this.instituicao.set(null);
+    this.grandeArea.set([]);
+    this.instituicao.set([]);
     this.tipoProducao.set(null);
-    this.qualis.set(null);
+    this.qualis.set([]);
     this.triggerReload();
   }
 

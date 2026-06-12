@@ -56,36 +56,41 @@ class FiltroOpcoes(BaseModel):
 def _build_ids_subquery(
     ano_inicio: Optional[int],
     ano_fim: Optional[int],
-    grande_area: Optional[str],
-    instituicao: Optional[str],
+    grande_area: Optional[list[str]],
+    instituicao: Optional[list[str]],
     tipo_producao: Optional[str],
-    qualis: Optional[str],
+    qualis: Optional[list[str]],
 ) -> tuple[str, list]:
     """Returns (sql_subquery, params) selecting DISTINCT producao IDs matching all filters."""
     joins: list[str] = []
     conditions: list[str] = []
     params: list = []
+    grande_area_values = _filled_values(grande_area)
+    instituicao_values = _filled_values(instituicao)
+    qualis_values = _filled_values(qualis)
 
-    needs_pes = bool(grande_area or instituicao)
+    needs_pes = bool(grande_area_values or instituicao_values)
 
     if needs_pes:
         joins.append("JOIN pesquisadores pes ON p.pesquisador_id = pes.id")
-    if grande_area:
+    if grande_area_values:
         joins.append("JOIN pesquisador_areas pa ON pa.pesquisador_id = pes.id")
         joins.append("JOIN areas_conhecimento ac ON ac.id = pa.area_id")
-        conditions.append("ac.grande_area = %s")
-        params.append(grande_area)
-    if instituicao:
+        conditions.append("ac.grande_area = ANY(%s)")
+        params.append(grande_area_values)
+    if instituicao_values:
         joins.append("JOIN instituicoes i ON pes.instituicao_id = i.id")
-        conditions.append("i.nome = %s")
-        params.append(instituicao)
-    if qualis == "Sem Qualis":
-        joins.append("LEFT JOIN qualis_periodicos q ON p.issn = q.issn")
-        conditions.append("q.estrato IS NULL")
-    elif qualis:
-        joins.append("JOIN qualis_periodicos q ON p.issn = q.issn")
-        conditions.append("q.estrato = %s")
-        params.append(qualis)
+        conditions.append("i.nome = ANY(%s)")
+        params.append(instituicao_values)
+    if qualis_values:
+        joins.append(
+            "LEFT JOIN qualis_periodicos q ON p.issn = q.issn"
+            if "Sem Qualis" in qualis_values
+            else "JOIN qualis_periodicos q ON p.issn = q.issn"
+        )
+        qualis_condition, qualis_params = _qualis_filter_condition("q.estrato", qualis_values)
+        conditions.append(qualis_condition)
+        params.extend(qualis_params)
     if tipo_producao:
         conditions.append("p.tipo_producao = %s")
         params.append(tipo_producao)
@@ -101,18 +106,38 @@ def _build_ids_subquery(
     return f"SELECT DISTINCT p.id FROM producoes p {joins_sql} {where_sql}", params
 
 
+def _filled_values(values: Optional[list[str]]) -> list[str]:
+    if not values:
+        return []
+    return [value.strip() for value in values if value and value.strip()]
+
+
+def _qualis_filter_condition(column: str, qualis_values: list[str]) -> tuple[str, list]:
+    include_sem_qualis = "Sem Qualis" in qualis_values
+    estratos = [value for value in qualis_values if value != "Sem Qualis"]
+
+    if include_sem_qualis and estratos:
+        return f"({column} = ANY(%s) OR {column} IS NULL)", [estratos]
+    if include_sem_qualis:
+        return f"{column} IS NULL", []
+    return f"{column} = ANY(%s)", [estratos]
+
+
 @router.get("/resumo", response_model=IndicadoresResumo)
 def obter_resumo_indicadores(
     db=Depends(get_db_connection),
     ano_inicio: Optional[int] = Query(default=None),
     ano_fim: Optional[int] = Query(default=None),
-    grande_area: Optional[str] = Query(default=None),
-    instituicao: Optional[str] = Query(default=None),
+    grande_area: Optional[list[str]] = Query(default=None),
+    instituicao: Optional[list[str]] = Query(default=None),
     tipo_producao: Optional[str] = Query(default=None),
-    qualis: Optional[str] = Query(default=None),
+    qualis: Optional[list[str]] = Query(default=None),
 ):
     try:
         cursor = db.cursor(cursor_factory=RealDictCursor)
+        grande_area = _filled_values(grande_area)
+        instituicao = _filled_values(instituicao)
+        qualis = _filled_values(qualis)
 
         has_filters = any([ano_inicio, ano_fim, grande_area, instituicao, tipo_producao, qualis])
 
@@ -166,7 +191,7 @@ def obter_resumo_indicadores(
 
         # ── Top áreas ───────────────────────────────────────────────────────
         if has_filters:
-            area_filter_sql = "AND ac.grande_area = %s" if grande_area else ""
+            area_filter_sql = "AND ac.grande_area = ANY(%s)" if grande_area else ""
             area_params = ids_params + ([grande_area] if grande_area else [])
             cursor.execute(
                 f"""
@@ -220,6 +245,12 @@ def obter_resumo_indicadores(
 
         # ── Distribuição Qualis ─────────────────────────────────────────────
         if has_filters:
+            qualis_filter_sql = ""
+            qualis_params = ids_params
+            if qualis:
+                qualis_condition, external_qualis_params = _qualis_filter_condition("q.estrato", qualis)
+                qualis_filter_sql = f"AND {qualis_condition}"
+                qualis_params = ids_params + external_qualis_params
             cursor.execute(
                 f"""
                 SELECT
@@ -228,6 +259,7 @@ def obter_resumo_indicadores(
                 FROM producoes p
                 LEFT JOIN qualis_periodicos q ON p.issn = q.issn
                 WHERE {in_filter}
+                {qualis_filter_sql}
                 GROUP BY COALESCE(q.estrato, 'Sem Qualis')
                 ORDER BY CASE COALESCE(q.estrato, 'Sem Qualis')
                     WHEN 'A1' THEN 1 WHEN 'A2' THEN 2 WHEN 'A3' THEN 3 WHEN 'A4' THEN 4
@@ -235,7 +267,7 @@ def obter_resumo_indicadores(
                     WHEN 'C'  THEN 9 ELSE 10
                 END;
                 """,
-                ids_params,
+                qualis_params,
             )
         else:
             cursor.execute("""
@@ -255,6 +287,8 @@ def obter_resumo_indicadores(
 
         # ── Top instituições ────────────────────────────────────────────────
         if has_filters:
+            instituicao_filter_sql = "AND i.nome = ANY(%s)" if instituicao else ""
+            instituicao_params = ids_params + ([instituicao] if instituicao else [])
             cursor.execute(
                 f"""
                 SELECT i.nome AS instituicao, COUNT(DISTINCT p.id) AS total
@@ -262,11 +296,12 @@ def obter_resumo_indicadores(
                 JOIN pesquisadores pes ON p.pesquisador_id = pes.id
                 JOIN instituicoes i ON pes.instituicao_id = i.id
                 WHERE {in_filter}
+                {instituicao_filter_sql}
                 GROUP BY i.nome
                 ORDER BY total DESC
                 LIMIT 5;
                 """,
-                ids_params,
+                instituicao_params,
             )
         else:
             cursor.execute("""

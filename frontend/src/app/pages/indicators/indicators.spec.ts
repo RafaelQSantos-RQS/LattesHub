@@ -185,23 +185,46 @@ describe('Indicators', () => {
 
   it('toggleQualis sets/clears qualis filter', () => {
     component.toggleQualis('A1');
-    expect(component.qualis()).toBe('A1');
+    expect(component.qualis()).toEqual(['A1']);
     component.toggleQualis('A1');
-    expect(component.qualis()).toBeNull();
+    expect(component.qualis()).toEqual([]);
   });
 
   it('toggleArea sets/clears grandeArea filter', () => {
     component.toggleArea('Engenharias');
-    expect(component.grandeArea()).toBe('Engenharias');
+    expect(component.grandeArea()).toEqual(['Engenharias']);
     component.toggleArea('Engenharias');
-    expect(component.grandeArea()).toBeNull();
+    expect(component.grandeArea()).toEqual([]);
   });
 
   it('toggleInstituicao sets/clears instituicao filter', () => {
     component.toggleInstituicao('UFBA');
-    expect(component.instituicao()).toBe('UFBA');
+    expect(component.instituicao()).toEqual(['UFBA']);
     component.toggleInstituicao('UFBA');
-    expect(component.instituicao()).toBeNull();
+    expect(component.instituicao()).toEqual([]);
+  });
+
+  it('adds and removes multiple area, qualis and institution filters', () => {
+    component.addGrandeArea('Ciências Exatas');
+    component.addGrandeArea('Engenharias');
+    component.addGrandeArea('Engenharias');
+    component.addQualis('A1');
+    component.addQualis('Sem Qualis');
+    component.addInstituicao('UFBA');
+    component.addInstituicao('UFRJ');
+
+    expect(component.grandeArea()).toEqual(['Ciências Exatas', 'Engenharias']);
+    expect(component.qualis()).toEqual(['A1', 'Sem Qualis']);
+    expect(component.instituicao()).toEqual(['UFBA', 'UFRJ']);
+    expect(component.activeChips()).toHaveLength(6);
+
+    component.removeGrandeArea('Ciências Exatas');
+    component.removeQualis('A1');
+    component.removeInstituicao('UFBA');
+
+    expect(component.grandeArea()).toEqual(['Engenharias']);
+    expect(component.qualis()).toEqual(['Sem Qualis']);
+    expect(component.instituicao()).toEqual(['UFRJ']);
   });
 
   it('activeChips reflects active filters', () => {
@@ -217,15 +240,18 @@ describe('Indicators', () => {
     component.toggleQualis('A1');
     component.clearAllFilters();
     expect(component.tipoProducao()).toBeNull();
-    expect(component.qualis()).toBeNull();
+    expect(component.qualis()).toEqual([]);
+    expect(component.grandeArea()).toEqual([]);
+    expect(component.instituicao()).toEqual([]);
     expect(component.hasActiveFilters()).toBe(false);
   });
 
   it('removeChip clears the matching filter', () => {
-    component.toggleTipo('ARTIGO PUBLICADO');
-    const chip = component.activeChips().find(c => c.key === 'tipoProducao')!;
+    component.toggleQualis('B1');
+    component.toggleQualis('A1');
+    const chip = component.activeChips().find(c => c.key === 'qualis' && c.value === 'B1')!;
     component.removeChip(chip);
-    expect(component.tipoProducao()).toBeNull();
+    expect(component.qualis()).toEqual(['A1']);
   });
 
   it('minAno and maxAno derive from filtroOpcoes', () => {

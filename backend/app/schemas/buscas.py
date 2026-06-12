@@ -44,3 +44,19 @@ class ArtigoRelevante(BaseModel):
 
 class BuscaSemanticaResponse(BaseModel):
     resultados: list[ArtigoRelevante]
+
+
+class ChatRequest(BaseModel):
+    pergunta: str = Field(..., min_length=3, description="Pergunta do usuário ao agente")
+
+
+class ChatFonte(BaseModel):
+    id: int
+    titulo: str
+    pesquisador_nome: str
+    ano: int | None
+
+
+class ChatResponse(BaseModel):
+    resposta: str
+    fontes: list[ChatFonte]

@@ -163,6 +163,18 @@ export interface ProductionDetail {
   pesquisador_nome: string;
 }
 
+export interface AgenteChatFonte {
+  id: number;
+  titulo: string;
+  pesquisador_nome: string;
+  ano: number | null;
+}
+
+export interface AgenteChatResponse {
+  resposta: string;
+  fontes: AgenteChatFonte[];
+}
+
 const MIN_TEXTUAL_SEARCH_LENGTH = 2;
 const MIN_SEMANTIC_SEARCH_LENGTH = 5;
 const CATEGORY_PRODUCTION_TYPES: Partial<Record<SearchCategory, string>> = {
@@ -302,6 +314,10 @@ export class SearchService {
 
   getProduction(id: number) {
     return this.http.get<ProductionDetail>(`${this.apiBaseUrl}/producoes/${id}`);
+  }
+
+  perguntarAgente(pergunta: string) {
+    return this.http.post<AgenteChatResponse>(`${this.apiBaseUrl}/busca/chat`, { pergunta });
   }
 
   private buildFilters(pergunta: string): SearchFilters {

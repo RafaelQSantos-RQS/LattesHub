@@ -4,7 +4,11 @@ import { vi } from 'vitest';
 
 import { Indicators } from './indicators';
 import { ExportService } from '../../services/export';
-import { IndicatorsService, IndicadoresResumo } from '../../services/indicators';
+import {
+  IndicatorsService,
+  IndicadoresResumo,
+  FiltroOpcoes,
+} from '../../services/indicators';
 
 const MOCK_RESUMO: IndicadoresResumo = {
   total_producoes: 150,
@@ -33,6 +37,13 @@ const MOCK_RESUMO: IndicadoresResumo = {
   ],
 };
 
+const MOCK_FILTROS: FiltroOpcoes = {
+  grandes_areas: ['Ciências Exatas', 'Engenharias'],
+  instituicoes: ['UFBA', 'UFRJ'],
+  tipos_producao: ['ARTIGO PUBLICADO', 'TRABALHO EM EVENTOS'],
+  anos: [2020, 2021, 2022, 2023, 2024],
+};
+
 describe('Indicators', () => {
   let component: Indicators;
   let fixture: ComponentFixture<Indicators>;
@@ -43,6 +54,7 @@ describe('Indicators', () => {
 
   const indicatorsServiceStub = {
     getResumo: vi.fn(() => of(MOCK_RESUMO)),
+    getFiltros: vi.fn(() => of(MOCK_FILTROS)),
   };
 
   beforeEach(async () => {
@@ -50,6 +62,8 @@ describe('Indicators', () => {
     exportServiceStub.downloadProductionsCsv.mockReturnValue(of(undefined));
     indicatorsServiceStub.getResumo.mockReset();
     indicatorsServiceStub.getResumo.mockReturnValue(of(MOCK_RESUMO));
+    indicatorsServiceStub.getFiltros.mockReset();
+    indicatorsServiceStub.getFiltros.mockReturnValue(of(MOCK_FILTROS));
 
     await TestBed.configureTestingModule({
       imports: [Indicators],
@@ -72,6 +86,11 @@ describe('Indicators', () => {
     expect(component.loading()).toBe(false);
     expect(component.loadError()).toBe(false);
     expect(component.resumo()).toEqual(MOCK_RESUMO);
+  });
+
+  it('loads filtro options on init', () => {
+    expect(component.filtroOpcoes()).toEqual(MOCK_FILTROS);
+    expect(component.filtrosLoading()).toBe(false);
   });
 
   it('sets loadError on fetch failure', async () => {
@@ -141,6 +160,78 @@ describe('Indicators', () => {
     expect(component.shortYear(2024)).toBe('24');
     expect(component.shortYear(2005)).toBe('05');
   });
+
+  // ── Cross-filter toggles ────────────────────────────────────────────────
+
+  it('toggleAno sets year range filter; second click clears it', () => {
+    component.toggleAno(2023);
+    expect(component.anoInicio()).toBe(2023);
+    expect(component.anoFim()).toBe(2023);
+    expect(component.isAnoActive(2023)).toBe(true);
+
+    component.toggleAno(2023);
+    expect(component.anoInicio()).toBeNull();
+    expect(component.anoFim()).toBeNull();
+  });
+
+  it('toggleTipo sets/clears tipo filter', () => {
+    component.toggleTipo('ARTIGO PUBLICADO');
+    expect(component.tipoProducao()).toBe('ARTIGO PUBLICADO');
+    component.toggleTipo('ARTIGO PUBLICADO');
+    expect(component.tipoProducao()).toBeNull();
+  });
+
+  it('toggleQualis sets/clears qualis filter', () => {
+    component.toggleQualis('A1');
+    expect(component.qualis()).toBe('A1');
+    component.toggleQualis('A1');
+    expect(component.qualis()).toBeNull();
+  });
+
+  it('toggleArea sets/clears grandeArea filter', () => {
+    component.toggleArea('Engenharias');
+    expect(component.grandeArea()).toBe('Engenharias');
+    component.toggleArea('Engenharias');
+    expect(component.grandeArea()).toBeNull();
+  });
+
+  it('toggleInstituicao sets/clears instituicao filter', () => {
+    component.toggleInstituicao('UFBA');
+    expect(component.instituicao()).toBe('UFBA');
+    component.toggleInstituicao('UFBA');
+    expect(component.instituicao()).toBeNull();
+  });
+
+  it('activeChips reflects active filters', () => {
+    expect(component.activeChips()).toHaveLength(0);
+    component.toggleTipo('ARTIGO PUBLICADO');
+    component.toggleQualis('B1');
+    expect(component.activeChips()).toHaveLength(2);
+    expect(component.hasActiveFilters()).toBe(true);
+  });
+
+  it('clearAllFilters resets all filter signals', () => {
+    component.toggleTipo('ARTIGO PUBLICADO');
+    component.toggleQualis('A1');
+    component.clearAllFilters();
+    expect(component.tipoProducao()).toBeNull();
+    expect(component.qualis()).toBeNull();
+    expect(component.hasActiveFilters()).toBe(false);
+  });
+
+  it('removeChip clears the matching filter', () => {
+    component.toggleTipo('ARTIGO PUBLICADO');
+    const chip = component.activeChips().find(c => c.key === 'tipoProducao')!;
+    component.removeChip(chip);
+    expect(component.tipoProducao()).toBeNull();
+  });
+
+  it('minAno and maxAno derive from filtroOpcoes', () => {
+    expect(component.minAno()).toBe(2020);
+    expect(component.maxAno()).toBe(2024);
+  });
+
+  // ── Export ──────────────────────────────────────────────────────────────
 
   it('exports the productions CSV', () => {
     component.exportCsv();

@@ -135,6 +135,7 @@ CREATE TABLE producoes (
     titulo_ingles TEXT,
     palavras_chave TEXT,
     coautores TEXT,
+    resumo TEXT,
 
     -- Full Text Search
     titulo_tsv tsvector,

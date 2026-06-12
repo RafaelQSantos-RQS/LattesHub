@@ -1,4 +1,4 @@
-import { Component, inject, signal } from '@angular/core';
+import { Component, HostListener, computed, inject, signal } from '@angular/core';
 type FilterState = 'loading' | 'error' | 'empty' | 'success';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
@@ -9,6 +9,7 @@ interface SidebarSections {
   researchArea: boolean;
   productionType: boolean;
   yearRange: boolean;
+  qualis: boolean;
 }
 
 @Component({
@@ -26,8 +27,10 @@ export class Sidebar {
     institution: true,
     researchArea: true,
     productionType: true,
-    yearRange: true
+    yearRange: true,
+    qualis: true,
   });
+  readonly qualisOptions = ['A1', 'A2', 'A3', 'A4', 'B1', 'B2', 'B3', 'B4', 'C', 'Sem Qualis'];
   institutions = signal<FilterInstitution[]>([]);
   institutionsState = signal<FilterState>('loading');
   areaOptions = signal<FilterAreaOption[]>([]);
@@ -40,6 +43,32 @@ export class Sidebar {
   selectedYearStart = signal<number | undefined>(undefined);
   selectedYearEnd = signal<number | undefined>(undefined);
   selectedAreas = signal<number[]>([]);
+  selectedQualis = signal<string | undefined>(undefined);
+  showInstDropdown = signal(false);
+  instSearchQuery = signal('');
+  showQualisDropdown = signal(false);
+  qualisSearchQuery = signal('');
+  selectedInstitutionName = computed(() => (
+    this.institutions().find(institution => institution.id === this.selectedInstitutionId())?.nome ?? ''
+  ));
+  filteredInstitutions = computed(() => {
+    const query = this.instSearchQuery().trim().toLowerCase();
+    if (!query) {
+      return this.institutions();
+    }
+
+    return this.institutions().filter(institution =>
+      institution.nome.toLowerCase().includes(query),
+    );
+  });
+  filteredQualis = computed(() => {
+    const query = this.qualisSearchQuery().trim().toLowerCase();
+    if (!query) {
+      return this.qualisOptions;
+    }
+
+    return this.qualisOptions.filter(option => option.toLowerCase().includes(query));
+  });
 
   constructor() {
     this.searchService.getInstitutions()
@@ -81,7 +110,19 @@ export class Sidebar {
         this.selectedYearStart.set(this.toNumber(params.get('ano_inicio')));
         this.selectedYearEnd.set(this.toNumber(params.get('ano_fim')));
         this.selectedAreas.set(params.getAll('areas').map(Number).filter(Number.isFinite));
+        this.selectedQualis.set(params.get('qualis_estrato') ?? undefined);
       });
+  }
+
+  @HostListener('document:click', ['$event'])
+  closeDropdownsOnOutsideClick(event: MouseEvent) {
+    const target = event.target as HTMLElement | null;
+    if (target?.closest('[data-filter-combobox]')) {
+      return;
+    }
+
+    this.showInstDropdown.set(false);
+    this.showQualisDropdown.set(false);
   }
 
   toggleSection(section: keyof SidebarSections) {
@@ -91,9 +132,36 @@ export class Sidebar {
     }));
   }
 
-  onInstitutionChange(event: Event) {
-    const value = (event.target as HTMLSelectElement).value;
-    this.updateQueryParams({ instituicao_id: value || null });
+  openInstitutionDropdown() {
+    this.instSearchQuery.set('');
+    this.showInstDropdown.set(true);
+  }
+
+  onInstitutionSearch(event: Event) {
+    this.instSearchQuery.set((event.target as HTMLInputElement).value);
+    this.showInstDropdown.set(true);
+  }
+
+  selectInstitution(institution?: FilterInstitution) {
+    this.instSearchQuery.set(institution?.nome ?? '');
+    this.showInstDropdown.set(false);
+    this.updateQueryParams({ instituicao_id: institution ? String(institution.id) : null });
+  }
+
+  openQualisDropdown() {
+    this.qualisSearchQuery.set('');
+    this.showQualisDropdown.set(true);
+  }
+
+  onQualisSearch(event: Event) {
+    this.qualisSearchQuery.set((event.target as HTMLInputElement).value);
+    this.showQualisDropdown.set(true);
+  }
+
+  selectQualis(qualis?: string) {
+    this.qualisSearchQuery.set(qualis ?? '');
+    this.showQualisDropdown.set(false);
+    this.updateQueryParams({ qualis_estrato: qualis ?? null });
   }
 
   onTypeChange(tipoProducao: string) {
@@ -137,6 +205,7 @@ export class Sidebar {
       ano_inicio: null,
       ano_fim: null,
       areas: null,
+      qualis_estrato: null,
     });
   }
 

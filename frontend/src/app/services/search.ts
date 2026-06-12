@@ -29,6 +29,7 @@ export interface SearchFilters {
   anoInicio?: number;
   anoFim?: number;
   instituicaoId?: number;
+  qualisEstrato?: string;
   areas: number[];
   categoria?: SearchCategory;
 }
@@ -160,6 +161,18 @@ export interface ProductionDetail {
   qualis_area_avaliacao: string | null;
   pesquisador_id: number;
   pesquisador_nome: string;
+}
+
+export interface AgenteChatFonte {
+  id: number;
+  titulo: string;
+  pesquisador_nome: string;
+  ano: number | null;
+}
+
+export interface AgenteChatResponse {
+  resposta: string;
+  fontes: AgenteChatFonte[];
 }
 
 const MIN_TEXTUAL_SEARCH_LENGTH = 2;
@@ -303,6 +316,10 @@ export class SearchService {
     return this.http.get<ProductionDetail>(`${this.apiBaseUrl}/producoes/${id}`);
   }
 
+  perguntarAgente(pergunta: string) {
+    return this.http.post<AgenteChatResponse>(`${this.apiBaseUrl}/busca/chat`, { pergunta });
+  }
+
   private buildFilters(pergunta: string): SearchFilters {
     return {
       pergunta,
@@ -352,6 +369,10 @@ export class SearchService {
 
     if (filters.instituicaoId) {
       params = params.set('instituicao_id', String(filters.instituicaoId));
+    }
+
+    if (filters.qualisEstrato) {
+      params = params.set('qualis_estrato', filters.qualisEstrato);
     }
 
     for (const area of filters.areas) {
@@ -511,6 +532,10 @@ export class SearchService {
 
     if (filters.instituicaoId !== undefined) {
       payload['instituicao_id'] = filters.instituicaoId;
+    }
+
+    if (filters.qualisEstrato) {
+      payload['qualis_estrato'] = filters.qualisEstrato;
     }
 
     if (filters.areas.length > 0) {

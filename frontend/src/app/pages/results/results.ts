@@ -138,6 +138,7 @@ export class Results {
       anoInicio: this.toNumber(params.get('ano_inicio')),
       anoFim: this.toNumber(params.get('ano_fim')),
       instituicaoId: this.toNumber(params.get('instituicao_id')),
+      qualisEstrato: params.get('qualis_estrato') ?? undefined,
       areas: params.getAll('areas').map(Number).filter(Number.isFinite),
       categoria: this.toCategory(params.get('categoria')),
     };

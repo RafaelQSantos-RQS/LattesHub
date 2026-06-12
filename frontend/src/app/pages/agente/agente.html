@@ -1,0 +1,124 @@
+<div class="flex-1 flex flex-col items-center w-full py-10 px-6">
+  <div class="w-full max-w-[800px] flex flex-col gap-6 flex-1">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-1">
+      <h1 class="font-headline-md text-headline-md text-primary">Agente de IA</h1>
+      <p class="font-body-md text-body-md text-on-surface-variant">
+        Faça perguntas sobre pesquisadores e produções científicas. O agente usa os dados reais do LattesHub para responder.
+      </p>
+    </div>
+
+    <!-- Chat container -->
+    <div class="flex flex-col flex-1 bg-white border border-outline-variant rounded-2xl overflow-hidden shadow-sm min-h-[520px]">
+
+      <!-- Messages area -->
+      <div
+        #messagesContainer
+        class="flex-1 overflow-y-auto p-6 flex flex-col gap-5 min-h-[400px] max-h-[560px]">
+
+        <!-- Starter prompts (shown when no messages) -->
+        @if (messages().length === 0 && !loading()) {
+          <div class="flex flex-col items-center justify-center h-full gap-6 py-8">
+            <div class="flex items-center gap-3 text-on-surface-variant">
+              <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+              <span class="font-body-lg text-body-lg">Como posso ajudar?</span>
+            </div>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-[560px]">
+              @for (prompt of starterPrompts; track prompt) {
+                <button
+                  type="button"
+                  (click)="send(prompt)"
+                  class="text-left px-4 py-3 rounded-xl border border-outline-variant bg-surface-container-high hover:border-secondary hover:bg-secondary/5 transition-colors font-body-sm text-body-sm text-on-surface-variant leading-snug">
+                  {{ prompt }}
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <!-- Message bubbles -->
+        @for (msg of messages(); track $index) {
+          @if (msg.role === 'user') {
+            <!-- User bubble -->
+            <div class="flex justify-end">
+              <div class="max-w-[75%] bg-slate-900 text-white rounded-2xl rounded-br-sm px-4 py-3 font-body-md text-body-md leading-relaxed">
+                {{ msg.text }}
+              </div>
+            </div>
+          } @else {
+            <!-- Agent bubble -->
+            <div class="flex flex-col gap-2 items-start">
+              <div class="flex items-start gap-2 max-w-[85%]">
+                <span class="material-symbols-outlined text-primary text-[20px] mt-0.5 shrink-0" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+                <div class="bg-slate-100 rounded-2xl rounded-tl-sm px-4 py-3 font-body-md text-body-md text-slate-900 leading-relaxed whitespace-pre-wrap">
+                  {{ msg.text }}
+                </div>
+              </div>
+
+              <!-- Source badges -->
+              @if (msg.fontes && msg.fontes.length > 0) {
+                <div class="ml-7 flex flex-wrap gap-2">
+                  @for (fonte of msg.fontes; track fonte.id) {
+                    <a
+                      [routerLink]="['/producoes', fonte.id]"
+                      class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-secondary/10 border border-secondary/20 hover:bg-secondary/20 transition-colors group"
+                      [title]="fonte.titulo">
+                      <span class="material-symbols-outlined text-secondary text-[13px]">article</span>
+                      <span class="font-label-bold text-label-bold text-secondary text-[11px] max-w-[200px] truncate group-hover:underline">
+                        {{ fonte.titulo }}
+                      </span>
+                      @if (fonte.ano) {
+                        <span class="font-data-label text-data-label text-secondary/70 text-[10px]">({{ fonte.ano }})</span>
+                      }
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          }
+        }
+
+        <!-- Loading indicator -->
+        @if (loading()) {
+          <div class="flex items-start gap-2">
+            <span class="material-symbols-outlined text-primary text-[20px] mt-0.5 shrink-0" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
+            <div class="bg-slate-100 rounded-2xl rounded-tl-sm px-4 py-3">
+              <span class="typing-dots">
+                <span></span><span></span><span></span>
+              </span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Error banner -->
+      @if (error()) {
+        <div class="mx-6 mb-3 px-4 py-2.5 bg-error/10 border border-error/20 rounded-lg flex items-center gap-2">
+          <span class="material-symbols-outlined text-error text-[18px]">error</span>
+          <span class="font-body-sm text-body-sm text-error">{{ error() }}</span>
+        </div>
+      }
+
+      <!-- Input area -->
+      <div class="border-t border-outline-variant p-4 flex items-end gap-3 bg-white">
+        <textarea
+          [(ngModel)]="inputText"
+          (keydown)="onKeyDown($event)"
+          placeholder="Faça uma pergunta sobre as produções científicas..."
+          rows="1"
+          class="flex-1 resize-none border border-outline-variant rounded-xl px-4 py-2.5 font-body-md text-body-md text-slate-900 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 placeholder:text-slate-400 leading-relaxed"
+          [disabled]="loading()">
+        </textarea>
+        <button
+          type="button"
+          (click)="send()"
+          [disabled]="!inputText.trim() || loading()"
+          class="shrink-0 w-10 h-10 rounded-xl bg-primary flex items-center justify-center hover:bg-primary/80 transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+          <span class="material-symbols-outlined text-white text-[20px]">send</span>
+        </button>
+      </div>
+    </div>
+
+  </div>
+</div>

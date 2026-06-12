@@ -58,6 +58,10 @@ export class ExportService {
       params = params.set('instituicao_id', String(filters.instituicaoId));
     }
 
+    if (filters.qualisEstrato) {
+      params = params.set('qualis_estrato', filters.qualisEstrato);
+    }
+
     for (const area of filters.areas) {
       params = params.append('areas', String(area));
     }

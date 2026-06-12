@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 
 import { API_BASE_URL } from './search';
@@ -38,6 +38,22 @@ export interface IndicadoresResumo {
   top_instituicoes: TopInstituicao[];
 }
 
+export interface IndicadoresFiltros {
+  anoInicio?: number;
+  anoFim?: number;
+  grandeArea?: string[];
+  instituicao?: string[];
+  tipoProducao?: string;
+  qualis?: string[];
+}
+
+export interface FiltroOpcoes {
+  grandes_areas: string[];
+  instituicoes: string[];
+  tipos_producao: string[];
+  anos: number[];
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,7 +61,18 @@ export class IndicatorsService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
 
-  getResumo() {
-    return this.http.get<IndicadoresResumo>(`${this.apiBaseUrl}/indicadores/resumo`);
+  getResumo(filtros?: IndicadoresFiltros) {
+    let params = new HttpParams();
+    if (filtros?.anoInicio != null) params = params.set('ano_inicio', filtros.anoInicio);
+    if (filtros?.anoFim != null) params = params.set('ano_fim', filtros.anoFim);
+    for (const area of filtros?.grandeArea ?? []) params = params.append('grande_area', area);
+    for (const instituicao of filtros?.instituicao ?? []) params = params.append('instituicao', instituicao);
+    if (filtros?.tipoProducao) params = params.set('tipo_producao', filtros.tipoProducao);
+    for (const estrato of filtros?.qualis ?? []) params = params.append('qualis', estrato);
+    return this.http.get<IndicadoresResumo>(`${this.apiBaseUrl}/indicadores/resumo`, { params });
+  }
+
+  getFiltros() {
+    return this.http.get<FiltroOpcoes>(`${this.apiBaseUrl}/indicadores/filtros`);
   }
 }

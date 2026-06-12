@@ -86,9 +86,11 @@ Se `FRONTEND_PORT`, `BACKEND_PORT` ou `ANALYTICS_PORT` forem alterados no `.env`
 
 # Busca e filtros
 
-Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v1/producoes` aceita filtros combinados por `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`. O endpoint `POST /api/v1/busca/semantica` preserva `ano` como filtro exato e também aceita `ano_inicio`/`ano_fim` para intervalo.
+Os resultados em `/explorar` consomem a API em `/api/v1`. A listagem `GET /api/v1/producoes` aceita filtros combinados por `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id`, `areas` e `qualis_estrato`. O endpoint `POST /api/v1/busca/semantica` preserva `ano` como filtro exato, também aceita `ano_inicio`/`ano_fim` para intervalo e aplica `qualis_estrato`, incluindo `Sem Qualis` para publicações sem correspondência Qualis.
 
 Os tipos de produção exibidos no frontend são carregados dinamicamente de `GET /api/v1/producoes/tipos`, refletindo os tipos reais presentes no banco. As abas da página Explorar usam `categoria` na URL: `tudo` lista produções, `pesquisadores` lista pesquisadores, `artigos` filtra `ARTIGO PUBLICADO` e `eventos` filtra `TRABALHO EM EVENTOS`.
+
+O Painel de Indicadores consome `GET /api/v1/indicadores/resumo` e permite combinar filtros por período, tipo de produção e múltiplas seleções de grande área, instituição e Qualis; esses filtros são enviados como parâmetros repetidos na query e recalculam KPIs e gráficos.
 
 ---
 
@@ -96,7 +98,7 @@ Os tipos de produção exibidos no frontend são carregados dinamicamente de `GE
 
 O endpoint `GET /api/v1/exportacoes/producoes.csv` gera um CSV analítico para Power BI, Python ou planilhas. O arquivo inclui campos de fato e dimensões como produção, ano, quadriênio-ano, pesquisador, instituição, áreas, Qualis e metadados bibliográficos enriquecidos.
 
-A exportação aceita os filtros `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id` e `areas`, os mesmos filtros principais usados na listagem de produções. Na página Explorar, o botão "Exportar Dados Analíticos (CSV)" baixa o CSV respeitando os filtros atuais da URL. Quando a busca visual vem de consulta semântica, o CSV usa o texto da busca como filtro textual (`termo`) e não reproduz a ordenação vetorial por similaridade.
+A exportação aceita os filtros `termo`, `tipo_producao`, `ano`, `ano_inicio`, `ano_fim`, `instituicao_id`, `areas` e `qualis_estrato`, os mesmos filtros principais usados na listagem de produções. Na página Explorar, o botão "Exportar Dados Analíticos (CSV)" baixa o CSV respeitando os filtros atuais da URL. Quando a busca visual vem de consulta semântica, o CSV usa o texto da busca como filtro textual (`termo`) e não reproduz a ordenação vetorial por similaridade.
 
 Na página Indicadores, o botão "Exportar CSV" baixa o dataset completo de produções.
 

@@ -2,12 +2,11 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ProductionDetail as ProductionDetailData, SearchService } from '../../services/search';
 
 @Component({
   selector: 'app-production-detail',
-  imports: [Sidebar, RouterLink],
+  imports: [RouterLink],
   templateUrl: './production-detail.html',
   styleUrl: './production-detail.scss',
 })

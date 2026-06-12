@@ -25,7 +25,7 @@ class BuscaSemanticaRequest(BaseModel):
     )
     qualis_estrato: Optional[str] = Field(
         None,
-        description="Filtra por estrato Qualis do periódico, como A1, A2, B1 ou B2",
+        description="Filtra por estrato Qualis ou por producoes sem Qualis",
     )
 
 
@@ -44,3 +44,19 @@ class ArtigoRelevante(BaseModel):
 
 class BuscaSemanticaResponse(BaseModel):
     resultados: list[ArtigoRelevante]
+
+
+class ChatRequest(BaseModel):
+    pergunta: str = Field(..., min_length=3, description="Pergunta do usuário ao agente")
+
+
+class ChatFonte(BaseModel):
+    id: int
+    titulo: str
+    pesquisador_nome: str
+    ano: int | None
+
+
+class ChatResponse(BaseModel):
+    resposta: str
+    fontes: list[ChatFonte]

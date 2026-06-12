@@ -1,221 +1,520 @@
-<div class="flex-grow w-full max-w-container-max mx-auto px-margin-desktop py-12 flex flex-col gap-12">
-  <!-- Header -->
-  <header class="flex flex-col gap-4 border-b border-slate-200 pb-8">
-    <h1 class="font-display-lg text-display-lg text-primary">Painel de Indicadores</h1>
-    <p class="font-body-lg text-body-lg text-on-surface-variant max-w-3xl">
-      Visão analítica da produção científica, redes de colaboração e impacto acadêmico consolidados a partir da base Lattes.
-    </p>
-  </header>
+<!-- Mobile filter backdrop -->
+@if (sidebarOpen()) {
+  <div
+    class="fixed inset-0 bg-slate-900/40 z-20 md:hidden"
+    (click)="sidebarOpen.set(false)">
+  </div>
+}
 
-  <!-- Loading state -->
-  @if (loading()) {
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      @for (_ of [1, 2, 3]; track $index) {
-        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2">
-          <div class="h-3 w-24 bg-slate-100 rounded animate-pulse"></div>
-          <div class="h-8 w-32 bg-slate-100 rounded animate-pulse mt-2"></div>
-          <div class="h-3 w-20 bg-slate-100 rounded animate-pulse mt-2"></div>
+<!-- Page layout: full-bleed flex row inside max-width container -->
+<div class="flex-grow w-full max-w-container-max mx-auto flex min-h-0">
+
+  <!-- ── FACETED SIDEBAR ───────────────────────────────────────────────── -->
+  <aside
+    class="shrink-0 w-[280px] border-r border-slate-200 bg-white flex-col py-10 pl-margin-desktop pr-6 gap-6
+           hidden md:flex
+           fixed md:sticky top-0 h-screen overflow-y-auto z-30
+           transition-transform duration-200 md:translate-x-0"
+    [class.translate-x-0]="sidebarOpen()"
+    [class.-translate-x-full]="!sidebarOpen()">
+
+    <header class="flex items-center justify-between">
+      <h2 class="font-label-bold text-label-bold text-slate-900 uppercase tracking-widest">Filtros</h2>
+      @if (hasActiveFilters()) {
+        <button
+          type="button"
+          (click)="clearAllFilters()"
+          class="font-label-bold text-label-bold text-secondary hover:underline text-[11px]">
+          Limpar tudo
+        </button>
+      }
+    </header>
+
+    <!-- Year range -->
+    <section class="flex flex-col gap-3">
+      <span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px] border-b border-slate-100 pb-2">
+        Período
+      </span>
+      <div class="flex items-center gap-2">
+        <div class="flex-1 flex flex-col gap-1">
+          <label class="font-data-label text-data-label text-slate-400 text-[10px]">De</label>
+          <input
+            type="number"
+            [value]="anoInicio() ?? ''"
+            [min]="minAno()"
+            [max]="maxAno()"
+            placeholder="{{ minAno() }}"
+            (change)="setAnoInicio($any($event.target).value)"
+            class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-data-label text-data-label text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20">
         </div>
+        <span class="font-data-label text-data-label text-slate-400 mt-4">–</span>
+        <div class="flex-1 flex flex-col gap-1">
+          <label class="font-data-label text-data-label text-slate-400 text-[10px]">Até</label>
+          <input
+            type="number"
+            [value]="anoFim() ?? ''"
+            [min]="minAno()"
+            [max]="maxAno()"
+            placeholder="{{ maxAno() }}"
+            (change)="setAnoFim($any($event.target).value)"
+            class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-data-label text-data-label text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20">
+        </div>
+      </div>
+    </section>
+
+    <!-- Grande Área -->
+    <section class="flex flex-col gap-3">
+      <span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px] border-b border-slate-100 pb-2">
+        Grande Área
+      </span>
+      @if (filtrosLoading()) {
+        <div class="h-8 bg-slate-100 rounded-sm animate-pulse"></div>
+      } @else {
+        <select
+          value=""
+          (change)="addGrandeArea($any($event.target).value); $any($event.target).value = ''"
+          class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
+          <option value="">Adicionar área</option>
+          @for (area of filtroOpcoes()?.grandes_areas ?? []; track area) {
+            <option [value]="area" [disabled]="grandeArea().includes(area)">{{ area }}</option>
+          }
+        </select>
+        @if (grandeArea().length > 0) {
+          <div class="flex flex-wrap gap-1.5">
+            @for (area of grandeArea(); track area) {
+              <span class="bg-slate-100 px-2.5 py-1 rounded-sm text-slate-800 flex items-center gap-1.5 font-data-label text-data-label">
+                <span class="truncate max-w-[190px]" [title]="area">{{ area }}</span>
+                <button type="button" (click)="removeGrandeArea(area)" class="text-slate-500 hover:text-slate-900 leading-none">
+                  x
+                </button>
+              </span>
+            }
+          </div>
+        }
       }
     </section>
-  }
 
-  <!-- Error state -->
-  @if (loadError()) {
-    <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-sm text-red-700">
-      <span class="material-symbols-outlined text-[20px]">error</span>
-      <span class="font-body-md text-body-md">Não foi possível carregar os indicadores. Verifique a conexão com o backend.</span>
-    </div>
-  }
-
-  <!-- Real data -->
-  @if (!loading() && !loadError() && resumo()) {
-    <!-- KPI Bento Grid -->
-    <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
-      <!-- KPI: Total de Produções -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-          <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">article</span>
-        </div>
-        <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Total de Produções</span>
-        <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_producoes) }}</span>
-        <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-          <span class="material-symbols-outlined text-[16px]">library_books</span>
-          <span>Artigos, eventos, livros e capítulos</span>
-        </div>
-      </div>
-
-      <!-- KPI: Pesquisadores -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-          <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">group</span>
-        </div>
-        <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Pesquisadores</span>
-        <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_pesquisadores) }}</span>
-        <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-          <span class="material-symbols-outlined text-[16px]">school</span>
-          <span>Com currículo Lattes importado</span>
-        </div>
-      </div>
-
-      <!-- KPI: Média por Pesquisador -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <div class="absolute top-0 right-0 -mt-4 -mr-4 text-slate-100 group-hover:text-slate-200 transition-colors pointer-events-none">
-          <span class="material-symbols-outlined text-[120px]" style="font-variation-settings: 'FILL' 1;">bar_chart</span>
-        </div>
-        <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Produções / Pesquisador</span>
-        <span class="font-headline-md text-headline-md text-primary relative z-10">{{ mediaProducoes }}</span>
-        <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
-          <span class="material-symbols-outlined text-[16px]">functions</span>
-          <span>Média por pesquisador cadastrado</span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Charts Section -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Bar Chart: Publicações ao longo do tempo -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <header class="flex justify-between items-center border-b border-slate-100 pb-4">
-          <h2 class="font-headline-sm text-headline-sm text-primary">Publicações ao Longo do Tempo</h2>
-          <button
-            type="button"
-            (click)="exportCsv()"
-            [disabled]="exportingCsv()"
-            class="font-label-bold text-label-bold text-slate-800 border border-slate-200 rounded-sm px-3 py-1 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-wait">
-            {{ exportingCsv() ? 'Exportando...' : 'Exportar CSV' }}
-          </button>
-        </header>
-        @if (exportError()) {
-          <p class="font-body-sm text-body-sm text-red-700">{{ exportError() }}</p>
-        }
-        @if (resumo()!.producoes_por_ano.length === 0) {
-          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
-            Nenhum dado de produção por ano disponível.
-          </div>
-        } @else {
-          <div class="flex items-end gap-px h-72 pb-6 relative overflow-x-auto">
-            @for (ponto of resumo()!.producoes_por_ano; track ponto.ano) {
-              <div class="flex-1 min-w-[20px] flex flex-col items-center justify-end gap-1 h-full group/bar">
-                <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
-                  {{ formatCount(ponto.total) }}
-                </span>
-                <div
-                  class="w-full bg-data-teal rounded-t-sm transition-all group-hover/bar:bg-slate-700"
-                  [style.height]="chartBarHeightPct(ponto.total)"
-                  [title]="ponto.ano + ': ' + ponto.total">
-                </div>
-                <span class="font-data-label text-data-label text-slate-400 text-[10px]">{{ shortYear(ponto.ano) }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Bar Chart: Top Áreas de Pesquisa -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <header class="flex justify-between items-center border-b border-slate-100 pb-4">
-          <h2 class="font-headline-sm text-headline-sm text-primary">Top Áreas de Pesquisa</h2>
-          <span class="font-body-sm text-body-sm text-on-surface-variant">Top 5 (por produções)</span>
-        </header>
-        @if (resumo()!.top_areas.length === 0) {
-          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
-            Nenhuma área de pesquisa encontrada.
-          </div>
-        } @else {
-          <div class="flex flex-col justify-around h-52 gap-2">
-            @for (area of resumo()!.top_areas; track area.area) {
-              <div class="flex items-center gap-4">
-                <span class="font-body-sm text-body-sm w-36 truncate" [title]="area.area">{{ area.area }}</span>
-                <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-                  <div class="absolute top-0 left-0 h-full bg-slate-800 rounded-sm transition-all" [style.width]="areaBarWidthPct(area.total)"></div>
-                </div>
-                <span class="font-data-label text-data-label text-slate-500 w-12 text-right">{{ formatCount(area.total) }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- Charts Section 2: Tipo + Qualis -->
-    <section class="grid grid-cols-1 lg:grid-cols-2 gap-8">
-      <!-- Bar Chart: Produções por Tipo -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <header class="border-b border-slate-100 pb-4">
-          <h2 class="font-headline-sm text-headline-sm text-primary">Produções por Tipo</h2>
-        </header>
-        @if (resumo()!.por_tipo.length === 0) {
-          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
-            Nenhum dado de tipo disponível.
-          </div>
-        } @else {
-          <div class="flex flex-col justify-around h-52 gap-2">
-            @for (item of resumo()!.por_tipo; track item.tipo) {
-              <div class="flex items-center gap-4">
-                <span class="font-body-sm text-body-sm w-40 truncate shrink-0" [title]="item.tipo">{{ item.tipo }}</span>
-                <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-                  <div class="absolute top-0 left-0 h-full bg-slate-800 rounded-sm transition-all" [style.width]="tipoBarWidthPct(item.total)"></div>
-                </div>
-                <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">{{ formatCount(item.total) }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
-
-      <!-- Bar Chart: Distribuição Qualis -->
-      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-        <header class="border-b border-slate-100 pb-4">
-          <h2 class="font-headline-sm text-headline-sm text-primary">Distribuição Qualis</h2>
-        </header>
-        @if (resumo()!.qualis_distribuicao.length === 0) {
-          <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
-            Nenhum dado Qualis disponível.
-          </div>
-        } @else {
-          <div class="flex items-end gap-2 h-52 pb-6 relative">
-            @for (item of resumo()!.qualis_distribuicao; track item.estrato) {
-              <div class="flex-1 flex flex-col items-center justify-end gap-1 h-full group/bar">
-                <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
-                  {{ formatCount(item.total) }}
-                </span>
-                <div
-                  class="w-full rounded-t-sm transition-all"
-                  [style.height]="qualisBarHeightPct(item.total)"
-                  [style.background-color]="qualisColor(item.estrato)"
-                  [title]="item.estrato + ': ' + item.total">
-                </div>
-                <span class="font-data-label text-data-label text-slate-400 text-[10px]">{{ item.estrato }}</span>
-              </div>
-            }
-          </div>
-        }
-      </div>
-    </section>
-
-    <!-- Chart: Top Instituições (full width) -->
-    <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
-      <header class="border-b border-slate-100 pb-4">
-        <h2 class="font-headline-sm text-headline-sm text-primary">Top Instituições</h2>
-      </header>
-      @if (resumo()!.top_instituicoes.length === 0) {
-        <div class="flex items-center justify-center h-24 text-on-surface-variant font-body-sm text-body-sm">
-          Nenhuma instituição encontrada.
-        </div>
+    <!-- Tipo de Produção -->
+    <section class="flex flex-col gap-3">
+      <span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px] border-b border-slate-100 pb-2">
+        Tipo de Produção
+      </span>
+      @if (filtrosLoading()) {
+        <div class="h-8 bg-slate-100 rounded-sm animate-pulse"></div>
       } @else {
-        <div class="flex flex-col gap-3">
-          @for (inst of resumo()!.top_instituicoes; track inst.instituicao) {
-            <div class="flex items-center gap-4">
-              <span class="font-body-sm text-body-sm w-64 truncate shrink-0" [title]="inst.instituicao">{{ inst.instituicao }}</span>
-              <div class="flex-grow h-4 bg-slate-100 rounded-sm relative">
-                <div class="absolute top-0 left-0 h-full bg-data-teal rounded-sm transition-all" [style.width]="instBarWidthPct(inst.total)"></div>
-              </div>
-              <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">{{ formatCount(inst.total) }}</span>
-            </div>
+        <select
+          [value]="tipoProducao() ?? ''"
+          (change)="setTipoProducao($any($event.target).value)"
+          class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
+          <option value="">Todos os tipos</option>
+          @for (tipo of filtroOpcoes()?.tipos_producao ?? []; track tipo) {
+            <option [value]="tipo">{{ tipo }}</option>
+          }
+        </select>
+      }
+    </section>
+
+    <!-- Qualis -->
+    <section class="flex flex-col gap-3">
+      <span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px] border-b border-slate-100 pb-2">
+        Qualis
+      </span>
+      <select
+        value=""
+        (change)="addQualis($any($event.target).value); $any($event.target).value = ''"
+        class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
+        <option value="">Adicionar estrato</option>
+        @for (e of ['A1','A2','A3','A4','B1','B2','B3','B4','C','Sem Qualis']; track e) {
+          <option [value]="e" [disabled]="qualis().includes(e)">{{ e }}</option>
+        }
+      </select>
+      @if (qualis().length > 0) {
+        <div class="flex flex-wrap gap-1.5">
+          @for (estrato of qualis(); track estrato) {
+            <span class="bg-slate-100 px-2.5 py-1 rounded-sm text-slate-800 flex items-center gap-1.5 font-data-label text-data-label">
+              {{ estrato }}
+              <button type="button" (click)="removeQualis(estrato)" class="text-slate-500 hover:text-slate-900 leading-none">
+                x
+              </button>
+            </span>
           }
         </div>
       }
     </section>
-  }
+
+    <!-- Instituição -->
+    <section class="flex flex-col gap-3">
+      <span class="font-label-bold text-label-bold text-on-surface-variant uppercase tracking-wider text-[11px] border-b border-slate-100 pb-2">
+        Instituição
+      </span>
+      @if (filtrosLoading()) {
+        <div class="h-8 bg-slate-100 rounded-sm animate-pulse"></div>
+      } @else {
+        <select
+          value=""
+          (change)="addInstituicao($any($event.target).value); $any($event.target).value = ''"
+          class="w-full border border-slate-200 rounded-sm px-2 py-1.5 font-body-sm text-body-sm text-slate-800 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 cursor-pointer">
+          <option value="">Adicionar instituição</option>
+          @for (inst of filtroOpcoes()?.instituicoes ?? []; track inst) {
+            <option [value]="inst" [disabled]="instituicao().includes(inst)">{{ inst }}</option>
+          }
+        </select>
+        @if (instituicao().length > 0) {
+          <div class="flex flex-wrap gap-1.5">
+            @for (inst of instituicao(); track inst) {
+              <span class="bg-slate-100 px-2.5 py-1 rounded-sm text-slate-800 flex items-center gap-1.5 font-data-label text-data-label">
+                <span class="truncate max-w-[190px]" [title]="inst">{{ inst }}</span>
+                <button type="button" (click)="removeInstituicao(inst)" class="text-slate-500 hover:text-slate-900 leading-none">
+                  x
+                </button>
+              </span>
+            }
+          </div>
+        }
+      }
+    </section>
+  </aside>
+
+  <!-- ── MAIN PANEL ─────────────────────────────────────────────────────── -->
+  <div class="flex-1 min-w-0 flex flex-col gap-10 py-10 pl-8 pr-margin-desktop">
+
+    <!-- Header row -->
+    <header class="flex items-start justify-between gap-4 border-b border-slate-200 pb-8">
+      <div class="flex flex-col gap-2">
+        <h1 class="font-display-lg text-display-lg text-primary" style="font-size: clamp(28px,4vw,48px)">
+          Painel de Indicadores
+        </h1>
+        <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl">
+          Visão analítica da produção científica consolidada a partir da base Lattes.
+        </p>
+      </div>
+      <!-- Mobile filter toggle -->
+      <button
+        type="button"
+        (click)="sidebarOpen.set(true)"
+        class="md:hidden flex items-center gap-2 border border-slate-200 rounded-sm px-3 py-2 font-label-bold text-label-bold text-slate-800 shrink-0 hover:bg-slate-50">
+        Filtros
+        @if (hasActiveFilters()) {
+          <span class="bg-secondary text-white rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+            {{ activeChips().length }}
+          </span>
+        }
+      </button>
+    </header>
+
+    <!-- Error state -->
+    @if (loadError()) {
+      <div class="flex items-center gap-3 p-4 bg-red-50 border border-red-200 rounded-sm text-red-700">
+        <span class="font-body-md text-body-md">Não foi possível carregar os indicadores. Verifique a conexão com o backend.</span>
+      </div>
+    }
+
+    <!-- KPI Bento Grid -->
+    @if (loading()) {
+      <!-- Skeleton: KPI row -->
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        @for (_ of [1,2,3]; track $index) {
+          <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2">
+            <div class="h-3 w-24 bg-slate-100 rounded animate-pulse"></div>
+            <div class="h-8 w-32 bg-slate-100 rounded animate-pulse mt-2"></div>
+            <div class="h-3 w-20 bg-slate-100 rounded animate-pulse mt-2"></div>
+          </div>
+        }
+      </section>
+    } @else if (!loadError() && resumo()) {
+      <section class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <!-- KPI: Total Produções -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Total de Produções</span>
+          <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_producoes) }}</span>
+          <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
+            <span>Artigos, eventos, livros e capítulos</span>
+          </div>
+        </div>
+
+        <!-- KPI: Pesquisadores -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Pesquisadores</span>
+          <span class="font-headline-md text-headline-md text-primary relative z-10">{{ formatCount(resumo()!.total_pesquisadores) }}</span>
+          <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
+            <span>Com currículo Lattes importado</span>
+          </div>
+        </div>
+
+        <!-- KPI: Média -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-2 relative overflow-hidden group hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <span class="font-data-label text-data-label text-on-surface-variant uppercase tracking-wider relative z-10">Produções / Pesquisador</span>
+          <span class="font-headline-md text-headline-md text-primary relative z-10">{{ mediaProducoes }}</span>
+          <div class="flex items-center gap-1 mt-2 font-body-sm text-body-sm text-on-surface-variant relative z-10">
+            <span>Média por pesquisador cadastrado</span>
+          </div>
+        </div>
+      </section>
+    }
+
+    <!-- Active filter chips -->
+    @if (hasActiveFilters()) {
+      <div class="flex flex-wrap items-center gap-2 -mt-2">
+        @for (chip of activeChips(); track chip.key + ':' + (chip.value ?? '')) {
+          <span class="inline-flex items-center gap-1.5 bg-secondary/10 text-secondary border border-secondary/20 rounded-full px-3 py-1 font-label-bold text-label-bold">
+            {{ chip.label }}
+            <button type="button" (click)="removeChip(chip)" class="hover:text-primary transition-colors leading-none">
+              x
+            </button>
+          </span>
+        }
+        <button
+          type="button"
+          (click)="clearAllFilters()"
+          class="font-label-bold text-label-bold text-slate-500 hover:text-slate-800 underline ml-1">
+          Limpar todos
+        </button>
+      </div>
+    }
+
+    <!-- Skeleton: charts -->
+    @if (loading()) {
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
+        @for (_ of [1,2,3,4]; track $index) {
+          <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-4">
+            <div class="h-4 w-40 bg-slate-100 rounded animate-pulse"></div>
+            <div class="h-48 bg-slate-50 rounded animate-pulse mt-2"></div>
+          </div>
+        }
+      </section>
+      <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-4">
+        <div class="h-4 w-40 bg-slate-100 rounded animate-pulse"></div>
+        <div class="h-24 bg-slate-50 rounded animate-pulse mt-2"></div>
+      </div>
+    }
+
+    <!-- ── Charts (visible when data loaded) ─────────────────────────── -->
+    @if (!loading() && !loadError() && resumo()) {
+
+      <!-- Row 1: Tempo + Áreas -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
+
+        <!-- Publicações ao Longo do Tempo -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <header class="flex justify-between items-center border-b border-slate-100 pb-4">
+            <h2 class="font-headline-sm text-headline-sm text-primary">Publicações ao Longo do Tempo</h2>
+            <button
+              type="button"
+              (click)="exportCsv()"
+              [disabled]="exportingCsv()"
+              class="font-label-bold text-label-bold text-slate-800 border border-slate-200 rounded-sm px-3 py-1 hover:bg-slate-50 disabled:opacity-60 disabled:cursor-wait whitespace-nowrap shrink-0">
+              {{ exportingCsv() ? 'Exportando...' : 'Exportar CSV' }}
+            </button>
+          </header>
+          @if (exportError()) {
+            <p class="font-body-sm text-body-sm text-red-700">{{ exportError() }}</p>
+          }
+          @if (resumo()!.producoes_por_ano.length === 0) {
+            <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+              Nenhum dado de produção por ano disponível.
+            </div>
+          } @else {
+            <div class="overflow-x-auto pb-2">
+              <div class="flex items-stretch gap-1 h-60 min-w-full w-max px-2">
+                @for (ponto of resumo()!.producoes_por_ano; track ponto.ano; let i = $index) {
+                  <div
+                    class="flex-1 min-w-[36px] flex flex-col items-center h-full group/bar cursor-pointer"
+                    (click)="toggleAno(ponto.ano)"
+                    [title]="ponto.ano + ': ' + ponto.total + ' – clique para filtrar'">
+                    <span class="h-5 font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
+                      {{ formatCount(ponto.total) }}
+                    </span>
+                    <div class="flex-1 w-full flex items-end">
+                      <div
+                        class="w-full rounded-t-sm transition-all"
+                        [class.bg-data-teal]="!isAnoActive(ponto.ano)"
+                        [class.bg-slate-700]="isAnoActive(ponto.ano)"
+                        [class.ring-2]="isAnoActive(ponto.ano)"
+                        [class.ring-secondary]="isAnoActive(ponto.ano)"
+                        [class.group-hover\/bar:bg-slate-700]="!isAnoActive(ponto.ano)"
+                        [style.height]="chartBarHeightPct(ponto.total)">
+                      </div>
+                    </div>
+                    <span class="h-5 font-data-label text-data-label text-[10px] flex items-end"
+                      [class.text-slate-400]="!isAnoActive(ponto.ano)"
+                      [class.text-secondary]="isAnoActive(ponto.ano)">
+                      @if (shouldShowYearLabel(i, resumo()!.producoes_por_ano.length)) {
+                        {{ ponto.ano }}
+                      }
+                    </span>
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+
+        <!-- Top Áreas de Pesquisa -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <header class="flex justify-between items-center border-b border-slate-100 pb-4">
+            <h2 class="font-headline-sm text-headline-sm text-primary">Top Áreas de Pesquisa</h2>
+            <span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">Top 5</span>
+          </header>
+          @if (resumo()!.top_areas.length === 0) {
+            <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+              Nenhuma área de pesquisa encontrada.
+            </div>
+          } @else {
+            <div class="flex flex-col justify-around h-52 gap-2">
+              @for (area of resumo()!.top_areas; track area.area) {
+                <div
+                  class="flex items-center gap-4 cursor-pointer group/row"
+                  (click)="toggleArea(area.area)"
+                  [title]="area.area + ' – clique para filtrar'">
+                  <span
+                    class="font-body-sm text-body-sm w-36 truncate transition-colors"
+                    [class.text-secondary]="grandeArea().includes(area.area)"
+                    [class.font-bold]="grandeArea().includes(area.area)"
+                    [title]="area.area">
+                    {{ area.area }}
+                  </span>
+                  <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
+                    <div
+                      class="absolute top-0 left-0 h-full rounded-sm transition-all"
+                      [class.bg-slate-800]="!grandeArea().includes(area.area)"
+                      [class.bg-secondary]="grandeArea().includes(area.area)"
+                      [style.width]="areaBarWidthPct(area.total)">
+                    </div>
+                  </div>
+                  <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">
+                    {{ formatCount(area.total) }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Row 2: Tipo + Qualis -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
+
+        <!-- Produções por Tipo -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <header class="border-b border-slate-100 pb-4">
+            <h2 class="font-headline-sm text-headline-sm text-primary">Produções por Tipo</h2>
+          </header>
+          @if (resumo()!.por_tipo.length === 0) {
+            <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+              Nenhum dado de tipo disponível.
+            </div>
+          } @else {
+            <div class="flex flex-col justify-around h-52 gap-2">
+              @for (item of resumo()!.por_tipo; track item.tipo) {
+                <div
+                  class="flex items-center gap-4 cursor-pointer"
+                  (click)="toggleTipo(item.tipo)"
+                  [title]="item.tipo + ' – clique para filtrar'">
+                  <span
+                    class="font-body-sm text-body-sm w-40 truncate shrink-0 transition-colors"
+                    [class.text-secondary]="tipoProducao() === item.tipo"
+                    [class.font-bold]="tipoProducao() === item.tipo"
+                    [title]="item.tipo">
+                    {{ item.tipo }}
+                  </span>
+                  <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
+                    <div
+                      class="absolute top-0 left-0 h-full rounded-sm transition-all"
+                      [class.bg-slate-800]="tipoProducao() !== item.tipo"
+                      [class.bg-secondary]="tipoProducao() === item.tipo"
+                      [style.width]="tipoBarWidthPct(item.total)">
+                    </div>
+                  </div>
+                  <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">
+                    {{ formatCount(item.total) }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Distribuição Qualis -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <header class="border-b border-slate-100 pb-4">
+            <h2 class="font-headline-sm text-headline-sm text-primary">Distribuição Qualis</h2>
+          </header>
+          @if (resumo()!.qualis_distribuicao.length === 0) {
+            <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+              Nenhum dado Qualis disponível.
+            </div>
+          } @else {
+            <div class="flex items-end gap-2 h-52 pb-6 relative">
+              @for (item of resumo()!.qualis_distribuicao; track item.estrato) {
+                <div
+                  class="flex-1 flex flex-col items-center justify-end gap-1 h-full group/bar cursor-pointer"
+                  (click)="toggleQualis(item.estrato)"
+                  [title]="item.estrato + ': ' + item.total + ' – clique para filtrar'">
+                  <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
+                    {{ formatCount(item.total) }}
+                  </span>
+                  <div
+                    class="w-full rounded-t-sm transition-all"
+                    [class.opacity-40]="qualis().length > 0 && !qualis().includes(item.estrato)"
+                    [class.ring-2]="qualis().includes(item.estrato)"
+                    [class.ring-offset-1]="qualis().includes(item.estrato)"
+                    [style.height]="qualisBarHeightPct(item.total)"
+                    [style.background-color]="qualisColor(item.estrato)"
+                    [style.ring-color]="qualisColor(item.estrato)">
+                  </div>
+                  <span
+                    class="font-data-label text-data-label text-[10px] transition-colors"
+                    [class.text-slate-400]="!qualis().includes(item.estrato)"
+                    [class.font-bold]="qualis().includes(item.estrato)"
+                    [class.text-slate-800]="qualis().includes(item.estrato)">
+                    {{ item.estrato }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Row 3: Top Instituições (full width) -->
+      <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+        <header class="border-b border-slate-100 pb-4">
+          <h2 class="font-headline-sm text-headline-sm text-primary">Top Instituições</h2>
+        </header>
+        @if (resumo()!.top_instituicoes.length === 0) {
+          <div class="flex items-center justify-center h-24 text-on-surface-variant font-body-sm text-body-sm">
+            Nenhuma instituição encontrada.
+          </div>
+        } @else {
+          <div class="flex flex-col gap-3">
+            @for (inst of resumo()!.top_instituicoes; track inst.instituicao) {
+              <div
+                class="flex items-center gap-4 cursor-pointer"
+                (click)="toggleInstituicao(inst.instituicao)"
+                [title]="inst.instituicao + ' – clique para filtrar'">
+                <span
+                  class="font-body-sm text-body-sm w-64 truncate shrink-0 transition-colors"
+                  [class.text-secondary]="instituicao().includes(inst.instituicao)"
+                  [class.font-bold]="instituicao().includes(inst.instituicao)"
+                  [title]="inst.instituicao">
+                  {{ inst.instituicao }}
+                </span>
+                <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
+                  <div
+                    class="absolute top-0 left-0 h-full rounded-sm transition-all"
+                    [class.bg-data-teal]="!instituicao().includes(inst.instituicao)"
+                    [class.bg-secondary]="instituicao().includes(inst.instituicao)"
+                    [style.width]="instBarWidthPct(inst.total)">
+                  </div>
+                </div>
+                <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">
+                  {{ formatCount(inst.total) }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+      </section>
+    }
+  </div>
 </div>

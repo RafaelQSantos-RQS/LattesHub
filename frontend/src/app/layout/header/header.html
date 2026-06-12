@@ -1,19 +1,49 @@
-<header class="bg-white border-b border-outline-variant h-20 z-50 sticky top-0">
-  <div class="flex justify-between items-center w-full px-margin-desktop max-w-container-max mx-auto h-20">
+<header class="bg-white border-b border-outline-variant z-50 sticky top-0">
+  <div class="flex justify-between items-center w-full px-4 md:px-6 lg:px-margin-desktop max-w-container-max mx-auto h-20">
     <div class="flex flex-col justify-center">
       <a routerLink="/" class="font-display-lg text-[32px] text-primary tracking-tight hover:opacity-80 transition-opacity leading-none">LattesHub</a>
-      <span class="font-label-bold text-label-bold text-on-surface-variant opacity-70 hidden md:inline mt-1">Portal de Dados Abertos</span>
+      <span class="font-label-bold text-label-bold text-on-surface-variant opacity-70 hidden lg:inline mt-1">Portal de Dados Abertos</span>
     </div>
-    <nav class="hidden md:flex items-center gap-8">
+    <nav class="hidden lg:flex items-center gap-8">
       <a routerLink="/explorar" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: false}" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Explorar</a>
       <a routerLink="/indicadores" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Indicadores</a>
       <a routerLink="/agente" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Agente</a>
       <a routerLink="/sobre" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Sobre o Projeto</a>
     </nav>
     <div class="flex items-center gap-4">
-      <div class="bg-surface-container-high px-4 py-2 rounded-lg border border-outline-variant hidden lg:block">
+      <div class="bg-surface-container-high px-4 py-2 rounded-lg border border-outline-variant hidden xl:block">
         <span class="font-label-bold text-label-bold text-on-surface-variant">Dados Atualizados em: 20 de Maio de 2024</span>
       </div>
+      <button
+        class="lg:hidden p-2 text-on-surface hover:text-primary transition-colors"
+        (click)="mobileMenuOpen.set(!mobileMenuOpen())"
+        aria-label="Menu de navegação">
+        <span class="material-symbols-outlined text-[28px]">{{ mobileMenuOpen() ? 'close' : 'menu' }}</span>
+      </button>
     </div>
   </div>
+  @if (mobileMenuOpen()) {
+    <nav class="lg:hidden bg-white border-t border-outline-variant px-4 py-3 flex flex-col gap-1 shadow-md">
+      <a routerLink="/explorar" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: false}"
+         (click)="mobileMenuOpen.set(false)"
+         class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
+        Explorar
+      </a>
+      <a routerLink="/indicadores" routerLinkActive="text-primary"
+         (click)="mobileMenuOpen.set(false)"
+         class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
+        Indicadores
+      </a>
+      <a routerLink="/agente" routerLinkActive="text-primary"
+         (click)="mobileMenuOpen.set(false)"
+         class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
+        Agente
+      </a>
+      <a routerLink="/sobre" routerLinkActive="text-primary"
+         (click)="mobileMenuOpen.set(false)"
+         class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
+        Sobre o Projeto
+      </a>
+    </nav>
+  }
 </header>

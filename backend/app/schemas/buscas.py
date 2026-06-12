@@ -25,7 +25,7 @@ class BuscaSemanticaRequest(BaseModel):
     )
     qualis_estrato: Optional[str] = Field(
         None,
-        description="Filtra por estrato Qualis do periódico, como A1, A2, B1 ou B2",
+        description="Filtra por estrato Qualis ou por producoes sem Qualis",
     )
 
 

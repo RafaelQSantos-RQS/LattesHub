@@ -86,6 +86,7 @@ describe('SearchService', () => {
       anoInicio: 2020,
       anoFim: 2025,
       instituicaoId: 2,
+      qualisEstrato: 'Sem Qualis',
       areas: [5, 35],
     });
 
@@ -98,6 +99,7 @@ describe('SearchService', () => {
       && req.params.get('ano_inicio') === '2020'
       && req.params.get('ano_fim') === '2025'
       && req.params.get('instituicao_id') === '2'
+      && req.params.get('qualis_estrato') === 'Sem Qualis'
       && (req.params.getAll('areas') ?? []).join(',') === '5,35'
     );
     expect(request.request.method).toBe('GET');
@@ -205,6 +207,7 @@ describe('SearchService', () => {
       tipoProducao: 'ARTIGO PUBLICADO',
       ano: 2023,
       instituicaoId: 1,
+      qualisEstrato: 'A1',
       areas: [30],
     });
 
@@ -215,6 +218,7 @@ describe('SearchService', () => {
       tipo_producao: 'ARTIGO PUBLICADO',
       ano: 2023,
       instituicao_id: 1,
+      qualis_estrato: 'A1',
       areas: [30],
     });
 
@@ -392,6 +396,7 @@ describe('SearchService', () => {
       tipoProducao: 'ARTIGO PUBLICADO',
       ano: 2025,
       instituicaoId: 2,
+      qualisEstrato: 'A1',
       areas: [5],
     });
 
@@ -407,6 +412,7 @@ describe('SearchService', () => {
       && req.params.get('tipo_producao') === 'ARTIGO PUBLICADO'
       && req.params.get('ano') === '2025'
       && req.params.get('instituicao_id') === '2'
+      && req.params.get('qualis_estrato') === 'A1'
       && (req.params.getAll('areas') ?? []).join(',') === '5'
     );
     expect(fallbackRequest.request.method).toBe('GET');

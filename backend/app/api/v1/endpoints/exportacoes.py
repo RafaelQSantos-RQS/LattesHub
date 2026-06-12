@@ -22,6 +22,7 @@ def exportar_producoes_csv(
     ano_fim: Optional[int] = Query(None),
     instituicao_id: Optional[int] = Query(None),
     areas: Optional[list[int]] = Query(None),
+    qualis_estrato: Optional[str] = Query(None),
     db=Depends(get_db_connection),
 ):
     try:
@@ -53,6 +54,12 @@ def exportar_producoes_csv(
         if instituicao_id:
             filtros.append("pes.instituicao_id = %s")
             valores.append(instituicao_id)
+
+        if qualis_estrato == "Sem Qualis":
+            filtros.append("q.estrato IS NULL")
+        elif qualis_estrato:
+            filtros.append("UPPER(q.estrato) = UPPER(%s)")
+            valores.append(qualis_estrato)
 
         if areas:
             filtros.append("""

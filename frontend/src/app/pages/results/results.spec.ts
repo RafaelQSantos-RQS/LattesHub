@@ -40,7 +40,7 @@ describe('Results', () => {
         {
           provide: ActivatedRoute,
           useValue: {
-            queryParamMap: of(convertToParamMap({})),
+            queryParamMap: of(convertToParamMap({ qualis_estrato: 'A1' })),
           },
         },
         { provide: Router, useValue: router },
@@ -56,6 +56,12 @@ describe('Results', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('maps qualis filter from query params', () => {
+    expect(searchServiceStub.search).toHaveBeenCalledWith(
+      expect.objectContaining({ qualisEstrato: 'A1' }),
+    );
   });
 
   it('changes category through query params and clears explicit production type', () => {

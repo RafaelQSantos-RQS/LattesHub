@@ -20,6 +20,7 @@ describe('Sidebar', () => {
       ano_inicio: '2020',
       ano_fim: '2025',
       areas: ['5'],
+      qualis_estrato: 'A1',
     })),
   };
   const searchService = {
@@ -27,6 +28,13 @@ describe('Sidebar', () => {
       {
         id: 2,
         nome: 'FUNDAÇÃO OSWALDO CRUZ',
+        cidade: 'SALVADOR',
+        estado: 'BA',
+        pais: 'BRASIL',
+      },
+      {
+        id: 3,
+        nome: 'UNEB',
         cidade: 'SALVADOR',
         estado: 'BA',
         pais: 'BRASIL',
@@ -69,7 +77,7 @@ describe('Sidebar', () => {
   });
 
   it('loads active filters and filter options', () => {
-    expect(component.institutions().length).toBe(1);
+    expect(component.institutions().length).toBe(2);
     expect(component.areaOptions().length).toBe(1);
     expect(component.productionTypes().length).toBe(1);
     expect(component.selectedInstitutionId()).toBe(2);
@@ -78,6 +86,8 @@ describe('Sidebar', () => {
     expect(component.selectedYearStart()).toBe(2020);
     expect(component.selectedYearEnd()).toBe(2025);
     expect(component.selectedAreas()).toEqual([5]);
+    expect(component.selectedQualis()).toBe('A1');
+    expect(component.selectedInstitutionName()).toContain('OSWALDO CRUZ');
   });
 
   it('sets institutionsState to success when institutions load', () => {
@@ -98,6 +108,51 @@ describe('Sidebar', () => {
     });
   });
 
+  it('filters institution options from typed text', () => {
+    component.openInstitutionDropdown();
+    component.onInstitutionSearch({ target: { value: 'uneb' } } as unknown as Event);
+
+    expect(component.filteredInstitutions().map(institution => institution.nome)).toEqual(['UNEB']);
+  });
+
+  it('selects an institution and closes the dropdown', () => {
+    component.openInstitutionDropdown();
+    component.selectInstitution(component.institutions()[1]);
+
+    expect(component.showInstDropdown()).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { instituicao_id: '3' },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('filters and selects Qualis options', () => {
+    component.openQualisDropdown();
+    component.onQualisSearch({ target: { value: 'sem' } } as unknown as Event);
+
+    expect(component.filteredQualis()).toEqual(['Sem Qualis']);
+
+    component.selectQualis('Sem Qualis');
+
+    expect(component.showQualisDropdown()).toBe(false);
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: { qualis_estrato: 'Sem Qualis' },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('closes combobox dropdowns on outside click', () => {
+    component.openInstitutionDropdown();
+    component.openQualisDropdown();
+
+    component.closeDropdownsOnOutsideClick({ target: document.body } as unknown as MouseEvent);
+
+    expect(component.showInstDropdown()).toBe(false);
+    expect(component.showQualisDropdown()).toBe(false);
+  });
+
   it('updates year range query params and clears exact year', () => {
     component.onYearStartInput({ target: { value: '2021' } } as unknown as Event);
     component.onYearEndInput({ target: { value: '2024' } } as unknown as Event);
@@ -110,6 +165,24 @@ describe('Sidebar', () => {
     expect(router.navigate).toHaveBeenCalledWith([], {
       relativeTo: route,
       queryParams: { ano_fim: '2024', ano: null },
+      queryParamsHandling: 'merge',
+    });
+  });
+
+  it('clears Qualis with the other filters', () => {
+    component.clearFilters();
+
+    expect(router.navigate).toHaveBeenCalledWith([], {
+      relativeTo: route,
+      queryParams: {
+        instituicao_id: null,
+        tipo_producao: null,
+        ano: null,
+        ano_inicio: null,
+        ano_fim: null,
+        areas: null,
+        qualis_estrato: null,
+      },
       queryParamsHandling: 'merge',
     });
   });

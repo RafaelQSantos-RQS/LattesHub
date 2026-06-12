@@ -63,7 +63,9 @@ def busca_semantica(payload: BuscaSemanticaRequest, db=Depends(get_db_connection
             """)
             valores_filtros.append(payload.areas)
 
-        if payload.qualis_estrato:
+        if payload.qualis_estrato == "Sem Qualis":
+            filtros.append("q.estrato IS NULL")
+        elif payload.qualis_estrato:
             filtros.append("UPPER(q.estrato) = UPPER(%s)")
             valores_filtros.append(payload.qualis_estrato)
 

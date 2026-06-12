@@ -42,3 +42,21 @@ def test_exportar_producoes_csv_respeita_filtros(client, issue30_data):
     assert [row["producao_id"] for row in rows] == [
         str(issue30_data["producao_textual"]["id"])
     ]
+
+
+def test_exportar_producoes_csv_filtra_por_qualis(client, issue30_data):
+    response = client.get(
+        "/api/v1/exportacoes/producoes.csv",
+        params={
+            "qualis_estrato": "Sem Qualis",
+            "instituicao_id": issue30_data["instituicao"]["id"],
+        },
+    )
+
+    assert response.status_code == 200
+
+    rows = list(csv.DictReader(StringIO(response.text)))
+    assert [row["producao_id"] for row in rows] == [
+        str(issue30_data["producao_semantica"]["id"])
+    ]
+    assert rows[0]["qualis_estrato"] == ""

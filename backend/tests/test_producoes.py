@@ -38,6 +38,44 @@ def test_listar_producoes_filtra_por_intervalo_de_anos(client, issue30_data):
     assert issue30_data["producao_textual"]["id"] not in ids
 
 
+def test_listar_producoes_filtra_por_qualis_a1(client, issue30_data):
+    response = client.get(
+        "/api/v1/producoes/",
+        params={
+            "qualis_estrato": "A1",
+            "instituicao_id": issue30_data["instituicao"]["id"],
+            "tamanho_pagina": 10,
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert [item["id"] for item in body["resultados"]] == [
+        issue30_data["producao_textual"]["id"]
+    ]
+    assert body["resultados"][0]["qualis_estrato"] == "A1"
+
+
+def test_listar_producoes_filtra_por_sem_qualis(client, issue30_data):
+    response = client.get(
+        "/api/v1/producoes/",
+        params={
+            "qualis_estrato": "Sem Qualis",
+            "instituicao_id": issue30_data["instituicao"]["id"],
+            "tamanho_pagina": 10,
+        },
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["total"] == 1
+    assert [item["id"] for item in body["resultados"]] == [
+        issue30_data["producao_semantica"]["id"]
+    ]
+    assert body["resultados"][0]["qualis_estrato"] is None
+
+
 def test_listar_tipos_producao_retorna_tipos_reais(client, issue30_data):
     response = client.get("/api/v1/producoes/tipos")
 

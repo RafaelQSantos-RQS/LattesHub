@@ -52,6 +52,7 @@ describe('ExportService', () => {
       anoInicio: 2020,
       anoFim: 2024,
       instituicaoId: 3,
+      qualisEstrato: 'A2',
       areas: [5, 8],
     }).subscribe();
 
@@ -62,6 +63,7 @@ describe('ExportService', () => {
       && req.params.get('ano_inicio') === '2020'
       && req.params.get('ano_fim') === '2024'
       && req.params.get('instituicao_id') === '3'
+      && req.params.get('qualis_estrato') === 'A2'
       && (req.params.getAll('areas') ?? []).join(',') === '5,8'
     );
 

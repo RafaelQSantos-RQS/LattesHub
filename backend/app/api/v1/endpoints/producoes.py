@@ -35,6 +35,9 @@ def listar_todas_producoes(
     instituicao_id: Optional[int] = Query(
         None, description="Filtrar produções de uma instituição específica"
     ),
+    qualis_estrato: Optional[str] = Query(
+        None, description="Filtrar por estrato Qualis ou por producoes sem Qualis"
+    ),
     db=Depends(get_db_connection),
 ):
     offset = (pagina - 1) * tamanho_pagina
@@ -76,6 +79,12 @@ def listar_todas_producoes(
             filtros.append("pes.instituicao_id = %s")
             valores.append(instituicao_id)
 
+        if qualis_estrato == "Sem Qualis":
+            filtros.append("q.estrato IS NULL")
+        elif qualis_estrato:
+            filtros.append("UPPER(q.estrato) = UPPER(%s)")
+            valores.append(qualis_estrato)
+
         if areas:
             filtros.append("""
                 EXISTS (
@@ -92,6 +101,7 @@ def listar_todas_producoes(
             SELECT COUNT(p.id) as total 
             FROM producoes p
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+            LEFT JOIN qualis_periodicos q ON p.issn = q.issn
             {where_clause};
         """
         cursor.execute(sql_count, tuple(valores))

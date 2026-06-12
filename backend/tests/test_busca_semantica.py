@@ -105,3 +105,27 @@ def test_busca_semantica_filtra_por_qualis(client, issue30_data, monkeypatch):
     assert resultados[0]["qualis_titulo"] == (
         f"{issue30_data['prefix']} Periodico de Teste"
     )
+
+
+def test_busca_semantica_filtra_por_sem_qualis(client, issue30_data, monkeypatch):
+    from app.api.v1.endpoints import busca
+
+    monkeypatch.setattr(
+        busca.client.embeddings,
+        "create",
+        lambda input, model: _EmbeddingResponse(),
+    )
+
+    response = client.post(
+        "/api/v1/busca/semantica",
+        json={
+            "pergunta": "consulta semantica de teste",
+            "instituicao_id": issue30_data["instituicao"]["id"],
+            "qualis_estrato": "Sem Qualis",
+        },
+    )
+
+    assert response.status_code == 200
+    resultados = response.json()["resultados"]
+    assert resultados[0]["id"] == issue30_data["producao_semantica"]["id"]
+    assert resultados[0]["qualis_estrato"] is None

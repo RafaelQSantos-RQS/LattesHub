@@ -29,6 +29,7 @@ export interface SearchFilters {
   anoInicio?: number;
   anoFim?: number;
   instituicaoId?: number;
+  qualisEstrato?: string;
   areas: number[];
   categoria?: SearchCategory;
 }
@@ -354,6 +355,10 @@ export class SearchService {
       params = params.set('instituicao_id', String(filters.instituicaoId));
     }
 
+    if (filters.qualisEstrato) {
+      params = params.set('qualis_estrato', filters.qualisEstrato);
+    }
+
     for (const area of filters.areas) {
       params = params.append('areas', String(area));
     }
@@ -511,6 +516,10 @@ export class SearchService {
 
     if (filters.instituicaoId !== undefined) {
       payload['instituicao_id'] = filters.instituicaoId;
+    }
+
+    if (filters.qualisEstrato) {
+      payload['qualis_estrato'] = filters.qualisEstrato;
     }
 
     if (filters.areas.length > 0) {

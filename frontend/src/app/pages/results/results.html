@@ -1,32 +1,32 @@
-<!-- Mobile filter backdrop -->
+<!-- Mobile/tablet filter backdrop -->
 @if (sidebarOpen()) {
   <div
-    class="fixed inset-0 bg-slate-900/40 z-20 md:hidden"
+    class="fixed inset-0 bg-slate-900/40 z-20 lg:hidden"
     (click)="sidebarOpen.set(false)">
   </div>
 }
 
-<div class="flex items-start max-w-container-max mx-auto px-4 md:px-margin-desktop min-h-screen w-full">
+<div class="flex items-start max-w-container-max mx-auto px-4 md:px-6 lg:px-margin-desktop min-h-screen w-full">
 
-  <!-- Sidebar wrapper: fixed drawer on mobile, inline on desktop -->
+  <!-- Sidebar wrapper: fixed drawer on mobile+tablet, inline on desktop -->
   <div class="
     fixed inset-y-0 left-0 z-30 overflow-hidden
     transition-transform duration-200
-    md:relative md:inset-auto md:z-auto md:overflow-visible md:translate-x-0
+    lg:relative lg:inset-auto lg:z-auto lg:overflow-visible lg:translate-x-0
   " [class.-translate-x-full]="!sidebarOpen()">
     <app-sidebar></app-sidebar>
   </div>
 
   <!-- Main Results Area -->
-  <div class="w-full md:pl-gutter py-8">
+  <div class="w-full lg:pl-gutter py-8">
     <!-- Results Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
       <div class="w-full md:w-auto">
-        <!-- Mobile filter toggle -->
+        <!-- Mobile/tablet filter toggle -->
         <button
           type="button"
           (click)="sidebarOpen.set(true)"
-          class="md:hidden mb-4 flex items-center gap-2 border border-slate-200 rounded-sm px-3 py-2 font-label-bold text-label-bold text-slate-800 hover:bg-slate-50">
+          class="lg:hidden mb-4 flex items-center gap-2 border border-slate-200 rounded-sm px-3 py-2 font-label-bold text-label-bold text-slate-800 hover:bg-slate-50">
           <span class="material-symbols-outlined text-sm">tune</span>
           Filtros
         </button>

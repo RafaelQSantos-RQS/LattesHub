@@ -1,4 +1,4 @@
-<div class="flex-1 flex flex-col items-center justify-center w-full py-12 px-6">
+<div class="flex-1 flex flex-col items-center justify-center w-full py-8 md:py-12 px-4 md:px-6">
 <!-- Abstract Background Pattern (Non-image) -->
 <div class="absolute inset-0 pointer-events-none opacity-[0.03] overflow-hidden">
   <svg class="w-full h-full" xmlns="http://www.w3.org/2000/svg">
@@ -12,7 +12,7 @@
 </div>
 <!-- Center Search Cluster -->
 <div class="w-full max-w-4xl relative z-10 flex flex-col items-center">
-  <div class="mb-12 text-center">
+  <div class="mb-8 md:mb-12 text-center">
     <h1 class="font-headline-md text-headline-md text-primary mb-4">Descubra a ciência global.</h1>
     <p class="font-body-lg text-body-lg text-on-surface-variant max-w-2xl mx-auto">Acesse metadados de pesquisadores e produções científicas mundiais através de busca semântica inteligente.</p>
   </div>
@@ -27,7 +27,7 @@
   </div>
   
   <!-- Bento-style Quick Access -->
-  <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-24 w-full">
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter mt-12 md:mt-24 w-full">
     <app-stats-card icon="dataset" title="Produções Científicas" [value]="totalProducoes()" description="Artigos, eventos, livros e capítulos indexados."></app-stats-card>
     <app-stats-card icon="group" title="Pesquisadores" [value]="totalPesquisadores()" description="Cientistas com currículo Lattes integrado."></app-stats-card>
     <app-stats-card icon="account_balance" title="Instituições" [value]="totalInstituicoes()" description="Centros de ensino e pesquisa mapeados."></app-stats-card>

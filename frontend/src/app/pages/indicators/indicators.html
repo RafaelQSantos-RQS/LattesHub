@@ -9,14 +9,15 @@
 <!-- Page layout: full-bleed flex row inside max-width container -->
 <div class="flex-grow w-full max-w-container-max mx-auto flex min-h-0">
 
-  <!-- ── FACETED SIDEBAR ───────────────────────────────────────────────── -->
+  <!-- ── FACETED SIDEBAR wrapper: fixed drawer on mobile, inline on desktop ── -->
+  <div class="
+    fixed inset-y-0 left-0 z-30 overflow-hidden
+    transition-transform duration-200
+    md:relative md:inset-auto md:z-auto md:overflow-visible md:translate-x-0
+  " [class.-translate-x-full]="!sidebarOpen()">
   <aside
-    class="shrink-0 w-[280px] border-r border-slate-200 bg-white flex-col py-10 pl-margin-desktop pr-6 gap-6
-           hidden md:flex
-           fixed md:sticky top-0 h-screen overflow-y-auto z-30
-           transition-transform duration-200 md:translate-x-0"
-    [class.translate-x-0]="sidebarOpen()"
-    [class.-translate-x-full]="!sidebarOpen()">
+    class="shrink-0 w-[280px] border-r border-slate-200 bg-white flex flex-col py-10 pl-4 md:pl-margin-desktop pr-6 gap-6
+           h-full md:h-screen overflow-y-auto z-30">
 
     <header class="flex items-center justify-between">
       <h2 class="font-label-bold text-label-bold text-slate-900 uppercase tracking-widest">Filtros</h2>
@@ -174,9 +175,10 @@
       }
     </section>
   </aside>
+  </div>
 
   <!-- ── MAIN PANEL ─────────────────────────────────────────────────────── -->
-  <div class="flex-1 min-w-0 flex flex-col gap-10 py-10 pl-8 pr-margin-desktop">
+  <div class="flex-1 min-w-0 flex flex-col gap-10 py-10 px-4 md:pl-8 md:pr-margin-desktop">
 
     <!-- Header row -->
     <header class="flex items-start justify-between gap-4 border-b border-slate-200 pb-8">
@@ -493,7 +495,7 @@
                 (click)="toggleInstituicao(inst.instituicao)"
                 [title]="inst.instituicao + ' – clique para filtrar'">
                 <span
-                  class="font-body-sm text-body-sm w-64 truncate shrink-0 transition-colors"
+                  class="font-body-sm text-body-sm w-32 md:w-64 truncate shrink-0 transition-colors"
                   [class.text-secondary]="instituicao().includes(inst.instituicao)"
                   [class.font-bold]="instituicao().includes(inst.instituicao)"
                   [title]="inst.instituicao">

@@ -27,6 +27,7 @@ export class Results {
   readonly pageSize = 20;
   currentPage = signal(1);
   activeCategory = signal<SearchCategory>('tudo');
+  sidebarOpen = signal(false);
   exportingCsv = signal(false);
   exportError = signal<string | null>(null);
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));

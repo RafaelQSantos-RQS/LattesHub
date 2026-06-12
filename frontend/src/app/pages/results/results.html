@@ -1,17 +1,41 @@
-<div class="flex items-start max-w-container-max mx-auto px-margin-desktop min-h-screen w-full">
-  <app-sidebar></app-sidebar>
-  
+<!-- Mobile filter backdrop -->
+@if (sidebarOpen()) {
+  <div
+    class="fixed inset-0 bg-slate-900/40 z-20 md:hidden"
+    (click)="sidebarOpen.set(false)">
+  </div>
+}
+
+<div class="flex items-start max-w-container-max mx-auto px-4 md:px-margin-desktop min-h-screen w-full">
+
+  <!-- Sidebar wrapper: fixed drawer on mobile, inline on desktop -->
+  <div class="
+    fixed inset-y-0 left-0 z-30 overflow-hidden
+    transition-transform duration-200
+    md:relative md:inset-auto md:z-auto md:overflow-visible md:translate-x-0
+  " [class.-translate-x-full]="!sidebarOpen()">
+    <app-sidebar></app-sidebar>
+  </div>
+
   <!-- Main Results Area -->
-  <div class="w-full pl-gutter py-8">
+  <div class="w-full md:pl-gutter py-8">
     <!-- Results Header -->
     <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-8 gap-4">
-      <div>
+      <div class="w-full md:w-auto">
+        <!-- Mobile filter toggle -->
+        <button
+          type="button"
+          (click)="sidebarOpen.set(true)"
+          class="md:hidden mb-4 flex items-center gap-2 border border-slate-200 rounded-sm px-3 py-2 font-label-bold text-label-bold text-slate-800 hover:bg-slate-50">
+          <span class="material-symbols-outlined text-sm">tune</span>
+          Filtros
+        </button>
         <h1 class="font-headline-md text-headline-md text-slate-800">{{ resultSummary() }}</h1>
-        <div class="flex gap-6 mt-4 border-b border-slate-200">
+        <div class="flex gap-6 mt-4 border-b border-slate-200 overflow-x-auto pb-0">
           @for (tab of categoryTabs; track tab.value) {
             <button
               type="button"
-              class="pb-2 font-label-bold text-label-bold transition-colors"
+              class="pb-2 font-label-bold text-label-bold transition-colors whitespace-nowrap"
               [class.text-primary]="activeCategory() === tab.value"
               [class.font-bold]="activeCategory() === tab.value"
               [class.border-b-2]="activeCategory() === tab.value"
@@ -24,16 +48,16 @@
           }
         </div>
       </div>
-      <div class="flex flex-col items-end gap-1">
+      <div class="flex flex-col items-start md:items-end gap-1 w-full md:w-auto">
         <button
           type="button"
           (click)="exportCsv()"
           [disabled]="exportingCsv()"
-          class="bg-white border border-slate-200 text-slate-800 px-6 py-2 rounded-sm flex items-center gap-2 hover:bg-slate-50 hover:shadow-sm transition-all group disabled:opacity-60 disabled:cursor-wait">
+          class="w-full md:w-auto bg-white border border-slate-200 text-slate-800 px-4 md:px-6 py-2 rounded-sm flex items-center gap-2 hover:bg-slate-50 hover:shadow-sm transition-all group disabled:opacity-60 disabled:cursor-wait">
           <span class="material-symbols-outlined text-on-secondary-container">download</span>
           <span class="font-label-bold text-label-bold">Exportar Dados Analíticos (CSV)</span>
         </button>
-        <p class="font-data-label text-[10px] text-outline text-right">Formato tabular flat otimizado para Power BI / Python</p>
+        <p class="font-data-label text-[10px] text-outline text-left md:text-right">Formato tabular flat otimizado para Power BI / Python</p>
         @if (exportingCsv()) {
           <p class="font-body-sm text-body-sm text-on-surface-variant text-right">Gerando arquivo...</p>
         }
@@ -42,7 +66,7 @@
         }
       </div>
     </div>
-    
+
     <!-- Result Cards List -->
     <div class="flex flex-col gap-2">
       @if (loading()) {
@@ -63,10 +87,10 @@
         }
       }
     </div>
-    
+
     <!-- Pagination -->
     @if (totalPages() > 1) {
-      <div class="mt-12 flex justify-center items-center gap-2">
+      <div class="mt-12 flex justify-center items-center gap-2 flex-wrap">
         <button
           (click)="goToPage(currentPage() - 1)"
           [disabled]="currentPage() === 1"

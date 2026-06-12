@@ -81,7 +81,16 @@ For multi-step tasks, state a brief plan:
 
 Strong success criteria let you loop independently. Weak criteria require clarification.
 
-## 5. Proactive Operational Notes
+## 5. GitHub Workflow
+
+**Branch and commit freely. Never open a PR without explicit user instruction.**
+
+- Always create a feature branch before committing — never commit directly to `main`.
+- Commit and push the branch when the work is done.
+- **Do not open a pull request automatically.** Wait for the user to say "open a PR", "create a PR", or invoke `/gh-create-pr`. Small fixes are often accumulated by the user into a single PR later.
+- When asked to open a PR, follow the full `/gh-create-pr` skill workflow: meaningful branch name, labels, milestone, project, assignee (`brugabi`), and body.
+
+## 6. Proactive Operational Notes
 
 **Capture lessons that prevent repeated mistakes.**
 

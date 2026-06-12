@@ -13,11 +13,29 @@ export interface TopArea {
   total: number;
 }
 
+export interface ProducaoPorTipo {
+  tipo: string;
+  total: number;
+}
+
+export interface QualisEstrato {
+  estrato: string;
+  total: number;
+}
+
+export interface TopInstituicao {
+  instituicao: string;
+  total: number;
+}
+
 export interface IndicadoresResumo {
   total_producoes: number;
   total_pesquisadores: number;
   producoes_por_ano: ProducaoPorAno[];
   top_areas: TopArea[];
+  por_tipo: ProducaoPorTipo[];
+  qualis_distribuicao: QualisEstrato[];
+  top_instituicoes: TopInstituicao[];
 }
 
 @Injectable({

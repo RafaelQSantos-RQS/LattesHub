@@ -76,6 +76,42 @@ export class Indicators implements OnInit {
     return `${Math.round((total / this.topAreasMax) * 100)}%`;
   }
 
+  get porTipoMax(): number {
+    const data = this.resumo()?.por_tipo ?? [];
+    return data.length ? Math.max(...data.map(t => t.total)) : 1;
+  }
+
+  tipoBarWidthPct(total: number): string {
+    return `${Math.round((total / this.porTipoMax) * 100)}%`;
+  }
+
+  get qualisMax(): number {
+    const data = this.resumo()?.qualis_distribuicao ?? [];
+    return data.length ? Math.max(...data.map(q => q.total)) : 1;
+  }
+
+  qualisBarHeightPct(total: number): string {
+    return `${Math.round((total / this.qualisMax) * 100)}%`;
+  }
+
+  qualisColor(estrato: string): string {
+    const map: Record<string, string> = {
+      'A1': '#065f46', 'A2': '#059669', 'A3': '#34d399', 'A4': '#6ee7b7',
+      'B1': '#1e3a8a', 'B2': '#2563eb', 'B3': '#60a5fa', 'B4': '#93c5fd',
+      'C': '#d97706',
+    };
+    return map[estrato] ?? '#cbd5e1';
+  }
+
+  get topInstMax(): number {
+    const data = this.resumo()?.top_instituicoes ?? [];
+    return data.length ? Math.max(...data.map(i => i.total)) : 1;
+  }
+
+  instBarWidthPct(total: number): string {
+    return `${Math.round((total / this.topInstMax) * 100)}%`;
+  }
+
   formatCount(n: number): string {
     if (n >= 1_000_000) return `${(n / 1_000_000).toFixed(1)}M`;
     if (n >= 1_000) return `${(n / 1_000).toFixed(1)}k`;

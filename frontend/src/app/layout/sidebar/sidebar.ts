@@ -69,6 +69,17 @@ export class Sidebar {
 
     return this.qualisOptions.filter(option => option.toLowerCase().includes(query));
   });
+  areaSearchQuery = signal('');
+  filteredAreaOptions = computed(() => {
+    const query = this.areaSearchQuery().toLowerCase().trim();
+    if (!query) {
+      return this.areaOptions();
+    }
+    return this.areaOptions().filter(area =>
+      area.label.toLowerCase().includes(query) ||
+      area.group.toLowerCase().includes(query)
+    );
+  });
 
   constructor() {
     this.searchService.getInstitutions()

@@ -26,4 +26,4 @@ COPY ./tests ./tests
 EXPOSE 8000
 
 # Comando padrão para rodar a API (o script rodaremos via terminal/cron)
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000", "--reload"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

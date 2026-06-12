@@ -1,0 +1,1 @@
+ALTER TABLE producoes ADD COLUMN resumo TEXT;

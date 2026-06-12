@@ -141,7 +141,7 @@ def chat_agente(payload: ChatRequest, db=Depends(get_db_connection)):
         )
         vetor = embed_resp.data[0].embedding
 
-        # 2. Busca vetorial: 5 produções mais relevantes (com resumo quando disponível)
+        # 2. Busca vetorial: 5 produções mais relevantes
         cursor.execute(
             """
             WITH ranked AS (
@@ -150,7 +150,7 @@ def chat_agente(payload: ChatRequest, db=Depends(get_db_connection)):
                     p.titulo,
                     p.tipo_producao,
                     p.ano,
-                    p.resumo,
+                    p.palavras_chave,
                     p.revista,
                     p.evento,
                     pes.nome AS pesquisador_nome,
@@ -162,7 +162,7 @@ def chat_agente(payload: ChatRequest, db=Depends(get_db_connection)):
                 ORDER BY (v.embedding <=> %s::vector) ASC
                 LIMIT 30
             )
-            SELECT id, titulo, tipo_producao, ano, resumo, revista, evento, pesquisador_nome
+            SELECT id, titulo, tipo_producao, ano, palavras_chave, revista, evento, pesquisador_nome
             FROM ranked
             WHERE rn = 1
             ORDER BY score DESC
@@ -180,13 +180,13 @@ def chat_agente(payload: ChatRequest, db=Depends(get_db_connection)):
         context_parts = []
         for i, p in enumerate(producoes, 1):
             venue = p.get("revista") or p.get("evento") or "N/A"
-            resumo = p.get("resumo") or "Resumo não disponível."
+            palavras = p.get("palavras_chave") or "N/A"
             context_parts.append(
                 f"[{i}] Título: {p['titulo']}\n"
                 f"    Autor: {p['pesquisador_nome']}\n"
                 f"    Ano: {p['ano'] or 'N/A'}\n"
                 f"    Veículo: {venue}\n"
-                f"    Resumo: {resumo[:600]}"
+                f"    Palavras-chave: {palavras[:400]}"
             )
 
         context_text = "\n\n".join(context_parts)

@@ -77,6 +77,7 @@ def _valor_util(valor) -> str | None:
 def montar_texto_embedding(producao: dict) -> str:
     campos = [
         ("Titulo", producao.get("titulo")),
+        ("Resumo", producao.get("resumo")),
         ("Titulo em ingles", producao.get("titulo_ingles")),
         ("Tipo", producao.get("tipo_producao")),
         ("Natureza", producao.get("natureza")),
@@ -104,6 +105,7 @@ def buscar_producoes_pendentes(cursor, tipos_producao: list[str]) -> list[dict]:
             p.tipo_producao,
             p.titulo,
             p.titulo_ingles,
+            p.resumo,
             p.ano,
             p.idioma,
             p.natureza,

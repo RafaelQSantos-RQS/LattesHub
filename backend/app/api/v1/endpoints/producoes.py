@@ -181,7 +181,7 @@ def listar_tipos_producao(db=Depends(get_db_connection)):
         )
 
 
-@router.get("/{producao_id}", response_model=ProducaoDetalhe)
+@router.get("/{producao_id}", response_model=ProducaoDetalhe, response_model_exclude_none=True)
 def obter_producao_por_id(producao_id: int, db=Depends(get_db_connection)):
     try:
         cursor = db.cursor(cursor_factory=RealDictCursor)
@@ -207,6 +207,7 @@ def obter_producao_por_id(producao_id: int, db=Depends(get_db_connection)):
                 p.titulo_ingles,
                 p.palavras_chave,
                 p.coautores,
+                p.resumo,
                 p.pesquisador_id,
                 pes.nome AS pesquisador_nome,
                 q.estrato AS qualis_estrato,

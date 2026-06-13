@@ -108,6 +108,13 @@
         </section>
       }
 
+      @if (p.resumo) {
+        <section class="bg-white border border-slate-200 rounded-sm p-6 mb-4">
+          <h2 class="font-label-bold text-label-bold text-slate-800 mb-3">Resumo</h2>
+          <p class="text-body-sm text-slate-800 leading-relaxed whitespace-pre-wrap">{{ p.resumo }}</p>
+        </section>
+      }
+
       <!-- Keywords -->
       @if (keywords().length > 0) {
         <section class="bg-white border border-slate-200 rounded-sm p-6">

@@ -159,6 +159,7 @@ export interface ProductionDetail {
   coautores: string | null;
   qualis_estrato: string | null;
   qualis_area_avaliacao: string | null;
+  resumo?: string | null;
   pesquisador_id: number;
   pesquisador_nome: string;
 }

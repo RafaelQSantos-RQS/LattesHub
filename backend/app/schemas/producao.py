@@ -23,6 +23,7 @@ class ProducaoDetalhe(BaseModel):
     coautores: Optional[str] = None
     qualis_estrato: Optional[str] = None
     qualis_area_avaliacao: Optional[str] = None
+    resumo: Optional[str] = None
     pesquisador_id: int
     pesquisador_nome: str
 

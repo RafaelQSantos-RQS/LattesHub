@@ -1,4 +1,12 @@
-import { Component, computed, inject, signal, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import {
+  Component,
+  computed,
+  inject,
+  signal,
+  ElementRef,
+  ViewChild,
+  AfterViewChecked,
+} from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SearchService, AgenteChatFonte } from '../../services/search';
@@ -47,14 +55,14 @@ export class Agente implements AfterViewChecked {
     if (!text || this.loading()) return;
 
     this.error.set(null);
-    this.messages.update(msgs => [...msgs, { role: 'user', text }]);
+    this.messages.update((msgs) => [...msgs, { role: 'user', text }]);
     this.inputText = '';
     this.loading.set(true);
     this.shouldScrollToBottom = true;
 
     this.searchService.perguntarAgente(text).subscribe({
       next: (resp) => {
-        this.messages.update(msgs => [
+        this.messages.update((msgs) => [
           ...msgs,
           { role: 'agent', text: resp.resposta, fontes: resp.fontes },
         ]);

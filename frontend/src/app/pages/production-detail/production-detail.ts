@@ -33,22 +33,23 @@ export class ProductionDetail {
   readonly keywords = computed(() => {
     const pk = this.production()?.palavras_chave;
     if (!pk) return [];
-    return pk.split(';').map(k => k.trim()).filter(Boolean);
+    return pk
+      .split(';')
+      .map((k) => k.trim())
+      .filter(Boolean);
   });
 
   constructor() {
-    this.route.paramMap
-      .pipe(takeUntilDestroyed())
-      .subscribe(params => {
-        const id = Number(params.get('id'));
-        if (!Number.isInteger(id) || id <= 0) {
-          this.production.set(null);
-          this.loading.set(false);
-          this.error.set(this.i18n.translate('production.invalido'));
-          return;
-        }
-        this.loadProduction(id);
-      });
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const id = Number(params.get('id'));
+      if (!Number.isInteger(id) || id <= 0) {
+        this.production.set(null);
+        this.loading.set(false);
+        this.error.set(this.i18n.translate('production.invalido'));
+        return;
+      }
+      this.loadProduction(id);
+    });
   }
 
   goBack() {
@@ -61,15 +62,15 @@ export class ProductionDetail {
 
   qualisBadgeClass(): string {
     const map: Record<string, string> = {
-      'A1': 'bg-green-700 text-white',
-      'A2': 'bg-green-600 text-white',
-      'A3': 'bg-green-500 text-white',
-      'A4': 'bg-green-400 text-green-950',
-      'B1': 'bg-yellow-400 text-yellow-950',
-      'B2': 'bg-amber-500 text-white',
-      'B3': 'bg-orange-500 text-white',
-      'B4': 'bg-orange-400 text-orange-950',
-      'C':  'bg-red-600 text-white',
+      A1: 'bg-green-700 text-white',
+      A2: 'bg-green-600 text-white',
+      A3: 'bg-green-500 text-white',
+      A4: 'bg-green-400 text-green-950',
+      B1: 'bg-yellow-400 text-yellow-950',
+      B2: 'bg-amber-500 text-white',
+      B3: 'bg-orange-500 text-white',
+      B4: 'bg-orange-400 text-orange-950',
+      C: 'bg-red-600 text-white',
     };
     return map[this.production()?.qualis_estrato ?? ''] ?? 'bg-slate-200 text-slate-700';
   }
@@ -80,13 +81,17 @@ export class ProductionDetail {
     this.production.set(null);
 
     this.searchService.getProduction(id).subscribe({
-      next: production => {
+      next: (production) => {
         this.production.set(production);
         this.loading.set(false);
       },
-      error: err => {
+      error: (err) => {
         this.loading.set(false);
-        this.error.set(err.status === 404 ? this.i18n.translate('production.naoEncontrado') : this.i18n.translate('production.erroCarregar'));
+        this.error.set(
+          err.status === 404
+            ? this.i18n.translate('production.naoEncontrado')
+            : this.i18n.translate('production.erroCarregar'),
+        );
       },
     });
   }

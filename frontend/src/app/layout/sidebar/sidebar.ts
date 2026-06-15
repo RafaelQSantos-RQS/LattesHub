@@ -1,8 +1,19 @@
-import { Component, HostListener, computed, inject, signal } from '@angular/core';
+import {
+  Component,
+  HostListener,
+  computed,
+  inject,
+  signal,
+} from '@angular/core';
 type FilterState = 'loading' | 'error' | 'empty' | 'success';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { FilterAreaOption, FilterInstitution, ProductionTypeOption, SearchService } from '../../services/search';
+import {
+  FilterAreaOption,
+  FilterInstitution,
+  ProductionTypeOption,
+  SearchService,
+} from '../../services/search';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 
 interface SidebarSections {
@@ -49,16 +60,18 @@ export class Sidebar {
   instSearchQuery = signal('');
   showQualisDropdown = signal(false);
   qualisSearchQuery = signal('');
-  selectedInstitutionName = computed(() => (
-    this.institutions().find(institution => institution.id === this.selectedInstitutionId())?.nome ?? ''
-  ));
+  selectedInstitutionName = computed(
+    () =>
+      this.institutions().find((institution) => institution.id === this.selectedInstitutionId())
+        ?.nome ?? '',
+  );
   filteredInstitutions = computed(() => {
     const query = this.instSearchQuery().trim().toLowerCase();
     if (!query) {
       return this.institutions();
     }
 
-    return this.institutions().filter(institution =>
+    return this.institutions().filter((institution) =>
       institution.nome.toLowerCase().includes(query),
     );
   });
@@ -68,7 +81,7 @@ export class Sidebar {
       return this.qualisOptions;
     }
 
-    return this.qualisOptions.filter(option => option.toLowerCase().includes(query));
+    return this.qualisOptions.filter((option) => option.toLowerCase().includes(query));
   });
   areaSearchQuery = signal('');
   filteredAreaOptions = computed(() => {
@@ -76,54 +89,55 @@ export class Sidebar {
     if (!query) {
       return this.areaOptions();
     }
-    return this.areaOptions().filter(area =>
-      area.label.toLowerCase().includes(query) ||
-      area.group.toLowerCase().includes(query)
+    return this.areaOptions().filter(
+      (area) =>
+        area.label.toLowerCase().includes(query) || area.group.toLowerCase().includes(query),
     );
   });
 
   constructor() {
-    this.searchService.getInstitutions()
+    this.searchService
+      .getInstitutions()
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: institutions => {
+        next: (institutions) => {
           this.institutions.set(institutions);
           this.institutionsState.set(institutions.length === 0 ? 'empty' : 'success');
         },
         error: () => this.institutionsState.set('error'),
       });
 
-    this.searchService.getAreaOptions()
+    this.searchService
+      .getAreaOptions()
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: areas => {
+        next: (areas) => {
           this.areaOptions.set(areas);
           this.areasState.set(areas.length === 0 ? 'empty' : 'success');
         },
         error: () => this.areasState.set('error'),
       });
 
-    this.searchService.getProductionTypes()
+    this.searchService
+      .getProductionTypes()
       .pipe(takeUntilDestroyed())
       .subscribe({
-        next: productionTypes => {
+        next: (productionTypes) => {
           this.productionTypes.set(productionTypes);
           this.productionTypesState.set(productionTypes.length === 0 ? 'empty' : 'success');
         },
         error: () => this.productionTypesState.set('error'),
       });
 
-    this.route.queryParamMap
-      .pipe(takeUntilDestroyed())
-      .subscribe(params => {
-        this.selectedInstitutionId.set(this.toNumber(params.get('instituicao_id')));
-        this.selectedType.set(params.get('tipo_producao') ?? undefined);
-        this.selectedYear.set(this.toNumber(params.get('ano')));
-        this.selectedYearStart.set(this.toNumber(params.get('ano_inicio')));
-        this.selectedYearEnd.set(this.toNumber(params.get('ano_fim')));
-        this.selectedAreas.set(params.getAll('areas').map(Number).filter(Number.isFinite));
-        this.selectedQualis.set(params.get('qualis_estrato') ?? undefined);
-      });
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.selectedInstitutionId.set(this.toNumber(params.get('instituicao_id')));
+      this.selectedType.set(params.get('tipo_producao') ?? undefined);
+      this.selectedYear.set(this.toNumber(params.get('ano')));
+      this.selectedYearStart.set(this.toNumber(params.get('ano_inicio')));
+      this.selectedYearEnd.set(this.toNumber(params.get('ano_fim')));
+      this.selectedAreas.set(params.getAll('areas').map(Number).filter(Number.isFinite));
+      this.selectedQualis.set(params.get('qualis_estrato') ?? undefined);
+    });
   }
 
   @HostListener('document:click', ['$event'])
@@ -138,9 +152,9 @@ export class Sidebar {
   }
 
   toggleSection(section: keyof SidebarSections) {
-    this.expandedSections.update(sections => ({
+    this.expandedSections.update((sections) => ({
       ...sections,
-      [section]: !sections[section]
+      [section]: !sections[section],
     }));
   }
 

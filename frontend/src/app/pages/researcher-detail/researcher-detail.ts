@@ -2,7 +2,12 @@ import { Component, computed, inject, signal } from '@angular/core';
 import { Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { ResearcherArea, ResearcherProduction, ResearcherProfile, SearchService } from '../../services/search';
+import {
+  ResearcherArea,
+  ResearcherProduction,
+  ResearcherProfile,
+  SearchService,
+} from '../../services/search';
 import { TranslatePipe } from '../../i18n/translate.pipe';
 import { TranslationService } from '../../i18n/translation.service';
 
@@ -27,27 +32,25 @@ export class ResearcherDetail {
   readonly productions = computed(() => this.profile()?.producoes ?? []);
   readonly latestYear = computed(() => {
     const years = this.productions()
-      .map(production => production.ano)
+      .map((production) => production.ano)
       .filter((year): year is number => year !== null);
 
     return years.length > 0 ? Math.max(...years) : null;
   });
 
   constructor() {
-    this.route.paramMap
-      .pipe(takeUntilDestroyed())
-      .subscribe(params => {
-        const pesquisadorId = Number(params.get('id'));
+    this.route.paramMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      const pesquisadorId = Number(params.get('id'));
 
-        if (!Number.isInteger(pesquisadorId) || pesquisadorId <= 0) {
-          this.profile.set(null);
-          this.loading.set(false);
-          this.error.set(this.i18n.translate('researcher.invalido'));
-          return;
-        }
+      if (!Number.isInteger(pesquisadorId) || pesquisadorId <= 0) {
+        this.profile.set(null);
+        this.loading.set(false);
+        this.error.set(this.i18n.translate('researcher.invalido'));
+        return;
+      }
 
-        this.loadProfile(pesquisadorId);
-      });
+      this.loadProfile(pesquisadorId);
+    });
   }
 
   goBack() {
@@ -65,7 +68,12 @@ export class ResearcherDetail {
   }
 
   productionSource(production: ResearcherProduction) {
-    return production.revista || production.evento || production.natureza || this.i18n.translate('researcher.semVeiculo');
+    return (
+      production.revista ||
+      production.evento ||
+      production.natureza ||
+      this.i18n.translate('researcher.semVeiculo')
+    );
   }
 
   private loadProfile(pesquisadorId: number) {
@@ -74,13 +82,17 @@ export class ResearcherDetail {
     this.profile.set(null);
 
     this.searchService.getResearcherProfile(pesquisadorId).subscribe({
-      next: profile => {
+      next: (profile) => {
         this.profile.set(profile);
         this.loading.set(false);
       },
-      error: error => {
+      error: (error) => {
         this.loading.set(false);
-        this.error.set(error.status === 404 ? this.i18n.translate('researcher.naoEncontrado') : this.i18n.translate('researcher.erroCarregar'));
+        this.error.set(
+          error.status === 404
+            ? this.i18n.translate('researcher.naoEncontrado')
+            : this.i18n.translate('researcher.erroCarregar'),
+        );
       },
     });
   }

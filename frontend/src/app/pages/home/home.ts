@@ -23,14 +23,12 @@ export class Home implements OnInit {
         this.totalProducoes.set(this.formatStat(data.total_producoes));
         this.totalPesquisadores.set(this.formatStat(data.total_pesquisadores));
       },
-      error: () => {},
     });
 
     this.indicatorsService.getFiltros().subscribe({
       next: (data) => {
         this.totalInstituicoes.set(this.formatStat(data.instituicoes.length));
       },
-      error: () => {},
     });
   }
 

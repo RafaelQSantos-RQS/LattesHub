@@ -336,13 +336,18 @@ RUN_SUPABASE_SMOKE=1 DATABASE_URL="<url-do-postgres-de-teste>" pytest -m supabas
 
 ### Testes e build do frontend
 
+O frontend requer **Node.js 24** (mesma versão do CI). O repositório fixa essa versão via `frontend/.nvmrc` e o campo `engines` do `package.json`; com [nvm](https://github.com/nvm-sh/nvm), basta rodar `nvm use` dentro de `frontend/`. Evite o Node 25: o ambiente de teste do Vitest não disponibiliza `localStorage` nessa versão, o que faz quase todos os specs falharem com erros encadeados de `TestBed` (`localStorage.getItem is not a function`, depois "test module has already been instantiated").
+
 Na pasta `frontend/`, use:
 
 ```bash
+nvm use        # seleciona o Node 24 do .nvmrc
 npm install
 npm test
 npm run build
 ```
+
+> Se trocar de versão do Angular (ou após um `git pull` que atualize `package.json`/`package-lock.json`), rode `npm ci` antes de buildar; um `node_modules` desatualizado causa erros de compilação como `Module '"@angular/common/http"' has no exported member 'withXhr'`.
 
 No Windows PowerShell, se `npm` for bloqueado por política de execução do `npm.ps1`, use `npm.cmd` nos mesmos comandos, por exemplo `npm.cmd test`.
 

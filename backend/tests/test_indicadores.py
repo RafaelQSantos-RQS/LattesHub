@@ -147,6 +147,77 @@ def test_resumo_indicadores_top_areas_respeita_multiplas_grandes_areas(
         db_conn.commit()
 
 
+def test_resumo_indicadores_inclui_quadrienio_e_pesquisadores(client, issue30_data):
+    response = client.get("/api/v1/indicadores/resumo")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "producoes_por_quadrienio" in body
+    assert "top_pesquisadores" in body
+    for item in body["producoes_por_quadrienio"]:
+        assert "quadrienio" in item
+        assert isinstance(item["total"], int)
+    for item in body["top_pesquisadores"]:
+        assert {"pesquisador_id", "nome", "total"} <= item.keys()
+        assert isinstance(item["pesquisador_id"], int)
+        assert item["total"] > 0
+
+
+def test_resumo_indicadores_top_pesquisadores_respeita_filtro_instituicao(
+    client, issue30_data
+):
+    response = client.get(
+        "/api/v1/indicadores/resumo",
+        params={"instituicao": issue30_data["instituicao"]["nome"]},
+    )
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["top_pesquisadores"] == [
+        {
+            "pesquisador_id": issue30_data["pesquisador"]["id"],
+            "nome": issue30_data["pesquisador"]["nome"],
+            "total": 2,
+        }
+    ]
+
+
+def test_resumo_indicadores_filtra_por_quadrienio(client, issue30_data):
+    # Ambas as produções do fixture (2023 e 2024) caem no quadriênio 2021-2024.
+    dentro = client.get(
+        "/api/v1/indicadores/resumo",
+        params=[
+            ("instituicao", issue30_data["instituicao"]["nome"]),
+            ("quadrienio", "2021-2024"),
+        ],
+    )
+    assert dentro.status_code == 200
+    body_dentro = dentro.json()
+    assert body_dentro["total_producoes"] == 2
+    assert body_dentro["producoes_por_quadrienio"] == [
+        {"quadrienio": "2021-2024", "total": 2}
+    ]
+
+    fora = client.get(
+        "/api/v1/indicadores/resumo",
+        params=[
+            ("instituicao", issue30_data["instituicao"]["nome"]),
+            ("quadrienio", "2017-2020"),
+        ],
+    )
+    assert fora.status_code == 200
+    assert fora.json()["total_producoes"] == 0
+
+
+def test_filtros_inclui_quadrienios(client, issue30_data):
+    response = client.get("/api/v1/indicadores/filtros")
+
+    assert response.status_code == 200
+    body = response.json()
+    assert "quadrienios" in body
+    assert "2021-2024" in body["quadrienios"]
+
+
 def test_resumo_indicadores_qualis_aceita_multiplos_estratos_com_sem_qualis(
     client,
     issue30_data,

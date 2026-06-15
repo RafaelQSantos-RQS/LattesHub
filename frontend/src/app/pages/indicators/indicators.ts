@@ -56,6 +56,8 @@ export class Indicators implements OnInit, OnDestroy {
   instituicao = signal<string[]>([]);
   tipoProducao = signal<string | null>(null);
   qualis = signal<string[]>([]);
+  quadrienio = signal<string[]>([]);
+  pesquisador = signal<{ id: number; nome: string }[]>([]);
 
   // ── Mobile sidebar ──────────────────────────────────────────────────────
   sidebarOpen = signal(false);
@@ -106,6 +108,20 @@ export class Indicators implements OnInit, OnDestroy {
         key: 'qualis',
         label: `${this.i18n.translate('indicators.qualisLabel')} ${estrato}`,
         value: estrato,
+      });
+    }
+    for (const q of this.quadrienio()) {
+      chips.push({
+        key: 'quadrienio',
+        label: `${this.i18n.translate('indicators.quadrienioLabel')} ${q}`,
+        value: q,
+      });
+    }
+    for (const p of this.pesquisador()) {
+      chips.push({
+        key: 'pesquisador',
+        label: `${this.i18n.translate('indicators.pesquisadorLabel')} ${p.nome}`,
+        value: String(p.id),
       });
     }
     return chips;
@@ -173,6 +189,9 @@ export class Indicators implements OnInit, OnDestroy {
     if (this.instituicao().length) filtros.instituicao = this.instituicao();
     if (this.tipoProducao()) filtros.tipoProducao = this.tipoProducao()!;
     if (this.qualis().length) filtros.qualis = this.qualis();
+    if (this.quadrienio().length) filtros.quadrienio = this.quadrienio();
+    if (this.pesquisador().length)
+      filtros.pesquisador = this.pesquisador().map((p) => p.id);
     return filtros;
   }
 
@@ -267,6 +286,27 @@ export class Indicators implements OnInit, OnDestroy {
     this.addQualis(value);
   }
 
+  addQuadrienio(value: string) {
+    const q = value.trim();
+    if (!q || this.quadrienio().includes(q)) return;
+    this.quadrienio.update((values) => [...values, q]);
+    this.triggerReload();
+  }
+
+  removeQuadrienio(value: string) {
+    const next = this.quadrienio().filter((q) => q !== value);
+    if (next.length === this.quadrienio().length) return;
+    this.quadrienio.set(next);
+    this.triggerReload();
+  }
+
+  removePesquisador(id: number) {
+    const next = this.pesquisador().filter((p) => p.id !== id);
+    if (next.length === this.pesquisador().length) return;
+    this.pesquisador.set(next);
+    this.triggerReload();
+  }
+
   /** Cross-filter: clicking a year bar toggles that single year. */
   retry() {
     this.executeLoad(this.currentFiltros());
@@ -316,6 +356,29 @@ export class Indicators implements OnInit, OnDestroy {
     }
   }
 
+  /** Cross-filter: clicking a quadriênio bar toggles that quadriênio. */
+  toggleQuadrienio(q: string) {
+    if (this.quadrienio().includes(q)) {
+      this.removeQuadrienio(q);
+    } else {
+      this.addQuadrienio(q);
+    }
+  }
+
+  /** Cross-filter: clicking a Top Pesquisador bar toggles that pesquisador. */
+  togglePesquisador(id: number, nome: string) {
+    if (this.pesquisador().some((p) => p.id === id)) {
+      this.removePesquisador(id);
+    } else {
+      this.pesquisador.update((values) => [...values, { id, nome }]);
+      this.triggerReload();
+    }
+  }
+
+  isPesquisadorActive(id: number): boolean {
+    return this.pesquisador().some((p) => p.id === id);
+  }
+
   removeChip(chip: ActiveChip) {
     if (chip.key === 'anoInicio') {
       this.anoInicio.set(null);
@@ -331,6 +394,12 @@ export class Indicators implements OnInit, OnDestroy {
     } else if (chip.key === 'qualis') {
       if (chip.value) this.removeQualis(chip.value);
       return;
+    } else if (chip.key === 'quadrienio') {
+      if (chip.value) this.removeQuadrienio(chip.value);
+      return;
+    } else if (chip.key === 'pesquisador') {
+      if (chip.value) this.removePesquisador(+chip.value);
+      return;
     }
     this.triggerReload();
   }
@@ -342,6 +411,8 @@ export class Indicators implements OnInit, OnDestroy {
     this.instituicao.set([]);
     this.tipoProducao.set(null);
     this.qualis.set([]);
+    this.quadrienio.set([]);
+    this.pesquisador.set([]);
     this.triggerReload();
   }
 
@@ -432,6 +503,24 @@ export class Indicators implements OnInit, OnDestroy {
 
   instBarWidthPct(total: number): string {
     return `${Math.round((total / this.topInstMax) * 100)}%`;
+  }
+
+  get topPesquisadoresMax(): number {
+    const data = this.resumo()?.top_pesquisadores ?? [];
+    return data.length ? Math.max(...data.map((p) => p.total)) : 1;
+  }
+
+  pesquisadorBarWidthPct(total: number): string {
+    return `${Math.round((total / this.topPesquisadoresMax) * 100)}%`;
+  }
+
+  get quadrienioMax(): number {
+    const data = this.resumo()?.producoes_por_quadrienio ?? [];
+    return data.length ? Math.max(...data.map((q) => q.total)) : 1;
+  }
+
+  quadrienioBarWidthPct(total: number): string {
+    return `${Math.round((total / this.quadrienioMax) * 100)}%`;
   }
 
   formatCount(n: number): string {

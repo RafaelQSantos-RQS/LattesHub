@@ -501,7 +501,95 @@
         </div>
       </section>
 
-      <!-- Row 3: Top Instituições (full width) -->
+      <!-- Row 3: Quadriênio + Top Pesquisadores -->
+      <section class="grid grid-cols-1 lg:grid-cols-2 items-stretch gap-8">
+
+        <!-- Produções por Quadriênio -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <header class="border-b border-slate-100 pb-4">
+            <h2 class="font-headline-sm text-headline-sm text-primary">{{ 'indicators.producoesPorQuadrienio' | translate }}</h2>
+          </header>
+          @if (resumo()!.producoes_por_quadrienio.length === 0) {
+            <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+              {{ 'indicators.semDadosQuadrienio' | translate }}
+            </div>
+          } @else {
+            <div class="flex flex-col justify-around h-52 gap-2">
+              @for (item of resumo()!.producoes_por_quadrienio; track item.quadrienio) {
+                <div
+                  class="flex items-center gap-4 cursor-pointer"
+                  (click)="toggleQuadrienio(item.quadrienio)"
+                  (keydown.enter)="toggleQuadrienio(item.quadrienio)"
+                  tabindex="0"
+                  [title]="item.quadrienio + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
+                  <span
+                    class="font-body-sm text-body-sm w-28 truncate shrink-0 transition-colors"
+                    [class.text-secondary]="quadrienio().includes(item.quadrienio)"
+                    [class.font-bold]="quadrienio().includes(item.quadrienio)">
+                    {{ item.quadrienio }}
+                  </span>
+                  <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
+                    <div
+                      class="absolute top-0 left-0 h-full rounded-sm transition-all"
+                      [class.bg-slate-800]="!quadrienio().includes(item.quadrienio)"
+                      [class.bg-secondary]="quadrienio().includes(item.quadrienio)"
+                      [style.width]="quadrienioBarWidthPct(item.total)">
+                    </div>
+                  </div>
+                  <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">
+                    {{ formatCount(item.total) }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Top Pesquisadores -->
+        <div class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 h-full min-h-[360px] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
+          <header class="flex justify-between items-center border-b border-slate-100 pb-4">
+            <h2 class="font-headline-sm text-headline-sm text-primary">{{ 'indicators.topPesquisadores' | translate }}</h2>
+            <span class="font-body-sm text-body-sm text-on-surface-variant shrink-0">{{ 'indicators.top5' | translate }}</span>
+          </header>
+          @if (resumo()!.top_pesquisadores.length === 0) {
+            <div class="flex items-center justify-center h-48 text-on-surface-variant font-body-sm text-body-sm">
+              {{ 'indicators.semPesquisadores' | translate }}
+            </div>
+          } @else {
+            <div class="flex flex-col justify-around h-52 gap-2">
+              @for (pesq of resumo()!.top_pesquisadores; track pesq.pesquisador_id) {
+                <div
+                  class="flex items-center gap-4 cursor-pointer group/row"
+                  (click)="togglePesquisador(pesq.pesquisador_id, pesq.nome)"
+                  (keydown.enter)="togglePesquisador(pesq.pesquisador_id, pesq.nome)"
+                  tabindex="0"
+                  [title]="pesq.nome + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
+                  <span
+                    class="font-body-sm text-body-sm w-36 truncate transition-colors"
+                    [class.text-secondary]="isPesquisadorActive(pesq.pesquisador_id)"
+                    [class.font-bold]="isPesquisadorActive(pesq.pesquisador_id)"
+                    [title]="pesq.nome">
+                    {{ pesq.nome }}
+                  </span>
+                  <div class="flex-grow h-4 bg-slate-100 rounded-sm relative overflow-hidden">
+                    <div
+                      class="absolute top-0 left-0 h-full rounded-sm transition-all"
+                      [class.bg-slate-800]="!isPesquisadorActive(pesq.pesquisador_id)"
+                      [class.bg-secondary]="isPesquisadorActive(pesq.pesquisador_id)"
+                      [style.width]="pesquisadorBarWidthPct(pesq.total)">
+                    </div>
+                  </div>
+                  <span class="font-data-label text-data-label text-slate-500 w-12 text-right shrink-0">
+                    {{ formatCount(pesq.total) }}
+                  </span>
+                </div>
+              }
+            </div>
+          }
+        </div>
+      </section>
+
+      <!-- Row 4: Top Instituições (full width) -->
       <section class="bg-white border border-slate-200 rounded-sm p-6 flex flex-col gap-6 hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
         <header class="border-b border-slate-100 pb-4">
           <h2 class="font-headline-sm text-headline-sm text-primary">{{ 'indicators.topInstituicoes' | translate }}</h2>

@@ -8,8 +8,19 @@ export interface ProducaoPorAno {
   total: number;
 }
 
+export interface ProducaoPorQuadrienio {
+  quadrienio: string;
+  total: number;
+}
+
 export interface TopArea {
   area: string;
+  total: number;
+}
+
+export interface TopPesquisador {
+  pesquisador_id: number;
+  nome: string;
   total: number;
 }
 
@@ -32,7 +43,9 @@ export interface IndicadoresResumo {
   total_producoes: number;
   total_pesquisadores: number;
   producoes_por_ano: ProducaoPorAno[];
+  producoes_por_quadrienio: ProducaoPorQuadrienio[];
   top_areas: TopArea[];
+  top_pesquisadores: TopPesquisador[];
   por_tipo: ProducaoPorTipo[];
   qualis_distribuicao: QualisEstrato[];
   top_instituicoes: TopInstituicao[];
@@ -45,6 +58,8 @@ export interface IndicadoresFiltros {
   instituicao?: string[];
   tipoProducao?: string;
   qualis?: string[];
+  pesquisador?: number[];
+  quadrienio?: string[];
 }
 
 export interface FiltroOpcoes {
@@ -52,6 +67,7 @@ export interface FiltroOpcoes {
   instituicoes: string[];
   tipos_producao: string[];
   anos: number[];
+  quadrienios: string[];
 }
 
 @Injectable({
@@ -69,6 +85,8 @@ export class IndicatorsService {
     for (const instituicao of filtros?.instituicao ?? []) params = params.append('instituicao', instituicao);
     if (filtros?.tipoProducao) params = params.set('tipo_producao', filtros.tipoProducao);
     for (const estrato of filtros?.qualis ?? []) params = params.append('qualis', estrato);
+    for (const id of filtros?.pesquisador ?? []) params = params.append('pesquisador', id);
+    for (const q of filtros?.quadrienio ?? []) params = params.append('quadrienio', q);
     return this.http.get<IndicadoresResumo>(`${this.apiBaseUrl}/indicadores/resumo`, { params });
   }
 

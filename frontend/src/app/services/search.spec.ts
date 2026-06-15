@@ -345,7 +345,7 @@ describe('SearchService', () => {
       id: '7',
       resourceType: 'researcher',
       title: 'Ana Souza',
-      author: 'Pesquisador',
+      author: 'Researcher',
       researcherId: 7,
       institution: 'UNEB',
       abstract: 'Pesquisa dengue',

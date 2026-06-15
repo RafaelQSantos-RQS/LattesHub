@@ -1,7 +1,9 @@
-import { Component, inject, signal, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
+import { Component, computed, inject, signal, ElementRef, ViewChild, AfterViewChecked } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { SearchService, AgenteChatFonte } from '../../services/search';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { TranslationService } from '../../i18n/translation.service';
 
 interface ChatMessage {
   role: 'user' | 'agent';
@@ -9,21 +11,15 @@ interface ChatMessage {
   fontes?: AgenteChatFonte[];
 }
 
-const STARTER_PROMPTS = [
-  'Quais pesquisadores trabalham com Inteligência Artificial?',
-  'Quais as produções mais recentes sobre aprendizado de máquina?',
-  'Existem trabalhos sobre computação quântica?',
-  'Quais artigos abordam processamento de linguagem natural?',
-];
-
 @Component({
   selector: 'app-agente',
-  imports: [FormsModule, RouterLink],
+  imports: [FormsModule, RouterLink, TranslatePipe],
   templateUrl: './agente.html',
   styleUrl: './agente.scss',
 })
 export class Agente implements AfterViewChecked {
   private readonly searchService = inject(SearchService);
+  private readonly i18n = inject(TranslationService);
 
   @ViewChild('messagesContainer') private messagesContainer?: ElementRef<HTMLElement>;
 
@@ -31,7 +27,12 @@ export class Agente implements AfterViewChecked {
   loading = signal(false);
   error = signal<string | null>(null);
   inputText = '';
-  readonly starterPrompts = STARTER_PROMPTS;
+  readonly starterPrompts = computed(() => [
+    this.i18n.translate('agente.prompt1'),
+    this.i18n.translate('agente.prompt2'),
+    this.i18n.translate('agente.prompt3'),
+    this.i18n.translate('agente.prompt4'),
+  ]);
   private shouldScrollToBottom = false;
 
   ngAfterViewChecked() {
@@ -61,7 +62,7 @@ export class Agente implements AfterViewChecked {
         this.shouldScrollToBottom = true;
       },
       error: () => {
-        this.error.set('Nao foi possivel obter resposta do agente. Tente novamente.');
+        this.error.set(this.i18n.translate('agente.erro'));
         this.loading.set(false);
       },
     });

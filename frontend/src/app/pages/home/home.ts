@@ -1,11 +1,12 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { SearchBox } from '../../shared/search-box/search-box';
 import { StatsCard } from '../../shared/stats-card/stats-card';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 import { IndicatorsService } from '../../services/indicators';
 
 @Component({
   selector: 'app-home',
-  imports: [SearchBox, StatsCard],
+  imports: [SearchBox, StatsCard, TranslatePipe],
   templateUrl: './home.html',
   styleUrl: './home.scss',
 })

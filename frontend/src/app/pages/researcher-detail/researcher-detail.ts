@@ -3,10 +3,12 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ResearcherArea, ResearcherProduction, ResearcherProfile, SearchService } from '../../services/search';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-researcher-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './researcher-detail.html',
   styleUrl: './researcher-detail.scss',
 })
@@ -15,6 +17,7 @@ export class ResearcherDetail {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly searchService = inject(SearchService);
+  private readonly i18n = inject(TranslationService);
 
   readonly profile = signal<ResearcherProfile | null>(null);
   readonly loading = signal(true);
@@ -39,7 +42,7 @@ export class ResearcherDetail {
         if (!Number.isInteger(pesquisadorId) || pesquisadorId <= 0) {
           this.profile.set(null);
           this.loading.set(false);
-          this.error.set('Pesquisador invalido.');
+          this.error.set(this.i18n.translate('researcher.invalido'));
           return;
         }
 
@@ -62,7 +65,7 @@ export class ResearcherDetail {
   }
 
   productionSource(production: ResearcherProduction) {
-    return production.revista || production.evento || production.natureza || 'Sem veiculo informado';
+    return production.revista || production.evento || production.natureza || this.i18n.translate('researcher.semVeiculo');
   }
 
   private loadProfile(pesquisadorId: number) {
@@ -77,7 +80,7 @@ export class ResearcherDetail {
       },
       error: error => {
         this.loading.set(false);
-        this.error.set(error.status === 404 ? 'Pesquisador nao encontrado.' : 'Nao foi possivel carregar o pesquisador.');
+        this.error.set(error.status === 404 ? this.i18n.translate('researcher.naoEncontrado') : this.i18n.translate('researcher.erroCarregar'));
       },
     });
   }

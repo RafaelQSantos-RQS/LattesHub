@@ -3,10 +3,12 @@ import { Location } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ProductionDetail as ProductionDetailData, SearchService } from '../../services/search';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-production-detail',
-  imports: [RouterLink],
+  imports: [RouterLink, TranslatePipe],
   templateUrl: './production-detail.html',
   styleUrl: './production-detail.scss',
 })
@@ -15,6 +17,7 @@ export class ProductionDetail {
   private readonly location = inject(Location);
   private readonly router = inject(Router);
   private readonly searchService = inject(SearchService);
+  private readonly i18n = inject(TranslationService);
 
   readonly production = signal<ProductionDetailData | null>(null);
   readonly loading = signal(true);
@@ -41,7 +44,7 @@ export class ProductionDetail {
         if (!Number.isInteger(id) || id <= 0) {
           this.production.set(null);
           this.loading.set(false);
-          this.error.set('Producao invalida.');
+          this.error.set(this.i18n.translate('production.invalido'));
           return;
         }
         this.loadProduction(id);
@@ -83,7 +86,7 @@ export class ProductionDetail {
       },
       error: err => {
         this.loading.set(false);
-        this.error.set(err.status === 404 ? 'Producao nao encontrada.' : 'Nao foi possivel carregar a producao.');
+        this.error.set(err.status === 404 ? this.i18n.translate('production.naoEncontrado') : this.i18n.translate('production.erroCarregar'));
       },
     });
   }

@@ -3,16 +3,16 @@
     <div class="flex flex-col items-center md:items-start gap-2">
       <span class="font-display-lg text-2xl text-primary tracking-tight">LattesHub</span>
       <p class="font-body-sm text-sm text-on-surface-variant max-w-xs text-center md:text-left opacity-80">
-        © 2024 LattesHub Scientific Open Data Portal. <br class="hidden md:block"> Institutional Transparency Initiative.
+        {{ 'footer.copyright' | translate }}
       </p>
     </div>
     <nav class="flex flex-wrap justify-center md:justify-end gap-x-8 gap-y-2 mt-4 md:mt-1">
-      <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" routerLink="/sobre">Sobre o Projeto</a>
-      <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" routerLink="/sobre" fragment="tecnologia">Tecnologia</a>
-      <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" routerLink="/indicadores">Indicadores</a>
+      <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" routerLink="/sobre">{{ 'footer.sobre' | translate }}</a>
+      <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" routerLink="/sobre" fragment="tecnologia">{{ 'footer.tecnologia' | translate }}</a>
+      <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" routerLink="/indicadores">{{ 'footer.indicadores' | translate }}</a>
       <a class="font-label-bold text-sm text-on-surface-variant hover:text-primary dark:hover:text-inverse-primary transition-colors" href="https://github.com/RafaelQSantos-RQS/LattesHub" target="_blank" rel="noopener noreferrer">
         <div class="flex items-center gap-1.5">
-          <span class="material-symbols-outlined text-[18px]">code</span>Open Source
+          <span class="material-symbols-outlined text-[18px]">code</span>{{ 'footer.openSource' | translate }}
         </div>
       </a>
     </nav>

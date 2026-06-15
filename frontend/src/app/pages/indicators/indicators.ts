@@ -1,6 +1,9 @@
 import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
 import { Subject, switchMap, debounceTime, takeUntil } from 'rxjs';
 
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { TranslationService } from '../../i18n/translation.service';
+
 import { ExportService } from '../../services/export';
 import {
   IndicatorsService,
@@ -17,11 +20,12 @@ interface ActiveChip {
 
 @Component({
   selector: 'app-indicators',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './indicators.html',
   styleUrl: './indicators.scss',
 })
 export class Indicators implements OnInit, OnDestroy {
+  private readonly i18n = inject(TranslationService);
   private readonly exportService = inject(ExportService);
   private readonly indicatorsService = inject(IndicatorsService);
   private readonly destroy$ = new Subject<void>();
@@ -48,6 +52,17 @@ export class Indicators implements OnInit, OnDestroy {
 
   // ── Mobile sidebar ──────────────────────────────────────────────────────
   sidebarOpen = signal(false);
+  expandedSections = signal({
+    periodo: true,
+    grandeArea: true,
+    tipoProducao: true,
+    qualis: true,
+    instituicao: true,
+  });
+
+  toggleSection(section: 'periodo' | 'grandeArea' | 'tipoProducao' | 'qualis' | 'instituicao') {
+    this.expandedSections.update(s => ({ ...s, [section]: !s[section] }));
+  }
 
   // ── Derived: active filter chips ────────────────────────────────────────
   activeChips = computed<ActiveChip[]>(() => {
@@ -55,17 +70,17 @@ export class Indicators implements OnInit, OnDestroy {
     if (this.anoInicio() != null || this.anoFim() != null) {
       const from = this.anoInicio() ?? '—';
       const to = this.anoFim() ?? '—';
-      chips.push({ key: 'anoInicio', label: `Ano: ${from}–${to}` });
+      chips.push({ key: 'anoInicio', label: `${this.i18n.translate('indicators.ano')} ${from}–${to}` });
     }
     for (const area of this.grandeArea()) {
-      chips.push({ key: 'grandeArea', label: `Área: ${area}`, value: area });
+      chips.push({ key: 'grandeArea', label: `${this.i18n.translate('indicators.area')} ${area}`, value: area });
     }
     for (const inst of this.instituicao()) {
-      chips.push({ key: 'instituicao', label: `Inst.: ${inst}`, value: inst });
+      chips.push({ key: 'instituicao', label: `${this.i18n.translate('indicators.inst')} ${inst}`, value: inst });
     }
-    if (this.tipoProducao()) chips.push({ key: 'tipoProducao', label: `Tipo: ${this.tipoProducao()}` });
+    if (this.tipoProducao()) chips.push({ key: 'tipoProducao', label: `${this.i18n.translate('indicators.tipo')} ${this.tipoProducao()}` });
     for (const estrato of this.qualis()) {
-      chips.push({ key: 'qualis', label: `Qualis: ${estrato}`, value: estrato });
+      chips.push({ key: 'qualis', label: `${this.i18n.translate('indicators.qualisLabel')} ${estrato}`, value: estrato });
     }
     return chips;
   });
@@ -224,6 +239,10 @@ export class Indicators implements OnInit, OnDestroy {
   }
 
   /** Cross-filter: clicking a year bar toggles that single year. */
+  retry() {
+    this.executeLoad(this.currentFiltros());
+  }
+
   toggleAno(ano: number) {
     if (this.anoInicio() === ano && this.anoFim() === ano) {
       this.anoInicio.set(null);
@@ -309,7 +328,7 @@ export class Indicators implements OnInit, OnDestroy {
         next: () => this.exportingCsv.set(false),
         error: () => {
           this.exportingCsv.set(false);
-          this.exportError.set('Nao foi possivel exportar o CSV.');
+          this.exportError.set(this.i18n.translate('export.erroCsv'));
         },
       });
   }

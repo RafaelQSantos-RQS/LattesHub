@@ -1,9 +1,10 @@
 import { Component, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 @Component({
   selector: 'app-search-box',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './search-box.html',
   styleUrl: './search-box.scss',
 })

@@ -6,11 +6,11 @@
     <div class="max-w-4xl relative z-10">
       <div class="inline-flex items-center gap-2 px-3 py-1 bg-surface-container border border-slate-200 rounded-full mb-6">
         <span class="w-2 h-2 rounded-full bg-data-teal"></span>
-        <span class="font-data-label text-data-label text-on-surface-variant">INITIATIVE OVERVIEW V1.0</span>
+        <span class="font-data-label text-data-label text-on-surface-variant">{{ 'about.badge' | translate }}</span>
       </div>
-      <h1 class="font-display-lg text-primary mb-8 tracking-tight" style="font-size: clamp(24px, 5vw, 48px); line-height: 1.15;">Intellectual Transparency in Global Science</h1>
+      <h1 class="font-display-lg text-primary mb-8 tracking-tight" style="font-size: clamp(24px, 5vw, 48px); line-height: 1.15;">{{ 'about.heroTitle' | translate }}</h1>
       <p class="font-body-lg text-body-lg text-on-surface-variant leading-relaxed max-w-3xl">
-        O LattesHub é uma iniciativa de dados abertos dedicada a mapear a infraestrutura intelectual da produção científica. Ao integrar currículos acadêmicos, metadados de publicações e redes de coautoria, fornecemos uma lente analítica de alta densidade para pesquisadores, instituições e formuladores de políticas públicas.
+        {{ 'about.heroDesc' | translate }}
       </p>
     </div>
   </header>
@@ -20,9 +20,9 @@
     <!-- Left Sidebar: Section Navigation (Desktop only) -->
     <aside class="hidden md:block col-span-3 sticky top-24 self-start">
       <div class="border-l-2 border-slate-200 pl-4 space-y-4">
-        <a class="block font-label-bold text-label-bold text-primary hover:text-data-teal transition-colors" routerLink="/sobre" fragment="missao">MISSÃO & VISÃO</a>
-        <a class="block font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" routerLink="/sobre" fragment="tecnologia">INFRAESTRUTURA TECNOLÓGICA</a>
-        <a class="block font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" routerLink="/sobre" fragment="parceiros">REDE INSTITUCIONAL</a>
+        <a class="block font-label-bold text-label-bold text-primary hover:text-data-teal transition-colors" routerLink="/sobre" fragment="missao">{{ 'about.navMissao' | translate }}</a>
+        <a class="block font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" routerLink="/sobre" fragment="tecnologia">{{ 'about.navTecnologia' | translate }}</a>
+        <a class="block font-label-bold text-label-bold text-on-surface-variant hover:text-primary transition-colors" routerLink="/sobre" fragment="parceiros">{{ 'about.navRede' | translate }}</a>
       </div>
     </aside>
     
@@ -30,26 +30,26 @@
     <article class="col-span-1 md:col-span-9 space-y-24 max-w-4xl">
       <!-- Section: Missão & Visão -->
       <section class="scroll-mt-24" id="missao">
-        <h2 class="font-headline-md text-headline-md text-primary border-b border-slate-200 pb-4 mb-8">Fundamentos do Projeto</h2>
+        <h2 class="font-headline-md text-headline-md text-primary border-b border-slate-200 pb-4 mb-8">{{ 'about.fundamentos' | translate }}</h2>
         <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
           <!-- Missão Card -->
           <div class="bg-surface-container-lowest border border-slate-200 rounded-DEFAULT p-8 shadow-[0_4px_12px_rgba(15,23,42,0.02)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
             <div class="flex items-center gap-3 mb-4">
               <span class="material-symbols-outlined text-data-teal text-headline-sm">flag</span>
-              <h3 class="font-headline-sm text-headline-sm text-slate-900">Missão</h3>
+              <h3 class="font-headline-sm text-headline-sm text-slate-900">{{ 'about.missaoTitle' | translate }}</h3>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-              Democratizar o acesso a indicadores de impacto e colaboração científica. Buscamos reduzir a assimetria informacional, permitindo que a comunidade acadêmica analise sua própria produção com ferramentas outrora restritas a grandes conglomerados editoriais.
+              {{ 'about.missaoDesc' | translate }}
             </p>
           </div>
           <!-- Visão Card -->
           <div class="bg-surface-container-lowest border border-slate-200 rounded-DEFAULT p-8 shadow-[0_4px_12px_rgba(15,23,42,0.02)] hover:shadow-[0_4px_12px_rgba(15,23,42,0.05)] transition-shadow">
             <div class="flex items-center gap-3 mb-4">
               <span class="material-symbols-outlined text-data-teal text-headline-sm">visibility</span>
-              <h3 class="font-headline-sm text-headline-sm text-slate-900">Visão</h3>
+              <h3 class="font-headline-sm text-headline-sm text-slate-900">{{ 'about.visaoTitle' | translate }}</h3>
             </div>
             <p class="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-              Estabelecer-se como o nó central e open-source para a compreensão da ontologia da ciência brasileira e global. Um ecossistema onde dados bibliométricos não são apenas métricas, mas narrativas transparentes de avanço intelectual coletivo.
+              {{ 'about.visaoDesc' | translate }}
             </p>
           </div>
         </div>
@@ -57,21 +57,21 @@
       
       <!-- Section: Tecnologia -->
       <section class="scroll-mt-24" id="tecnologia">
-        <h2 class="font-headline-md text-headline-md text-primary border-b border-slate-200 pb-4 mb-8">Arquitetura de Dados & Inteligência</h2>
+        <h2 class="font-headline-md text-headline-md text-primary border-b border-slate-200 pb-4 mb-8">{{ 'about.arquitetura' | translate }}</h2>
         <p class="font-body-md text-body-md text-on-surface-variant mb-8 leading-relaxed">
-          A complexidade do mapeamento acadêmico exige uma infraestrutura robusta. O LattesHub não opera apenas com buscas lexicais, mas emprega modelos avançados de processamento de linguagem natural (NLP) para desvendar conexões latentes entre pesquisas aparentemente díspares.
+          {{ 'about.arquiteturaDesc' | translate }}
         </p>
         <!-- Tech Specs Bento Area -->
         <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
           <!-- Semantic Search Feature -->
           <div class="md:col-span-2 bg-slate-900 border border-slate-800 rounded-DEFAULT p-5 md:p-8 text-white">
-            <h3 class="font-headline-sm text-headline-sm mb-4">Busca Semântica Contextual</h3>
+            <h3 class="font-headline-sm text-headline-sm mb-4">{{ 'about.buscaSemantica' | translate }}</h3>
             <p class="font-body-sm text-body-sm text-slate-300 mb-6 max-w-md">
-              Ultrapassamos a pesquisa exata por palavras-chave. Nossa engine vetorial compreende o contexto de abstracts e projetos, conectando pesquisadores baseando-se em proximidade conceitual.
+              {{ 'about.buscaSemanticaDesc' | translate }}
             </p>
             <div class="flex gap-2">
-              <span class="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-data-label font-data-label text-data-teal">Vector Embeddings</span>
-              <span class="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-data-label font-data-label text-data-teal">Cosine Similarity</span>
+              <span class="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-data-label font-data-label text-data-teal">{{ 'about.vectorEmbeddings' | translate }}</span>
+              <span class="px-2 py-1 bg-slate-800 border border-slate-700 rounded text-data-label font-data-label text-data-teal">{{ 'about.cosineSimilarity' | translate }}</span>
             </div>
           </div>
           <!-- AI Graph Feature -->
@@ -80,9 +80,9 @@
               <div class="w-10 h-10 rounded bg-surface-container flex items-center justify-center mb-4">
                 <span class="material-symbols-outlined text-slate-700">hub</span>
               </div>
-              <h3 class="font-label-bold text-label-bold text-slate-900 mb-2 uppercase">Grafo de Conhecimento IA</h3>
+              <h3 class="font-label-bold text-label-bold text-slate-900 mb-2 uppercase">{{ 'about.grafoConhecimento' | translate }}</h3>
               <p class="font-body-sm text-body-sm text-on-surface-variant">
-                Extração automatizada de entidades e coautorias dinâmicas alimentadas por machine learning.
+                {{ 'about.grafoDesc' | translate }}
               </p>
             </div>
           </div>
@@ -92,25 +92,25 @@
       <!-- Section: Parceiros -->
       <section class="scroll-mt-24" id="parceiros">
         <div class="flex flex-col sm:flex-row sm:items-baseline justify-between border-b border-slate-200 pb-4 mb-8">
-          <h2 class="font-headline-md text-headline-md text-primary">Rede Institucional</h2>
-          <span class="font-data-label text-data-label text-on-surface-variant mt-2 sm:mt-0">PARCEIROS & APOIADORES VIGENTES</span>
+          <h2 class="font-headline-md text-headline-md text-primary">{{ 'about.redeInstitucional' | translate }}</h2>
+          <span class="font-data-label text-data-label text-on-surface-variant mt-2 sm:mt-0">{{ 'about.parceirosLabel' | translate }}</span>
         </div>
         <p class="font-body-md text-body-md text-on-surface-variant mb-8 leading-relaxed">
-          A transparência intelectual é um esforço colaborativo. Agradecemos às instituições que suportam nossa infraestrutura, fomentam o código aberto e acreditam no poder dos dados livres.
+          {{ 'about.redeDesc' | translate }}
         </p>
         <!-- Partner Grid -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
           <div class="aspect-[3/2] bg-surface-container-lowest border border-slate-200 rounded-DEFAULT flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
-            <span class="font-label-bold text-label-bold text-outline">INSTITUIÇÃO A</span>
+            <span class="font-label-bold text-label-bold text-outline">{{ 'about.parceiroA' | translate }}</span>
           </div>
           <div class="aspect-[3/2] bg-surface-container-lowest border border-slate-200 rounded-DEFAULT flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
-            <span class="font-label-bold text-label-bold text-outline">FUNDAÇÃO B</span>
+            <span class="font-label-bold text-label-bold text-outline">{{ 'about.parceiroB' | translate }}</span>
           </div>
           <div class="aspect-[3/2] bg-surface-container-lowest border border-slate-200 rounded-DEFAULT flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
-            <span class="font-label-bold text-label-bold text-outline">UNIVERSIDADE C</span>
+            <span class="font-label-bold text-label-bold text-outline">{{ 'about.parceiroC' | translate }}</span>
           </div>
           <div class="aspect-[3/2] bg-surface-container-lowest border border-slate-200 rounded-DEFAULT flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer">
-            <span class="font-label-bold text-label-bold text-outline">OPEN DATA LAB</span>
+            <span class="font-label-bold text-label-bold text-outline">{{ 'about.parceiroD' | translate }}</span>
           </div>
         </div>
       </section>

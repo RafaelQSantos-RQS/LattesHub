@@ -3,6 +3,7 @@ type FilterState = 'loading' | 'error' | 'empty' | 'success';
 import { ActivatedRoute, Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FilterAreaOption, FilterInstitution, ProductionTypeOption, SearchService } from '../../services/search';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 interface SidebarSections {
   institution: boolean;
@@ -14,7 +15,7 @@ interface SidebarSections {
 
 @Component({
   selector: 'app-sidebar',
-  imports: [],
+  imports: [TranslatePipe],
   templateUrl: './sidebar.html',
   styleUrl: './sidebar.scss',
 })

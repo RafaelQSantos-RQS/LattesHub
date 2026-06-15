@@ -3,9 +3,9 @@
 
     <!-- Header -->
     <div class="flex flex-col gap-1">
-      <h1 class="font-headline-md text-headline-md text-primary">Agente de IA</h1>
+      <h1 class="font-headline-md text-headline-md text-primary">{{ 'agente.title' | translate }}</h1>
       <p class="font-body-md text-body-md text-on-surface-variant">
-        Faça perguntas sobre pesquisadores e produções científicas. O agente usa os dados reais do LattesHub para responder.
+        {{ 'agente.subtitle' | translate }}
       </p>
     </div>
 
@@ -22,10 +22,10 @@
           <div class="flex flex-col items-center justify-center h-full gap-6 py-8">
             <div class="flex items-center gap-3 text-on-surface-variant">
               <span class="material-symbols-outlined text-primary text-[32px]" style="font-variation-settings: 'FILL' 1;">smart_toy</span>
-              <span class="font-body-lg text-body-lg">Como posso ajudar?</span>
+              <span class="font-body-lg text-body-lg">{{ 'agente.comoPossoAjudar' | translate }}</span>
             </div>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 w-full max-w-[560px]">
-              @for (prompt of starterPrompts; track prompt) {
+              @for (prompt of starterPrompts(); track prompt) {
                 <button
                   type="button"
                   (click)="send(prompt)"
@@ -105,7 +105,7 @@
         <textarea
           [(ngModel)]="inputText"
           (keydown)="onKeyDown($event)"
-          placeholder="Faça uma pergunta sobre as produções científicas..."
+          [placeholder]="'agente.placeholder' | translate"
           rows="1"
           class="flex-1 resize-none border border-outline-variant rounded-xl px-4 py-2.5 font-body-md text-body-md text-slate-900 bg-white focus:outline-none focus:border-secondary focus:ring-1 focus:ring-secondary/20 placeholder:text-slate-400 leading-relaxed"
           [disabled]="loading()">

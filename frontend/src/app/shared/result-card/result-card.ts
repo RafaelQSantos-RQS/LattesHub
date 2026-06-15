@@ -1,6 +1,7 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, input, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { TranslatePipe } from '../../i18n/translate.pipe';
 
 export interface SearchResult {
   id: string;
@@ -27,7 +28,7 @@ export interface SearchResult {
 
 @Component({
   selector: 'app-result-card',
-  imports: [DecimalPipe, RouterLink],
+  imports: [DecimalPipe, RouterLink, TranslatePipe],
   templateUrl: './result-card.html',
   styleUrl: './result-card.scss',
   host: { class: 'block' }

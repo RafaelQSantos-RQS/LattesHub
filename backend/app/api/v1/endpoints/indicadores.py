@@ -10,9 +10,28 @@ from app.core.errors import raise_internal_server_error
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
+# Quadriênio (CAPES 4-year window) derived dynamically from the year, aligned to
+# windows like 2017-2020, 2021-2024: inicio = ano - mod(ano - 1, 4). Uses mod()
+# instead of the % operator so it is safe inside psycopg2 parameterized queries.
+_QUADRIENIO_EXPR = (
+    "(p.ano - mod(p.ano - 1, 4))::text || '-' "
+    "|| ((p.ano - mod(p.ano - 1, 4)) + 3)::text"
+)
+
 
 class ProducaoPorAno(BaseModel):
     ano: int
+    total: int
+
+
+class ProducaoPorQuadrienio(BaseModel):
+    quadrienio: str
+    total: int
+
+
+class TopPesquisador(BaseModel):
+    pesquisador_id: int
+    nome: str
     total: int
 
 
@@ -40,7 +59,9 @@ class IndicadoresResumo(BaseModel):
     total_producoes: int
     total_pesquisadores: int
     producoes_por_ano: list[ProducaoPorAno]
+    producoes_por_quadrienio: list[ProducaoPorQuadrienio]
     top_areas: list[TopArea]
+    top_pesquisadores: list[TopPesquisador]
     por_tipo: list[ProducaoPorTipo]
     qualis_distribuicao: list[QualisEstrato]
     top_instituicoes: list[TopInstituicao]
@@ -51,6 +72,7 @@ class FiltroOpcoes(BaseModel):
     instituicoes: list[str]
     tipos_producao: list[str]
     anos: list[int]
+    quadrienios: list[str]
 
 
 def _build_ids_subquery(
@@ -60,6 +82,8 @@ def _build_ids_subquery(
     instituicao: Optional[list[str]],
     tipo_producao: Optional[str],
     qualis: Optional[list[str]],
+    pesquisador: Optional[list[int]] = None,
+    quadrienio: Optional[list[str]] = None,
 ) -> tuple[str, list]:
     """Returns (sql_subquery, params) selecting DISTINCT producao IDs matching all filters."""
     joins: list[str] = []
@@ -94,6 +118,12 @@ def _build_ids_subquery(
     if tipo_producao:
         conditions.append("p.tipo_producao = %s")
         params.append(tipo_producao)
+    if pesquisador:
+        conditions.append("p.pesquisador_id = ANY(%s)")
+        params.append(pesquisador)
+    if quadrienio:
+        conditions.append(f"(p.ano IS NOT NULL AND ({_QUADRIENIO_EXPR}) = ANY(%s))")
+        params.append(quadrienio)
     if ano_inicio is not None:
         conditions.append("p.ano >= %s")
         params.append(ano_inicio)
@@ -132,18 +162,24 @@ def obter_resumo_indicadores(
     instituicao: Optional[list[str]] = Query(default=None),
     tipo_producao: Optional[str] = Query(default=None),
     qualis: Optional[list[str]] = Query(default=None),
+    pesquisador: Optional[list[int]] = Query(default=None),
+    quadrienio: Optional[list[str]] = Query(default=None),
 ):
     try:
         cursor = db.cursor(cursor_factory=RealDictCursor)
         grande_area = _filled_values(grande_area)
         instituicao = _filled_values(instituicao)
         qualis = _filled_values(qualis)
+        quadrienio = _filled_values(quadrienio)
 
-        has_filters = any([ano_inicio, ano_fim, grande_area, instituicao, tipo_producao, qualis])
+        has_filters = any(
+            [ano_inicio, ano_fim, grande_area, instituicao, tipo_producao, qualis, pesquisador, quadrienio]
+        )
 
         if has_filters:
             ids_sql, ids_params = _build_ids_subquery(
-                ano_inicio, ano_fim, grande_area, instituicao, tipo_producao, qualis
+                ano_inicio, ano_fim, grande_area, instituicao, tipo_producao, qualis,
+                pesquisador, quadrienio,
             )
             in_filter = f"p.id IN ({ids_sql})"
 
@@ -189,6 +225,28 @@ def obter_resumo_indicadores(
             """)
         producoes_por_ano = cursor.fetchall()
 
+        # ── Produções por quadriênio ────────────────────────────────────────
+        if has_filters:
+            cursor.execute(
+                f"""
+                SELECT {_QUADRIENIO_EXPR} AS quadrienio, COUNT(*) AS total
+                FROM producoes p
+                WHERE p.ano IS NOT NULL AND {in_filter}
+                GROUP BY {_QUADRIENIO_EXPR}
+                ORDER BY quadrienio ASC;
+                """,
+                ids_params,
+            )
+        else:
+            cursor.execute(f"""
+                SELECT {_QUADRIENIO_EXPR} AS quadrienio, COUNT(*) AS total
+                FROM producoes p
+                WHERE p.ano IS NOT NULL
+                GROUP BY {_QUADRIENIO_EXPR}
+                ORDER BY quadrienio ASC;
+            """)
+        producoes_por_quadrienio = cursor.fetchall()
+
         # ── Top áreas ───────────────────────────────────────────────────────
         if has_filters:
             area_filter_sql = "AND ac.grande_area = ANY(%s)" if grande_area else ""
@@ -221,6 +279,31 @@ def obter_resumo_indicadores(
                 LIMIT 5;
             """)
         top_areas = cursor.fetchall()
+
+        # ── Top pesquisadores ───────────────────────────────────────────────
+        if has_filters:
+            cursor.execute(
+                f"""
+                SELECT p.pesquisador_id AS pesquisador_id, pes.nome AS nome, COUNT(*) AS total
+                FROM producoes p
+                JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+                WHERE {in_filter}
+                GROUP BY p.pesquisador_id, pes.nome
+                ORDER BY total DESC
+                LIMIT 5;
+                """,
+                ids_params,
+            )
+        else:
+            cursor.execute("""
+                SELECT p.pesquisador_id AS pesquisador_id, pes.nome AS nome, COUNT(*) AS total
+                FROM producoes p
+                JOIN pesquisadores pes ON p.pesquisador_id = pes.id
+                GROUP BY p.pesquisador_id, pes.nome
+                ORDER BY total DESC
+                LIMIT 5;
+            """)
+        top_pesquisadores = cursor.fetchall()
 
         # ── Por tipo ────────────────────────────────────────────────────────
         if has_filters:
@@ -321,7 +404,9 @@ def obter_resumo_indicadores(
             "total_producoes": total_producoes,
             "total_pesquisadores": total_pesquisadores,
             "producoes_por_ano": list(producoes_por_ano),
+            "producoes_por_quadrienio": list(producoes_por_quadrienio),
             "top_areas": list(top_areas),
+            "top_pesquisadores": list(top_pesquisadores),
             "por_tipo": list(por_tipo),
             "qualis_distribuicao": list(qualis_distribuicao),
             "top_instituicoes": list(top_instituicoes),
@@ -360,6 +445,14 @@ def obter_opcoes_filtro(db=Depends(get_db_connection)):
         """)
         anos = [r["ano"] for r in cursor.fetchall()]
 
+        cursor.execute(f"""
+            SELECT DISTINCT {_QUADRIENIO_EXPR} AS quadrienio
+            FROM producoes p
+            WHERE p.ano IS NOT NULL
+            ORDER BY quadrienio ASC;
+        """)
+        quadrienios = [r["quadrienio"] for r in cursor.fetchall()]
+
         cursor.close()
 
         return {
@@ -367,6 +460,7 @@ def obter_opcoes_filtro(db=Depends(get_db_connection)):
             "instituicoes": instituicoes,
             "tipos_producao": tipos_producao,
             "anos": anos,
+            "quadrienios": quadrienios,
         }
 
     except Exception as e:

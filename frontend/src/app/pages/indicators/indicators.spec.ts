@@ -18,9 +18,17 @@ const MOCK_RESUMO: IndicadoresResumo = {
     { ano: 2023, total: 60 },
     { ano: 2024, total: 50 },
   ],
+  producoes_por_quadrienio: [
+    { quadrienio: '2017-2020', total: 40 },
+    { quadrienio: '2021-2024', total: 110 },
+  ],
   top_areas: [
     { area: 'Ciências Exatas', total: 80 },
     { area: 'Engenharias', total: 50 },
+  ],
+  top_pesquisadores: [
+    { pesquisador_id: 1, nome: 'Ada Lovelace', total: 70 },
+    { pesquisador_id: 2, nome: 'Alan Turing', total: 35 },
   ],
   por_tipo: [
     { tipo: 'ARTIGO PUBLICADO', total: 100 },
@@ -42,6 +50,7 @@ const MOCK_FILTROS: FiltroOpcoes = {
   instituicoes: ['UFBA', 'UFRJ'],
   tipos_producao: ['ARTIGO PUBLICADO', 'TRABALHO EM EVENTOS'],
   anos: [2020, 2021, 2022, 2023, 2024],
+  quadrienios: ['2017-2020', '2021-2024'],
 };
 
 describe('Indicators', () => {
@@ -202,6 +211,40 @@ describe('Indicators', () => {
     expect(component.instituicao()).toEqual(['UFBA']);
     component.toggleInstituicao('UFBA');
     expect(component.instituicao()).toEqual([]);
+  });
+
+  it('toggleQuadrienio sets/clears quadrienio filter', () => {
+    component.toggleQuadrienio('2021-2024');
+    expect(component.quadrienio()).toEqual(['2021-2024']);
+    component.toggleQuadrienio('2021-2024');
+    expect(component.quadrienio()).toEqual([]);
+  });
+
+  it('togglePesquisador sets/clears pesquisador filter and tracks name', () => {
+    component.togglePesquisador(1, 'Ada Lovelace');
+    expect(component.pesquisador()).toEqual([{ id: 1, nome: 'Ada Lovelace' }]);
+    expect(component.isPesquisadorActive(1)).toBe(true);
+    component.togglePesquisador(1, 'Ada Lovelace');
+    expect(component.pesquisador()).toEqual([]);
+    expect(component.isPesquisadorActive(1)).toBe(false);
+  });
+
+  it('computes pesquisadorBarWidthPct and quadrienioBarWidthPct relative to max', () => {
+    expect(component.pesquisadorBarWidthPct(70)).toBe('100%');
+    expect(component.pesquisadorBarWidthPct(35)).toBe('50%');
+    expect(component.quadrienioBarWidthPct(110)).toBe('100%');
+    expect(component.quadrienioBarWidthPct(55)).toBe('50%');
+  });
+
+  it('removeChip clears quadrienio and pesquisador chips', () => {
+    component.toggleQuadrienio('2021-2024');
+    component.togglePesquisador(2, 'Alan Turing');
+    const quadChip = component.activeChips().find((c) => c.key === 'quadrienio')!;
+    const pesqChip = component.activeChips().find((c) => c.key === 'pesquisador')!;
+    component.removeChip(quadChip);
+    component.removeChip(pesqChip);
+    expect(component.quadrienio()).toEqual([]);
+    expect(component.pesquisador()).toEqual([]);
   });
 
   it('adds and removes multiple area, qualis and institution filters', () => {

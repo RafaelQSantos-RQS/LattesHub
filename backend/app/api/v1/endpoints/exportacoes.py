@@ -80,7 +80,17 @@ def exportar_producoes_csv(
                 p.titulo,
                 p.ano,
                 COALESCE(p.ano::text, 'Sem ano') AS dim_ano,
-                concat_ws('-', '2020-2024', COALESCE(p.ano::text, 'Sem ano')) AS dim_quadrienio_ano,
+                CASE
+                    WHEN p.ano IS NULL THEN 'Sem ano'
+                    ELSE (p.ano - mod(p.ano - 1, 4))::text
+                        || '-' || ((p.ano - mod(p.ano - 1, 4)) + 3)::text
+                END AS dim_quadrienio,
+                CASE
+                    WHEN p.ano IS NULL THEN 'Sem ano'
+                    ELSE (p.ano - mod(p.ano - 1, 4))::text
+                        || '-' || ((p.ano - mod(p.ano - 1, 4)) + 3)::text
+                        || '-' || p.ano::text
+                END AS dim_quadrienio_ano,
                 p.idioma,
                 p.natureza,
                 p.doi,
@@ -120,7 +130,11 @@ def exportar_producoes_csv(
                 q.estrato AS qualis_estrato,
                 q.area_avaliacao AS qualis_area_avaliacao,
                 q.titulo AS qualis_titulo,
-                '2020-2024' AS qualis_quadrienio,
+                CASE
+                    WHEN p.ano IS NULL THEN 'Sem ano'
+                    ELSE (p.ano - mod(p.ano - 1, 4))::text
+                        || '-' || ((p.ano - mod(p.ano - 1, 4)) + 3)::text
+                END AS qualis_quadrienio,
                 1 AS fato_quantidade_producoes
             FROM producoes p
             JOIN pesquisadores pes ON p.pesquisador_id = pes.id
@@ -147,6 +161,7 @@ def exportar_producoes_csv(
             "titulo",
             "ano",
             "dim_ano",
+            "dim_quadrienio",
             "dim_quadrienio_ano",
             "idioma",
             "natureza",

@@ -17,8 +17,9 @@ def test_exportar_producoes_csv(client, issue30_data):
     ]
     assert fixture_rows
     assert fixture_rows[0]["qualis_estrato"] == "A1"
-    assert fixture_rows[0]["qualis_quadrienio"] == "2020-2024"
-    assert fixture_rows[0]["dim_quadrienio_ano"] == "2020-2024-2024"
+    assert fixture_rows[0]["qualis_quadrienio"] == "2021-2024"
+    assert fixture_rows[0]["dim_quadrienio"] == "2021-2024"
+    assert fixture_rows[0]["dim_quadrienio_ano"] == "2021-2024-2024"
     assert fixture_rows[0]["dim_pesquisador"]
     assert fixture_rows[0]["fato_quantidade_producoes"] == "1"
 

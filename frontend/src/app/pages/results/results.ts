@@ -50,21 +50,20 @@ export class Results {
     }
     const total = this.total();
     const query = this.lastQuery();
-    const label = total === 1
-      ? this.i18n.translate('results.resultadoEncontrado')
-      : this.i18n.translate('results.resultadosEncontrados');
+    const label =
+      total === 1
+        ? this.i18n.translate('results.resultadoEncontrado')
+        : this.i18n.translate('results.resultadosEncontrados');
     return query ? `${total} ${label} para "${query}"` : `${total} ${label}`;
   });
 
   constructor() {
-    this.route.queryParamMap
-      .pipe(takeUntilDestroyed())
-      .subscribe(params => {
-        this.currentPage.set(1);
-        this.lastFilters = this.buildFilters(params);
-        this.activeCategory.set(this.lastFilters.categoria ?? 'tudo');
-        this.searchService.search(this.lastFilters);
-      });
+    this.route.queryParamMap.pipe(takeUntilDestroyed()).subscribe((params) => {
+      this.currentPage.set(1);
+      this.lastFilters = this.buildFilters(params);
+      this.activeCategory.set(this.lastFilters.categoria ?? 'tudo');
+      this.searchService.search(this.lastFilters);
+    });
   }
 
   changeCategory(category: SearchCategory) {
@@ -101,16 +100,15 @@ export class Results {
 
     this.exportingCsv.set(true);
     this.exportError.set(null);
-    this.exportService.downloadProductionsCsv(
-      this.lastFilters,
-      'latteshub_producoes_resultados.csv',
-    ).subscribe({
-      next: () => this.exportingCsv.set(false),
-      error: () => {
-        this.exportingCsv.set(false);
-        this.exportError.set(this.i18n.translate('export.erroExportar'));
-      },
-    });
+    this.exportService
+      .downloadProductionsCsv(this.lastFilters, 'latteshub_producoes_resultados.csv')
+      .subscribe({
+        next: () => this.exportingCsv.set(false),
+        error: () => {
+          this.exportingCsv.set(false);
+          this.exportError.set(this.i18n.translate('export.erroExportar'));
+        },
+      });
   }
 
   private buildPageNumbers(current: number, total: number): (number | null)[] {
@@ -153,8 +151,8 @@ export class Results {
   }
 
   private toCategory(value: string | null): SearchCategory {
-    return this.categoryTabs.some(tab => tab.value === value)
-      ? value as SearchCategory
+    return this.categoryTabs.some((tab) => tab.value === value)
+      ? (value as SearchCategory)
       : 'tudo';
   }
 

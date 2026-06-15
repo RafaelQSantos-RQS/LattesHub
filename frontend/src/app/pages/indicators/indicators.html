@@ -2,7 +2,10 @@
 @if (sidebarOpen()) {
   <div
     class="fixed inset-0 bg-slate-900/40 z-20 lg:hidden"
-    (click)="sidebarOpen.set(false)">
+    (click)="sidebarOpen.set(false)"
+    (keydown.enter)="sidebarOpen.set(false)"
+    role="button"
+    tabindex="0">
   </div>
 }
 
@@ -35,14 +38,14 @@
         @if (expandedSections().periodo) {
           <div class="mt-4 grid grid-cols-2 gap-2">
             <div class="flex flex-col gap-1">
-              <label class="font-data-label text-data-label text-outline text-[10px]">{{ 'indicators.de' | translate }}</label>
-              <input type="number" [value]="anoInicio() ?? ''" [min]="minAno()" [max]="maxAno()" [placeholder]="'' + minAno()"
+              <label for="indicators-ano-de" class="font-data-label text-data-label text-outline text-[10px]">{{ 'indicators.de' | translate }}</label>
+              <input id="indicators-ano-de" type="number" [value]="anoInicio() ?? ''" [min]="minAno()" [max]="maxAno()" [placeholder]="'' + minAno()"
                      (change)="setAnoInicio($any($event.target).value)"
                      class="w-full border border-outline-variant rounded-sm text-body-sm font-data-label p-2 text-center focus:ring-primary">
             </div>
             <div class="flex flex-col gap-1">
-              <label class="font-data-label text-data-label text-outline text-[10px]">{{ 'indicators.ate' | translate }}</label>
-              <input type="number" [value]="anoFim() ?? ''" [min]="minAno()" [max]="maxAno()" [placeholder]="'' + maxAno()"
+              <label for="indicators-ano-ate" class="font-data-label text-data-label text-outline text-[10px]">{{ 'indicators.ate' | translate }}</label>
+              <input id="indicators-ano-ate" type="number" [value]="anoFim() ?? ''" [min]="minAno()" [max]="maxAno()" [placeholder]="'' + maxAno()"
                      (change)="setAnoFim($any($event.target).value)"
                      class="w-full border border-outline-variant rounded-sm text-body-sm font-data-label p-2 text-center focus:ring-primary">
             </div>
@@ -334,6 +337,8 @@
                   <div
                     class="flex-1 min-w-[36px] flex flex-col items-center h-full group/bar cursor-pointer"
                     (click)="toggleAno(ponto.ano)"
+                    (keydown.enter)="toggleAno(ponto.ano)"
+                    tabindex="0"
                     [title]="ponto.ano + ': ' + ponto.total + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
                     <span class="h-5 font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
                       {{ formatCount(ponto.total) }}
@@ -379,6 +384,8 @@
                 <div
                   class="flex items-center gap-4 cursor-pointer group/row"
                   (click)="toggleArea(area.area)"
+                  (keydown.enter)="toggleArea(area.area)"
+                  tabindex="0"
                   [title]="area.area + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
                   <span
                     class="font-body-sm text-body-sm w-36 truncate transition-colors"
@@ -423,6 +430,8 @@
                 <div
                   class="flex items-center gap-4 cursor-pointer"
                   (click)="toggleTipo(item.tipo)"
+                  (keydown.enter)="toggleTipo(item.tipo)"
+                  tabindex="0"
                   [title]="item.tipo + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
                   <span
                     class="font-body-sm text-body-sm w-40 truncate shrink-0 transition-colors"
@@ -463,6 +472,8 @@
                 <div
                   class="flex-1 flex flex-col items-center justify-end gap-1 h-full group/bar cursor-pointer"
                   (click)="toggleQualis(item.estrato)"
+                  (keydown.enter)="toggleQualis(item.estrato)"
+                  tabindex="0"
                   [title]="item.estrato + ': ' + item.total + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
                   <span class="font-data-label text-data-label text-on-surface-variant opacity-0 group-hover/bar:opacity-100 transition-opacity text-[9px] whitespace-nowrap">
                     {{ formatCount(item.total) }}
@@ -505,6 +516,8 @@
               <div
                 class="flex items-center gap-4 cursor-pointer"
                 (click)="toggleInstituicao(inst.instituicao)"
+                (keydown.enter)="toggleInstituicao(inst.instituicao)"
+                tabindex="0"
                 [title]="inst.instituicao + ' – ' + ('indicators.cliqueParaFiltrar' | translate)">
                 <span
                   class="font-body-sm text-body-sm w-32 md:w-64 truncate shrink-0 transition-colors"

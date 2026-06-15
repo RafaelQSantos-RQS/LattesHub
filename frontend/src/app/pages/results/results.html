@@ -2,7 +2,10 @@
 @if (sidebarOpen()) {
   <div
     class="fixed inset-0 bg-slate-900/40 z-20 lg:hidden"
-    (click)="sidebarOpen.set(false)">
+    (click)="sidebarOpen.set(false)"
+    (keydown.enter)="sidebarOpen.set(false)"
+    role="button"
+    tabindex="0">
   </div>
 }
 

@@ -27,7 +27,7 @@ export class Header {
   }
 
   toggleLangMenu() {
-    this.langMenuOpen.update(v => !v);
+    this.langMenuOpen.update((v) => !v);
   }
 
   closeLangMenu() {

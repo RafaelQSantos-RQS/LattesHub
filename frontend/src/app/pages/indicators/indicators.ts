@@ -1,4 +1,11 @@
-import { Component, OnInit, OnDestroy, inject, signal, computed, effect } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  OnDestroy,
+  inject,
+  signal,
+  computed,
+} from '@angular/core';
 import { Subject, switchMap, debounceTime, takeUntil } from 'rxjs';
 
 import { TranslatePipe } from '../../i18n/translate.pipe';
@@ -61,7 +68,7 @@ export class Indicators implements OnInit, OnDestroy {
   });
 
   toggleSection(section: 'periodo' | 'grandeArea' | 'tipoProducao' | 'qualis' | 'instituicao') {
-    this.expandedSections.update(s => ({ ...s, [section]: !s[section] }));
+    this.expandedSections.update((s) => ({ ...s, [section]: !s[section] }));
   }
 
   // ── Derived: active filter chips ────────────────────────────────────────
@@ -70,17 +77,36 @@ export class Indicators implements OnInit, OnDestroy {
     if (this.anoInicio() != null || this.anoFim() != null) {
       const from = this.anoInicio() ?? '—';
       const to = this.anoFim() ?? '—';
-      chips.push({ key: 'anoInicio', label: `${this.i18n.translate('indicators.ano')} ${from}–${to}` });
+      chips.push({
+        key: 'anoInicio',
+        label: `${this.i18n.translate('indicators.ano')} ${from}–${to}`,
+      });
     }
     for (const area of this.grandeArea()) {
-      chips.push({ key: 'grandeArea', label: `${this.i18n.translate('indicators.area')} ${area}`, value: area });
+      chips.push({
+        key: 'grandeArea',
+        label: `${this.i18n.translate('indicators.area')} ${area}`,
+        value: area,
+      });
     }
     for (const inst of this.instituicao()) {
-      chips.push({ key: 'instituicao', label: `${this.i18n.translate('indicators.inst')} ${inst}`, value: inst });
+      chips.push({
+        key: 'instituicao',
+        label: `${this.i18n.translate('indicators.inst')} ${inst}`,
+        value: inst,
+      });
     }
-    if (this.tipoProducao()) chips.push({ key: 'tipoProducao', label: `${this.i18n.translate('indicators.tipo')} ${this.tipoProducao()}` });
+    if (this.tipoProducao())
+      chips.push({
+        key: 'tipoProducao',
+        label: `${this.i18n.translate('indicators.tipo')} ${this.tipoProducao()}`,
+      });
     for (const estrato of this.qualis()) {
-      chips.push({ key: 'qualis', label: `${this.i18n.translate('indicators.qualisLabel')} ${estrato}`, value: estrato });
+      chips.push({
+        key: 'qualis',
+        label: `${this.i18n.translate('indicators.qualisLabel')} ${estrato}`,
+        value: estrato,
+      });
     }
     return chips;
   });
@@ -157,16 +183,19 @@ export class Indicators implements OnInit, OnDestroy {
   private executeLoad(filtros: IndicadoresFiltros) {
     this.loading.set(true);
     this.loadError.set(false);
-    this.indicatorsService.getResumo(filtros).pipe(takeUntil(this.destroy$)).subscribe({
-      next: (data) => {
-        this.resumo.set(data);
-        this.loading.set(false);
-      },
-      error: () => {
-        this.loadError.set(true);
-        this.loading.set(false);
-      },
-    });
+    this.indicatorsService
+      .getResumo(filtros)
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (data) => {
+          this.resumo.set(data);
+          this.loading.set(false);
+        },
+        error: () => {
+          this.loadError.set(true);
+          this.loading.set(false);
+        },
+      });
   }
 
   setAnoInicio(value: string) {
@@ -383,8 +412,14 @@ export class Indicators implements OnInit, OnDestroy {
 
   qualisColor(estrato: string): string {
     const map: Record<string, string> = {
-      A1: '#065f46', A2: '#059669', A3: '#34d399', A4: '#6ee7b7',
-      B1: '#1e3a8a', B2: '#2563eb', B3: '#60a5fa', B4: '#93c5fd',
+      A1: '#065f46',
+      A2: '#059669',
+      A3: '#34d399',
+      A4: '#6ee7b7',
+      B1: '#1e3a8a',
+      B2: '#2563eb',
+      B3: '#60a5fa',
+      B4: '#93c5fd',
       C: '#d97706',
     };
     return map[estrato] ?? '#cbd5e1';

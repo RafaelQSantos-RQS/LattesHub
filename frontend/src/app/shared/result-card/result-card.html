@@ -3,7 +3,7 @@
     <div class="absolute top-4 right-4">
       <span class="bg-secondary-fixed text-on-secondary-fixed-variant px-3 py-1 rounded-full text-[11px] font-label-bold flex items-center gap-1">
         <span class="material-symbols-outlined text-sm">auto_awesome</span>
-        Alta relevância de contexto
+        {{ 'resultCard.altaRelevancia' | translate }}
       </span>
     </div>
   }
@@ -44,7 +44,7 @@
     
     @if (result().venue) {
       <p class="text-body-sm text-on-surface-variant">
-        <span class="font-semibold">Fonte:</span> {{ result().venue }}
+        <span class="font-semibold">{{ 'resultCard.fonte' | translate }}:</span> {{ result().venue }}
       </p>
     }
     @if (result().abstract) {
@@ -56,28 +56,28 @@
     <div class="flex gap-4">
       <button type="button" class="text-secondary font-label-bold text-label-bold flex items-center gap-1 hover:opacity-80" (click)="cite()">
         <span class="material-symbols-outlined text-sm">format_quote</span>
-        {{ copiedField() === 'cite' ? 'Copiado!' : 'Cite' }}
+        {{ copiedField() === 'cite' ? ('resultCard.copiado' | translate) : ('resultCard.cite' | translate) }}
       </button>
       <button type="button" class="text-secondary font-label-bold text-label-bold flex items-center gap-1 hover:opacity-80" (click)="share()">
         <span class="material-symbols-outlined text-sm">share</span>
-        {{ copiedField() === 'share' ? 'Copiado!' : 'Share' }}
+        {{ copiedField() === 'share' ? ('resultCard.copiado' | translate) : ('resultCard.share' | translate) }}
       </button>
     </div>
     <div class="flex items-center gap-3">
       @if (result().citations !== undefined) {
-        <span class="font-data-label text-data-label text-on-surface-variant">Citações: <span class="font-bold">{{ result().citations }}</span></span>
+        <span class="font-data-label text-data-label text-on-surface-variant">{{ 'resultCard.citacoes' | translate }}: <span class="font-bold">{{ result().citations }}</span></span>
       }
       @if (result().score !== undefined) {
-        <span class="font-data-label text-data-label text-on-surface-variant">Similaridade: <span class="font-bold">{{ result().score | number:'1.0-1' }}%</span></span>
+        <span class="font-data-label text-data-label text-on-surface-variant">{{ 'resultCard.similaridade' | translate }}: <span class="font-bold">{{ result().score | number:'1.0-1' }}%</span></span>
       }
       @if (result().relevance) {
-        <span class="font-data-label text-data-label text-on-surface-variant">Relevância:
-          <span class="font-bold" [class.text-success-green]="result().relevance === 'Alta'" [class.text-on-tertiary-container]="result().relevance === 'Media'">{{ result().relevance }}</span>
+        <span class="font-data-label text-data-label text-on-surface-variant">{{ 'resultCard.relevancia' | translate }}:
+          <span class="font-bold" [class.text-success-green]="result().relevance === 'Alta'" [class.text-on-tertiary-container]="result().relevance === 'Media'">{{ result().relevance === 'Alta' ? ('relevance.alta' | translate) : result().relevance === 'Media' ? ('relevance.media' | translate) : ('relevance.baixa' | translate) }}</span>
         </span>
       }
       @if (result().qualisEstrato) {
         <span [class]="'px-2.5 py-0.5 rounded font-label-bold text-label-bold ' + qualisBadgeClass()">
-          Qualis {{ result().qualisEstrato }}
+          {{ 'resultCard.Qualis' | translate }} {{ result().qualisEstrato }}
         </span>
       }
     </div>

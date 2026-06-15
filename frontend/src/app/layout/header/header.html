@@ -2,22 +2,54 @@
   <div class="flex justify-between items-center w-full px-4 md:px-6 lg:px-margin-desktop max-w-container-max mx-auto h-20">
     <div class="flex flex-col justify-center">
       <a routerLink="/" class="font-display-lg text-[32px] text-primary tracking-tight hover:opacity-80 transition-opacity leading-none">LattesHub</a>
-      <span class="font-label-bold text-label-bold text-on-surface-variant opacity-70 hidden lg:inline mt-1">Portal de Dados Abertos</span>
+      <span class="font-label-bold text-label-bold text-on-surface-variant opacity-70 hidden lg:inline mt-1">{{ 'header.subtitle' | translate }}</span>
     </div>
     <nav class="hidden lg:flex items-center gap-8">
-      <a routerLink="/explorar" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: false}" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Explorar</a>
-      <a routerLink="/indicadores" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Indicadores</a>
-      <a routerLink="/agente" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Agente</a>
-      <a routerLink="/sobre" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">Sobre o Projeto</a>
+      <a routerLink="/explorar" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: false}" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">{{ 'header.explorar' | translate }}</a>
+      <a routerLink="/indicadores" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">{{ 'header.indicadores' | translate }}</a>
+      <a routerLink="/agente" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">{{ 'header.agente' | translate }}</a>
+      <a routerLink="/sobre" routerLinkActive="text-primary" class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary transition-colors duration-200">{{ 'header.sobre' | translate }}</a>
     </nav>
-    <div class="flex items-center gap-4">
+    <div class="flex items-center gap-2">
+      <!-- Language switcher dropdown -->
+      <div class="relative">
+        <button
+          type="button"
+          (click)="toggleLangMenu()"
+          (blur)="closeLangMenu()"
+          [attr.aria-label]="'language.switchTo' | translate"
+          class="flex items-center gap-1 px-2 py-1 rounded-md text-xs font-label-bold text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors border border-transparent hover:border-outline-variant">
+          @for (lang of langs; track lang.code) {
+            @if (currentLang() === lang.code) {
+              <span class="text-base leading-none">{{ lang.flag }}</span>
+              <span>{{ lang.key | translate }}</span>
+            }
+          }
+          <span class="material-symbols-outlined text-[14px] ml-0.5">arrow_drop_down</span>
+        </button>
+        @if (langMenuOpen()) {
+          <div class="absolute right-0 top-full mt-1 bg-white border border-outline-variant rounded-lg shadow-lg z-50 py-1 min-w-[120px]">
+            @for (lang of langs; track lang.code) {
+              <button
+                type="button"
+                (mousedown)="setLanguage(lang.code)"
+                class="flex items-center gap-2 w-full px-3 py-2 text-xs font-label-bold text-on-surface-variant hover:text-primary hover:bg-surface-container transition-colors text-left"
+                [class.font-bold]="currentLang() === lang.code"
+                [class.text-primary]="currentLang() === lang.code">
+                <span class="text-base leading-none">{{ lang.flag }}</span>
+                <span>{{ lang.key | translate }}</span>
+              </button>
+            }
+          </div>
+        }
+      </div>
       <div class="bg-surface-container-high px-4 py-2 rounded-lg border border-outline-variant hidden xl:block">
-        <span class="font-label-bold text-label-bold text-on-surface-variant">Dados Atualizados em: 20 de Maio de 2024</span>
+        <span class="font-label-bold text-label-bold text-on-surface-variant">{{ 'header.dadosAtualizados' | translate }}</span>
       </div>
       <button
         class="lg:hidden p-2 text-on-surface hover:text-primary transition-colors"
         (click)="mobileMenuOpen.set(!mobileMenuOpen())"
-        aria-label="Menu de navegação">
+        [attr.aria-label]="'header.menuAria' | translate">
         <span class="material-symbols-outlined text-[28px]">{{ mobileMenuOpen() ? 'close' : 'menu' }}</span>
       </button>
     </div>
@@ -27,22 +59,22 @@
       <a routerLink="/explorar" routerLinkActive="text-primary" [routerLinkActiveOptions]="{exact: false}"
          (click)="mobileMenuOpen.set(false)"
          class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
-        Explorar
+        {{ 'header.explorar' | translate }}
       </a>
       <a routerLink="/indicadores" routerLinkActive="text-primary"
          (click)="mobileMenuOpen.set(false)"
          class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
-        Indicadores
+        {{ 'header.indicadores' | translate }}
       </a>
       <a routerLink="/agente" routerLinkActive="text-primary"
          (click)="mobileMenuOpen.set(false)"
          class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
-        Agente
+        {{ 'header.agente' | translate }}
       </a>
       <a routerLink="/sobre" routerLinkActive="text-primary"
          (click)="mobileMenuOpen.set(false)"
          class="text-on-surface-variant font-label-bold text-label-bold hover:text-primary hover:bg-surface-container px-3 py-2.5 rounded-sm transition-colors">
-        Sobre o Projeto
+        {{ 'header.sobre' | translate }}
       </a>
     </nav>
   }

@@ -2,6 +2,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { map } from 'rxjs';
 
+import { TranslationService } from '../i18n/translation.service';
 import { API_BASE_URL, SearchFilters, getProductionTypeFilter } from './search';
 
 const MIN_TEXTUAL_EXPORT_LENGTH = 2;
@@ -12,6 +13,7 @@ const MIN_TEXTUAL_EXPORT_LENGTH = 2;
 export class ExportService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly i18n = inject(TranslationService);
 
   downloadProductionsCsv(filters?: SearchFilters, fallbackFilename = 'latteshub_producoes.csv') {
     return this.http.get(`${this.apiBaseUrl}/exportacoes/producoes.csv`, {

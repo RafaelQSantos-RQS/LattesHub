@@ -5,10 +5,12 @@ import { Sidebar } from '../../layout/sidebar/sidebar';
 import { ResultCard } from '../../shared/result-card/result-card';
 import { ExportService } from '../../services/export';
 import { SearchCategory, SearchFilters, SearchService } from '../../services/search';
+import { TranslatePipe } from '../../i18n/translate.pipe';
+import { TranslationService } from '../../i18n/translation.service';
 
 @Component({
   selector: 'app-results',
-  imports: [Sidebar, ResultCard],
+  imports: [Sidebar, ResultCard, TranslatePipe],
   templateUrl: './results.html',
   styleUrl: './results.scss',
 })
@@ -17,6 +19,7 @@ export class Results {
   private exportService = inject(ExportService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
+  private readonly i18n = inject(TranslationService);
 
   results = this.searchService.results;
   loading = this.searchService.loading;
@@ -32,24 +35,24 @@ export class Results {
   exportError = signal<string | null>(null);
   totalPages = computed(() => Math.max(1, Math.ceil(this.total() / this.pageSize)));
   pageNumbers = computed(() => this.buildPageNumbers(this.currentPage(), this.totalPages()));
-  readonly categoryTabs: { label: string; value: SearchCategory }[] = [
-    { label: 'Tudo', value: 'tudo' },
-    { label: 'Pesquisadores', value: 'pesquisadores' },
-    { label: 'Artigos', value: 'artigos' },
-    { label: 'Eventos', value: 'eventos' },
+  readonly categoryTabs: { labelKey: string; value: SearchCategory }[] = [
+    { labelKey: 'results.tudo', value: 'tudo' },
+    { labelKey: 'results.pesquisadores', value: 'pesquisadores' },
+    { labelKey: 'results.artigos', value: 'artigos' },
+    { labelKey: 'results.eventos', value: 'eventos' },
   ];
 
   private lastFilters: SearchFilters = { pergunta: '', areas: [] };
 
   resultSummary = computed(() => {
     if (this.loading()) {
-      return 'Carregando resultados';
+      return this.i18n.translate('results.resumoCarregando');
     }
-
     const total = this.total();
     const query = this.lastQuery();
-    const label = total === 1 ? 'resultado encontrado' : 'resultados encontrados';
-
+    const label = total === 1
+      ? this.i18n.translate('results.resultadoEncontrado')
+      : this.i18n.translate('results.resultadosEncontrados');
     return query ? `${total} ${label} para "${query}"` : `${total} ${label}`;
   });
 
@@ -87,6 +90,10 @@ export class Results {
     this.searchService.loadPage(page, this.lastFilters);
   }
 
+  retry() {
+    this.searchService.search(this.lastFilters);
+  }
+
   exportCsv() {
     if (this.exportingCsv()) {
       return;
@@ -101,7 +108,7 @@ export class Results {
       next: () => this.exportingCsv.set(false),
       error: () => {
         this.exportingCsv.set(false);
-        this.exportError.set('Nao foi possivel exportar os dados.');
+        this.exportError.set(this.i18n.translate('export.erroExportar'));
       },
     });
   }

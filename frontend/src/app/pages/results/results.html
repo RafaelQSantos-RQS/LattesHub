@@ -28,7 +28,7 @@
           (click)="sidebarOpen.set(true)"
           class="lg:hidden mb-4 flex items-center gap-2 border border-slate-200 rounded-sm px-3 py-2 font-label-bold text-label-bold text-slate-800 hover:bg-slate-50">
           <span class="material-symbols-outlined text-sm">tune</span>
-          Filtros
+          {{ 'results.filtros' | translate }}
         </button>
         <h1 class="font-headline-md text-headline-md text-slate-800">{{ resultSummary() }}</h1>
         <div class="flex gap-6 mt-4 border-b border-slate-200 overflow-x-auto pb-0">
@@ -43,7 +43,7 @@
               [class.text-on-surface-variant]="activeCategory() !== tab.value"
               [class.hover:text-primary]="activeCategory() !== tab.value"
               (click)="changeCategory(tab.value)">
-              {{ tab.label }}
+              {{ tab.labelKey | translate }}
             </button>
           }
         </div>
@@ -55,11 +55,11 @@
           [disabled]="exportingCsv()"
           class="w-full md:w-auto bg-white border border-slate-200 text-slate-800 px-4 md:px-6 py-2 rounded-sm flex items-center gap-2 hover:bg-slate-50 hover:shadow-sm transition-all group disabled:opacity-60 disabled:cursor-wait">
           <span class="material-symbols-outlined text-on-secondary-container">download</span>
-          <span class="font-label-bold text-label-bold">Exportar Dados Analíticos (CSV)</span>
+          <span class="font-label-bold text-label-bold">{{ 'results.exportarCsv' | translate }}</span>
         </button>
-        <p class="font-data-label text-[10px] text-outline text-left md:text-right">Formato tabular flat otimizado para Power BI / Python</p>
+        <p class="font-data-label text-[10px] text-outline text-left md:text-right">{{ 'results.exportarDesc' | translate }}</p>
         @if (exportingCsv()) {
-          <p class="font-body-sm text-body-sm text-on-surface-variant text-right">Gerando arquivo...</p>
+          <p class="font-body-sm text-body-sm text-on-surface-variant text-right">{{ 'results.gerandoArquivo' | translate }}</p>
         }
         @if (exportError()) {
           <p class="font-body-sm text-body-sm text-red-700 text-right">{{ exportError() }}</p>
@@ -71,15 +71,24 @@
     <div class="flex flex-col gap-2">
       @if (loading()) {
         <div class="bg-white border border-slate-200 rounded-sm p-8 text-on-surface-variant font-body-sm">
-          Carregando resultados...
+          {{ 'results.carregando' | translate }}
         </div>
       } @else if (error()) {
-        <div class="bg-white border border-red-200 rounded-sm p-8 text-red-700 font-body-sm">
-          {{ error() }}
+        <div class="flex flex-col items-center justify-center py-16 px-4 text-center">
+          <img src="/500.svg" alt="" class="w-72 max-w-full mb-8 opacity-80" />
+          <p class="font-body-md text-body-md text-on-surface-variant max-w-md mb-6">
+            {{ error() }}
+          </p>
+          <button
+            type="button"
+            (click)="retry()"
+            class="inline-flex items-center gap-2 bg-secondary text-white px-5 py-2.5 rounded-sm font-label-bold text-label-bold hover:bg-secondary/90 transition-colors">
+            {{ 'common.tentarNovamente' | translate }}
+          </button>
         </div>
       } @else if (results().length === 0) {
         <div class="bg-white border border-slate-200 rounded-sm p-8 text-on-surface-variant font-body-sm">
-          Nenhum resultado encontrado.
+          {{ 'results.semResultados' | translate }}
         </div>
       } @else {
         @for (result of results(); track result.id) {

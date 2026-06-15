@@ -3,9 +3,9 @@
   <div class="flex items-center gap-2 md:gap-4 px-2 md:px-4">
     <span class="material-symbols-outlined text-slate-800 text-[22px] md:text-[28px] shrink-0">search</span>
     <input class="w-full min-w-0 py-2.5 md:py-4 bg-transparent border-none focus:ring-0 text-[14px] md:text-body-lg font-body-md md:font-body-lg text-on-surface placeholder:text-outline-variant outline-none"
-           placeholder="Pesquisadores, produções, áreas..."
+           [placeholder]="'searchBox.placeholder' | translate"
            type="text"
-           aria-label="Busca semântica"
+           [attr.aria-label]="'searchBox.ariaLabel' | translate"
            [value]="query()"
            (input)="onQueryInput($event)"
            (focus)="isFocused.set(true)"
@@ -15,7 +15,7 @@
             [class.opacity-50]="query().trim().length < minSearchLength"
             [disabled]="query().trim().length < minSearchLength"
             (click)="onSearch()">
-      Buscar
+      {{ 'searchBox.buscar' | translate }}
     </button>
   </div>
 </div>

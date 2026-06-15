@@ -96,6 +96,6 @@ describe('Results', () => {
     component.exportCsv();
 
     expect(component.exportingCsv()).toBe(false);
-    expect(component.exportError()).toBe('Nao foi possivel exportar os dados.');
+    expect(component.exportError()).toBe('Could not export data.');
   });
 });

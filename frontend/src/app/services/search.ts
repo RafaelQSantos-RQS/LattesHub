@@ -1,6 +1,7 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Injectable, InjectionToken, inject, signal } from '@angular/core';
 import { Subscription, map } from 'rxjs';
+import { TranslationService } from '../i18n/translation.service';
 import { SearchResult } from '../shared/result-card/result-card';
 
 export type SearchCategory = 'tudo' | 'pesquisadores' | 'artigos' | 'eventos';
@@ -198,6 +199,7 @@ export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL', {
 export class SearchService {
   private readonly http = inject(HttpClient);
   private readonly apiBaseUrl = inject(API_BASE_URL);
+  private readonly i18n = inject(TranslationService);
 
   private readonly resultsSignal = signal<SearchResult[]>([]);
   private readonly loadingSignal = signal(false);
@@ -397,7 +399,7 @@ export class SearchService {
 
         this.resultsSignal.set([]);
         this.totalSignal.set(0);
-        this.errorSignal.set('Nao foi possivel carregar as producoes.');
+        this.errorSignal.set(this.i18n.translate('search.erroProducoes'));
         this.loadingSignal.set(false);
       },
     });
@@ -435,7 +437,7 @@ export class SearchService {
 
         this.resultsSignal.set([]);
         this.totalSignal.set(0);
-        this.errorSignal.set('Nao foi possivel carregar os pesquisadores.');
+        this.errorSignal.set(this.i18n.translate('search.erroPesquisadores'));
         this.loadingSignal.set(false);
       },
     });
@@ -503,7 +505,7 @@ export class SearchService {
       id: String(result.id),
       resourceType: 'researcher',
       title: result.nome,
-      author: 'Pesquisador',
+      author: this.i18n.translate('search.pesquisador'),
       researcherId: result.id,
       institution: result.instituicao_nome ?? undefined,
       abstract: result.resumo ?? undefined,

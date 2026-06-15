@@ -280,6 +280,6 @@ describe('Indicators', () => {
     component.exportCsv();
 
     expect(component.exportingCsv()).toBe(false);
-    expect(component.exportError()).toBe('Nao foi possivel exportar o CSV.');
+    expect(component.exportError()).toBe('Could not export CSV.');
   });
 });
